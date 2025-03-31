@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { HeroCardProps } from "./HeroCard";
 import GalleryGrid from "./GalleryGrid";
 import EmptyGalleryState from "./EmptyGalleryState";
@@ -25,13 +25,19 @@ const HeroGallery: React.FC<HeroGalleryProps> = ({
     hasMore
   } = useHeroGallery(initialHeroes, activeFilters, sortOption);
   
+  const handleClearFilters = () => {
+    // This would need to be lifted up to the parent component
+    // but for now we're maintaining the component signature
+    console.log("Clear filters requested");
+  };
+  
   return (
     <>
       <div className="w-full px-0 lg:px-0 max-w-none">
         {visibleHeroes.length > 0 && <GalleryGrid heroes={visibleHeroes} />}
         
         {filteredHeroes.length === 0 && (
-          <EmptyGalleryState onClearFilters={() => {}} />
+          <EmptyGalleryState onClearFilters={handleClearFilters} />
         )}
         
         {hasMore && <LoadMoreIndicator innerRef={loadMoreRef} />}

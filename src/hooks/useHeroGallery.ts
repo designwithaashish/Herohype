@@ -9,12 +9,23 @@ export const useHeroGallery = (
   activeFilters: string[],
   sortOption: string
 ) => {
-  const [heroes] = useState<HeroCardProps[]>(initialHeroes);
+  const [heroes, setHeroes] = useState<HeroCardProps[]>(initialHeroes);
   const [visibleHeroes, setVisibleHeroes] = useState<HeroCardProps[]>([]);
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 0.1,
     triggerOnce: false,
   });
+  
+  // Load heroes from localStorage when it changes
+  useEffect(() => {
+    const approvedSubmissions = localStorage.getItem("approvedSubmissions");
+    if (approvedSubmissions) {
+      const parsedSubmissions = JSON.parse(approvedSubmissions);
+      if (Array.isArray(parsedSubmissions) && parsedSubmissions.length > 0) {
+        setHeroes([...parsedSubmissions, ...initialHeroes]);
+      }
+    }
+  }, [initialHeroes]);
   
   // Apply filters to heroes
   const filteredHeroes = filterHeroes(heroes, activeFilters);
