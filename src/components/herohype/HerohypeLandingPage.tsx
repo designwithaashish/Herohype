@@ -11,7 +11,7 @@ const HerohypeLandingPage: React.FC = () => {
       <Header />
       <HeroSection />
       <Filters />
-      <div className="w-full px-4 py-8">
+      <div className="w-full">
         <HeroGallery />
       </div>
     </div>

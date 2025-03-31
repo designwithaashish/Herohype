@@ -1,7 +1,8 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HeroCard, { HeroCardProps } from "./HeroCard";
 import { Button } from "@/components/ui/button";
+import { useInView } from "react-intersection-observer";
 
 // Mock data with 40 hero section examples and different image heights
 const mockHeroes: HeroCardProps[] = [
@@ -254,6 +255,11 @@ interface HeroGalleryProps {
 const HeroGallery: React.FC<HeroGalleryProps> = ({ initialHeroes = mockHeroes }) => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [heroes] = useState<HeroCardProps[]>(initialHeroes);
+  const [visibleHeroes, setVisibleHeroes] = useState<HeroCardProps[]>([]);
+  const { ref: loadMoreRef, inView } = useInView({
+    threshold: 0.1,
+    triggerOnce: false,
+  });
   
   const filteredHeroes = activeFilters.length > 0
     ? heroes.filter(hero => 
@@ -261,11 +267,33 @@ const HeroGallery: React.FC<HeroGalleryProps> = ({ initialHeroes = mockHeroes })
       )
     : heroes;
   
+  // Initial load of items
+  useEffect(() => {
+    const initialItems = filteredHeroes.slice(0, 12);
+    setVisibleHeroes(initialItems);
+  }, [filteredHeroes]);
+  
+  // Load more items when scrolling
+  useEffect(() => {
+    if (inView && visibleHeroes.length < filteredHeroes.length) {
+      const nextItems = filteredHeroes.slice(
+        visibleHeroes.length, 
+        visibleHeroes.length + 8
+      );
+      
+      setTimeout(() => {
+        setVisibleHeroes(prev => [...prev, ...nextItems]);
+      }, 300);
+    }
+  }, [inView, filteredHeroes, visibleHeroes]);
+  
   return (
-    <div className="w-full px-4 lg:px-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-auto">
-        {filteredHeroes.map(hero => (
-          <HeroCard key={hero.id} {...hero} />
+    <div className="w-full px-0 lg:px-0 max-w-none">
+      <div className="masonry-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6 px-4 lg:px-8">
+        {visibleHeroes.map(hero => (
+          <div key={hero.id} className="masonry-item break-inside-avoid mb-6 transform transition-all duration-500 animate-fade-in">
+            <HeroCard {...hero} />
+          </div>
         ))}
       </div>
       
@@ -279,6 +307,15 @@ const HeroGallery: React.FC<HeroGalleryProps> = ({ initialHeroes = mockHeroes })
           >
             Clear all filters
           </Button>
+        </div>
+      )}
+      
+      {visibleHeroes.length < filteredHeroes.length && (
+        <div 
+          ref={loadMoreRef} 
+          className="w-full h-20 flex items-center justify-center"
+        >
+          <div className="w-10 h-10 rounded-full border-t-2 border-b-2 border-gray-500 animate-spin"></div>
         </div>
       )}
     </div>

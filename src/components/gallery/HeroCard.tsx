@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Maximize } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 export interface HeroCardProps {
   id: string;
@@ -16,6 +17,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
   categories,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <Dialog>
@@ -26,11 +28,18 @@ const HeroCard: React.FC<HeroCardProps> = ({
       >
         <DialogTrigger className="w-full" asChild>
           <button className="w-full text-left">
-            <div className="relative aspect-auto w-full overflow-hidden rounded-[28px]">
+            <div className="relative w-full overflow-hidden rounded-[28px]">
+              {!isLoaded && (
+                <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+              )}
               <img
                 src={imageUrl}
                 alt={`Hero section by @${twitterUsername}`}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
+                  isLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading="lazy"
+                onLoad={() => setIsLoaded(true)}
               />
               
               <div className={`absolute inset-0 bg-black bg-opacity-0 transition-opacity duration-300 ${isHovered ? 'bg-opacity-30' : ''}`}></div>
