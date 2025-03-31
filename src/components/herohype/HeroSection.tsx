@@ -25,7 +25,7 @@ const HeroSection: React.FC = () => {
           className="aspect-[1] object-contain w-2.5 self-stretch shrink-0 my-auto"
           alt="Left arrow"
         />
-        <div className="self-stretch my-auto">100+ Hero Sections Curated</div>
+        <div className="self-stretch my-auto font-satoshi">100+ Hero Sections Curated</div>
         <img
           src="https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/10791a020ddba0a8fbf526c0f7a49b4a7fcc2b6a?placeholderIfAbsent=true"
           className="aspect-[1] object-contain w-2.5 self-stretch shrink-0 my-auto"
@@ -34,7 +34,7 @@ const HeroSection: React.FC = () => {
       </div>
 
       <div className="flex w-[761px] max-w-full flex-col items-center mt-[30px]">
-        <h1 className="w-[645px] max-w-full text-black leading-[1.2] font-['Instrument_Sans']">
+        <h1 className="w-[645px] max-w-full text-black leading-[1.2] font-['Instrument_Sans'] italic">
           <div className="flex w-full items-center gap-5 text-[74px] justify-center flex-wrap max-md:max-w-full max-md:text-[40px]">
             <div className="self-stretch my-auto max-md:text-[40px]">
               Discover
@@ -44,21 +44,15 @@ const HeroSection: React.FC = () => {
               className="aspect-[1.4] object-contain w-28 self-stretch shrink-0 my-auto rounded-[20px]"
               alt="Decorative element"
             />
-            <div className="self-stretch my-auto max-md:text-[40px]">
-              The Perfect
-            </div>
           </div>
           <div className="flex w-full items-center gap-5 justify-center flex-wrap mt-2.5 max-md:max-w-full">
             <div className="text-[74px] self-stretch my-auto max-md:text-[40px]">
-              Trendy
-            </div>
-            <div className="self-stretch bg-[rgba(247,247,247,1)] min-w-60 gap-2.5 text-[70px] my-auto px-5 border-black border-dashed border-2 max-md:text-[40px]">
-              Hero Section
+              The Perfect Hero Section
             </div>
           </div>
         </h1>
 
-        <p className="w-full text-xl text-[rgba(61,61,61,1)] leading-6 mt-5 px-[11px] rounded-[0px_0px_0px_0px] max-md:max-w-full font-['Satoshi']">
+        <p className="w-full text-xl text-[rgba(61,61,61,1)] leading-6 mt-5 px-[11px] rounded-[0px_0px_0px_0px] max-md:max-w-full font-satoshi">
           Explore a stunning collection of curated hero designs.
           <br />
           Filter by style, vibe, or trend. From bold gradients to sleek
@@ -69,22 +63,20 @@ const HeroSection: React.FC = () => {
       <div className="self-stretch w-full leading-[1.2] mt-[30px] px-40 max-md:max-w-full max-md:px-5">
         <form
           onSubmit={handleSearch}
-          className="bg-[rgba(239,239,239,1)] flex w-full items-center gap-[40px_100px] justify-between flex-wrap pl-10 pr-3 py-2 rounded-[60px] max-md:max-w-full max-md:pl-5"
+          className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-10 py-2 rounded-[60px] max-md:pl-5"
         >
           <input
             type="text"
             placeholder="hero section with purple gradient..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="bg-transparent text-[rgba(93,93,93,1)] text-xl font-medium self-stretch my-auto outline-none w-full"
+            className="bg-transparent text-[rgba(93,93,93,1)] text-xl font-medium outline-none w-full font-satoshi"
           />
           <button
             type="submit"
-            className="self-stretch flex flex-col text-[22px] text-white font-normal whitespace-nowrap justify-center my-auto"
+            className="flex items-center justify-center bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-10 py-3 rounded-[38px] max-md:px-5 hover:bg-[rgba(40,40,40,1)] transition-colors font-satoshi text-[22px]"
           >
-            <div className="self-stretch bg-[rgba(27,27,27,1)] shadow-[6px_6px_8px_rgba(0,0,0,0.2)] gap-2.5 px-10 py-3 rounded-[38px] max-md:px-5 hover:bg-[rgba(40,40,40,1)] transition-colors">
-              Search
-            </div>
+            Search
           </button>
         </form>
       </div>

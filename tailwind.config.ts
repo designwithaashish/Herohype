@@ -21,6 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				instrument: ["'Instrument Sans'", "sans-serif"],
+				'instrument-italic': ["'Instrument Sans'", "sans-serif"],
 				satoshi: ["'Satoshi'", "sans-serif"],
 			},
 			colors: {
