@@ -13,7 +13,7 @@ const HerohypeLandingPage: React.FC = () => {
     <div className="bg-white">
       <Header />
       <HeroSection />
-      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full mx-auto px-3 sm:px-4 lg:px-6">
         <Filters 
           activeFilters={activeFilters}
           setActiveFilters={setActiveFilters}

@@ -29,16 +29,16 @@ const HeroSection: React.FC = () => {
 
       {/* Main headline */}
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
-        <h1 className="w-full text-black leading-[1.2] font-instrument-serif">
+        <h1 className="w-full text-black leading-[1.2] font-playfair">
           {/* First line */}
           <div className="text-[64px] md:text-[80px] max-md:text-[48px]">
             Discover Trendy &
           </div>
           
-          {/* Second line with image and bordered text */}
+          {/* Second line with image and text */}
           <div className="flex items-center justify-center gap-4 mt-5">
-            {/* Perfect with dashed border */}
-            <div className="border-2 border-dashed border-black p-3 rounded-md">
+            {/* Perfect text without border */}
+            <div className="p-3">
               <span className="text-[64px] md:text-[80px] max-md:text-[48px]">Perfect</span>
             </div>
             
