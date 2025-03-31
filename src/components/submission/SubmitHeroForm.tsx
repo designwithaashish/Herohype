@@ -52,6 +52,8 @@ const SubmitHeroForm: React.FC = () => {
       return;
     }
     
+    const user = JSON.parse(userStr);
+    
     if (!twitterUsername) {
       toast({
         title: "Twitter username required",
@@ -95,7 +97,11 @@ const SubmitHeroForm: React.FC = () => {
         description,
         categories: selectedCategories,
         createdAt: new Date().toISOString(),
-        status: "pending"
+        status: "pending",
+        // Add user information
+        userId: user.id,
+        userEmail: user.email,
+        submittedBy: user.id
       };
       
       // Get existing pending submissions or initialize empty array

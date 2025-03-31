@@ -2,18 +2,39 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, LogOut } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [profileImage, setProfileImage] = useState("");
   const navigate = useNavigate();
   
   useEffect(() => {
     const userStr = localStorage.getItem("user");
     if (userStr) {
-      setIsLoggedIn(true);
       const user = JSON.parse(userStr);
+      setIsLoggedIn(true);
       setIsAdmin(user.role === "admin");
+      setUserName(user.email.split("@")[0]);
+      
+      // Check if user has a profile with custom avatar
+      const profileStr = localStorage.getItem(`profile-${user.id}`);
+      if (profileStr) {
+        const profile = JSON.parse(profileStr);
+        if (profile.name) setUserName(profile.name);
+        if (profile.avatarUrl) setProfileImage(profile.avatarUrl);
+      }
     }
   }, []);
   
@@ -22,6 +43,11 @@ const Header: React.FC = () => {
     setIsLoggedIn(false);
     setIsAdmin(false);
     navigate("/");
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
   };
 
   return (
@@ -63,13 +89,39 @@ const Header: React.FC = () => {
 
       <div className="flex gap-3 text-[22px] text-center leading-[1.2] justify-center my-auto">
         {isLoggedIn ? (
-          <Button 
-            onClick={handleLogout} 
-            variant="outline"
-            className="bg-transparent text-white border-white hover:bg-white hover:text-black transition-colors font-satoshi"
-          >
-            Logout
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-9 w-9 border border-gray-700">
+                  {profileImage ? (
+                    <AvatarImage src={profileImage} alt={userName} />
+                  ) : (
+                    <AvatarFallback className="bg-gray-700 text-white">
+                      {getInitials(userName)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel>
+                <div className="font-normal">
+                  <p className="text-sm font-medium leading-none">{userName}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/profile" className="cursor-pointer flex justify-between items-center w-full">
+                  <span>Profile</span>
+                  <User className="h-4 w-4" />
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer flex justify-between items-center">
+                <span>Log out</span>
+                <LogOut className="h-4 w-4" />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Button 
             onClick={() => navigate("/login")}

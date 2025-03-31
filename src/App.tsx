@@ -12,6 +12,7 @@ import SubmitHero from "./pages/SubmitHero";
 import AdminApproval from "./pages/AdminApproval";
 import SearchResults from "./pages/SearchResults";
 import MyCollections from "./pages/MyCollections";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -32,6 +33,7 @@ const App: React.FC = () => {
             <Route path="/admin" element={<AdminApproval />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/collections" element={<MyCollections />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
