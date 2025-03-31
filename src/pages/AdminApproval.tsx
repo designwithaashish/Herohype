@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import PendingSubmissionCard, { Submission } from "@/components/admin/PendingSubmissionCard";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/herohype/Header";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Mock data
