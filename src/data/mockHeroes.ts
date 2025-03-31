@@ -1,14 +1,13 @@
+
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 
-// Enhanced mock data with likes, views, and dates
+// Enhanced mock data with dates
 export const mockHeroes: HeroCardProps[] = [
   {
     id: "1",
     imageUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&h=600",
     twitterUsername: "designermark",
     categories: ["Dark", "Gradient", "Animated"],
-    likes: 120,
-    views: 450,
     submissionDate: "2023-06-15",
   },
   {
@@ -16,8 +15,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=800&h=400",
     twitterUsername: "webdev_sarah",
     categories: ["Light", "Minimal", "Typography"],
-    likes: 85,
-    views: 320,
     submissionDate: "2023-07-22",
   },
   {
@@ -25,8 +22,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1620121692029-d088224ddc74?w=800&h=700",
     twitterUsername: "creative_jake",
     categories: ["3D", "Bento"],
-    likes: 210,
-    views: 780,
     submissionDate: "2023-05-10",
   },
   {
@@ -34,8 +29,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=800&h=500",
     twitterUsername: "ui_master",
     categories: ["Light", "Minimal"],
-    likes: 65,
-    views: 290,
     submissionDate: "2023-08-05",
   },
   {
@@ -43,8 +36,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1581276879432-15e50529f34b?w=800&h=600",
     twitterUsername: "frontend_dev",
     categories: ["Dark", "Typography"],
-    likes: 95,
-    views: 380,
     submissionDate: "2023-09-18",
   },
   {
@@ -52,8 +43,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&h=450",
     twitterUsername: "designguru",
     categories: ["Gradient", "3D"],
-    likes: 150,
-    views: 620,
     submissionDate: "2023-04-25",
   },
   {
@@ -61,8 +50,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1617791160588-241658c0f566?w=800&h=600",
     twitterUsername: "pixel_perfect",
     categories: ["Light", "Minimal"],
-    likes: 75,
-    views: 280,
     submissionDate: "2023-10-02",
   },
   {
@@ -70,8 +57,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1620121684840-edffcfc4b878?w=800&h=700",
     twitterUsername: "ui_unicorn",
     categories: ["Dark", "Gradient"],
-    likes: 180,
-    views: 710,
     submissionDate: "2023-06-30",
   },
   {
@@ -79,8 +64,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1547658719-da2b51169166?w=800&h=450",
     twitterUsername: "websmith",
     categories: ["3D", "Typography"],
-    likes: 100,
-    views: 550,
     submissionDate: "2023-03-15",
   },
   {
@@ -88,8 +71,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&h=600",
     twitterUsername: "digital_nomad",
     categories: ["Bento", "Light"],
-    likes: 120,
-    views: 600,
     submissionDate: "2023-01-01",
   },
   {
@@ -97,8 +78,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&h=500",
     twitterUsername: "uidesigner_pro",
     categories: ["Dark", "Minimal"],
-    likes: 110,
-    views: 500,
     submissionDate: "2023-02-10",
   },
   {
@@ -106,8 +85,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=600",
     twitterUsername: "creative_coder",
     categories: ["Gradient", "Typography"],
-    likes: 130,
-    views: 550,
     submissionDate: "2023-03-15",
   },
   {
@@ -115,8 +92,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=800&h=700",
     twitterUsername: "design_ninja",
     categories: ["Light", "3D"],
-    likes: 140,
-    views: 600,
     submissionDate: "2023-04-01",
   },
   {
@@ -124,8 +99,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=450",
     twitterUsername: "web_artist",
     categories: ["Bento", "Dark"],
-    likes: 150,
-    views: 550,
     submissionDate: "2023-05-01",
   },
   {
@@ -133,8 +106,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&h=600",
     twitterUsername: "ux_explorer",
     categories: ["Minimal", "Typography"],
-    likes: 160,
-    views: 600,
     submissionDate: "2023-06-01",
   },
   {
@@ -142,8 +113,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1614850523459-c2f4c699c52a?w=800&h=500",
     twitterUsername: "interface_guru",
     categories: ["Gradient", "Light"],
-    likes: 170,
-    views: 600,
     submissionDate: "2023-07-01",
   },
   {
@@ -151,8 +120,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=800&h=600",
     twitterUsername: "product_designer",
     categories: ["Dark", "3D"],
-    likes: 180,
-    views: 600,
     submissionDate: "2023-08-01",
   },
   {
@@ -160,8 +127,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=800&h=700",
     twitterUsername: "webflow_expert",
     categories: ["Bento", "Typography"],
-    likes: 190,
-    views: 600,
     submissionDate: "2023-09-01",
   },
   {
@@ -169,8 +134,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1623479322729-28b25c16b011?w=800&h=500",
     twitterUsername: "frontend_ninja",
     categories: ["Light", "Minimal"],
-    likes: 200,
-    views: 600,
     submissionDate: "2023-10-01",
   },
   {
@@ -178,8 +141,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800&h=600",
     twitterUsername: "react_dev",
     categories: ["Gradient", "Dark"],
-    likes: 210,
-    views: 600,
     submissionDate: "2023-11-01",
   },
   {
@@ -187,8 +148,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=800&h=700",
     twitterUsername: "figma_master",
     categories: ["3D", "Light"],
-    likes: 220,
-    views: 600,
     submissionDate: "2023-12-01",
   },
   {
@@ -196,8 +155,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1554147090-e1221a04a025?w=800&h=500",
     twitterUsername: "ui_engineer",
     categories: ["Bento", "Typography"],
-    likes: 230,
-    views: 600,
     submissionDate: "2024-01-01",
   },
   {
@@ -205,8 +162,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=800&h=600",
     twitterUsername: "design_system",
     categories: ["Minimal", "Dark"],
-    likes: 240,
-    views: 600,
     submissionDate: "2024-02-01",
   },
   {
@@ -214,8 +169,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&h=450",
     twitterUsername: "css_wizard",
     categories: ["Gradient", "Typography"],
-    likes: 250,
-    views: 600,
     submissionDate: "2024-03-01",
   },
   {
@@ -223,8 +176,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1616763355603-9755a640a287?w=800&h=600",
     twitterUsername: "ui_creator",
     categories: ["Light", "3D"],
-    likes: 260,
-    views: 600,
     submissionDate: "2024-04-01",
   },
   {
@@ -232,8 +183,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1618556450991-2f1af64e8191?w=800&h=700",
     twitterUsername: "motion_designer",
     categories: ["Bento", "Dark"],
-    likes: 270,
-    views: 600,
     submissionDate: "2024-05-01",
   },
   {
@@ -241,8 +190,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=500",
     twitterUsername: "webdesign_pro",
     categories: ["Minimal", "Typography"],
-    likes: 280,
-    views: 600,
     submissionDate: "2024-06-01",
   },
   {
@@ -250,8 +197,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1626544827763-d516dce335e2?w=800&h=600",
     twitterUsername: "ux_builder",
     categories: ["Gradient", "Light"],
-    likes: 290,
-    views: 600,
     submissionDate: "2024-07-01",
   },
   {
@@ -259,8 +204,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1638803040283-7a5ffd48dad5?w=800&h=700",
     twitterUsername: "tailwind_master",
     categories: ["Dark", "3D"],
-    likes: 300,
-    views: 600,
     submissionDate: "2024-08-01",
   },
   {
@@ -268,8 +211,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1559028006-448665bd7c7b?w=800&h=450",
     twitterUsername: "framer_motion",
     categories: ["Bento", "Typography"],
-    likes: 310,
-    views: 600,
     submissionDate: "2024-09-01",
   },
   {
@@ -277,8 +218,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1608306448197-e83633f1261c?w=800&h=600",
     twitterUsername: "next_js_dev",
     categories: ["Light", "Minimal"],
-    likes: 320,
-    views: 600,
     submissionDate: "2024-10-01",
   },
   {
@@ -286,8 +225,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1557683316-973673baf926?w=800&h=500",
     twitterUsername: "ui_craftsman",
     categories: ["Gradient", "Dark"],
-    likes: 330,
-    views: 600,
     submissionDate: "2024-11-01",
   },
   {
@@ -295,8 +232,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1578393098337-5594cce112da?w=800&h=600",
     twitterUsername: "gsap_expert",
     categories: ["3D", "Light"],
-    likes: 340,
-    views: 600,
     submissionDate: "2024-12-01",
   },
   {
@@ -304,8 +239,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1618005198919-d3d4b5a92ead?w=800&h=700",
     twitterUsername: "svelte_dev",
     categories: ["Bento", "Typography"],
-    likes: 350,
-    views: 600,
     submissionDate: "2025-01-01",
   },
   {
@@ -313,8 +246,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1614854262318-831574f15f1f?w=800&h=450",
     twitterUsername: "vue_engineer",
     categories: ["Minimal", "Dark"],
-    likes: 360,
-    views: 600,
     submissionDate: "2025-02-01",
   },
   {
@@ -322,8 +253,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1620121684840-edffcfc4b878?w=800&h=600",
     twitterUsername: "three_js_dev",
     categories: ["Gradient", "Typography"],
-    likes: 370,
-    views: 600,
     submissionDate: "2025-03-01",
   },
   {
@@ -331,8 +260,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1557683316-973673baf926?w=800&h=700",
     twitterUsername: "webgl_master",
     categories: ["Light", "3D"],
-    likes: 380,
-    views: 600,
     submissionDate: "2025-04-01",
   },
   {
@@ -340,8 +267,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1618172193622-ae2d025f4032?w=800&h=500",
     twitterUsername: "react_native",
     categories: ["Bento", "Dark"],
-    likes: 390,
-    views: 600,
     submissionDate: "2025-05-01",
   },
   {
@@ -349,8 +274,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=800&h=600",
     twitterUsername: "flutter_dev",
     categories: ["Minimal", "Typography"],
-    likes: 400,
-    views: 600,
     submissionDate: "2025-06-01",
   },
   {
@@ -358,8 +281,6 @@ export const mockHeroes: HeroCardProps[] = [
     imageUrl: "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=800&h=450",
     twitterUsername: "react_designer",
     categories: ["Gradient", "Light"],
-    likes: 410,
-    views: 600,
     submissionDate: "2025-07-01",
   },
 ];

@@ -14,6 +14,7 @@ export interface Submission {
   description?: string;
   categories: string[];
   createdAt: string;
+  submissionDate?: string;
 }
 
 interface PendingSubmissionCardProps {
