@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PendingSubmissionCard, { Submission } from "@/components/admin/PendingSubmissionCard";
@@ -96,7 +95,6 @@ const AdminApproval: React.FC = () => {
   });
   
   useEffect(() => {
-    // Check if user is logged in and is an admin
     const userStr = localStorage.getItem("user");
     if (!userStr) {
       toast({
@@ -118,7 +116,6 @@ const AdminApproval: React.FC = () => {
       navigate("/");
     }
     
-    // Load submissions from localStorage if available
     const storedPending = localStorage.getItem("pendingSubmissions");
     const storedApproved = localStorage.getItem("approvedSubmissions");
     const storedRejected = localStorage.getItem("rejectedSubmissions");
@@ -129,7 +126,6 @@ const AdminApproval: React.FC = () => {
   }, [navigate, toast]);
   
   useEffect(() => {
-    // Save submissions to localStorage when they change
     localStorage.setItem("pendingSubmissions", JSON.stringify(pendingSubmissions));
     localStorage.setItem("approvedSubmissions", JSON.stringify(approvedSubmissions));
     localStorage.setItem("rejectedSubmissions", JSON.stringify(rejectedSubmissions));
@@ -138,7 +134,6 @@ const AdminApproval: React.FC = () => {
   const handleApprove = (id: string, categories: string[]) => {
     const submission = pendingSubmissions.find(s => s.id === id);
     if (submission) {
-      // Add current date as submission date
       const approvedSubmission = {
         ...submission,
         categories,
@@ -179,7 +174,6 @@ const AdminApproval: React.FC = () => {
       setUploadImage(file);
       form.setValue("imageFile", file);
       
-      // Create a preview
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -190,14 +184,13 @@ const AdminApproval: React.FC = () => {
   };
 
   const handleSubmit = form.handleSubmit((data) => {
-    // Create new submission
     const newSubmission: Submission = {
       id: `manual-${Date.now()}`,
       imageUrl: data.imageSource === "upload" ? (imagePreview || '') : (data.imageUrl || ''),
       twitterUsername: data.twitterUsername.startsWith('@') 
         ? data.twitterUsername.substring(1) 
         : data.twitterUsername,
-      submissionType: data.imageSource as "url" | "image",
+      submissionType: data.imageSource === "upload" ? "image" : "url",
       sourceUrl: data.imageSource === "url" ? data.imageUrl : undefined,
       description: data.description,
       categories: data.categories,
@@ -209,7 +202,6 @@ const AdminApproval: React.FC = () => {
     };
 
     if (editingSubmission) {
-      // Update existing submission
       setApprovedSubmissions(prev => 
         prev.map(sub => sub.id === editingSubmission.id ? newSubmission : sub)
       );
@@ -219,7 +211,6 @@ const AdminApproval: React.FC = () => {
         description: "The hero section has been successfully updated",
       });
     } else {
-      // Add new submission
       setApprovedSubmissions(prev => [...prev, newSubmission]);
       toast({
         title: "Hero section added",
@@ -227,7 +218,6 @@ const AdminApproval: React.FC = () => {
       });
     }
     
-    // Reset form
     form.reset();
     setUploadImage(null);
     setImagePreview(null);
@@ -247,11 +237,14 @@ const AdminApproval: React.FC = () => {
 
   const handleEditApproved = (submission: Submission) => {
     setEditingSubmission(submission);
-    setImageSource(submission.submissionType);
+    
+    const imageSourceValue = submission.submissionType === "url" ? "url" : "upload";
+    setImageSource(imageSourceValue);
+    
     setImagePreview(submission.imageUrl);
     
     form.reset({
-      imageSource: submission.submissionType,
+      imageSource: imageSourceValue,
       imageUrl: submission.sourceUrl || "",
       twitterUsername: submission.twitterUsername,
       description: submission.description || "",
@@ -260,7 +253,6 @@ const AdminApproval: React.FC = () => {
   };
 
   const handleClearAll = () => {
-    // Confirm with the user before clearing
     if (window.confirm("Are you sure you want to delete all data? This cannot be undone.")) {
       setPendingSubmissions([]);
       setApprovedSubmissions([]);
