@@ -17,14 +17,23 @@ const Header: React.FC = () => {
       const user = JSON.parse(userStr);
       setIsLoggedIn(true);
       setIsAdmin(user.role === "admin");
-      setUserName(user.email.split("@")[0]);
       
-      // Check if user has a profile with custom avatar
+      // Check if user has a profile with custom name and avatar
       const profileStr = localStorage.getItem(`profile-${user.id}`);
       if (profileStr) {
         const profile = JSON.parse(profileStr);
-        if (profile.name) setUserName(profile.name);
-        if (profile.avatarUrl) setProfileImage(profile.avatarUrl);
+        if (profile.name) {
+          setUserName(profile.name);
+        } else {
+          // Fall back to email if no name is set
+          setUserName(user.email ? user.email.split("@")[0] : "");
+        }
+        if (profile.avatarUrl) {
+          setProfileImage(profile.avatarUrl);
+        }
+      } else {
+        // Fall back to email if no profile exists
+        setUserName(user.email ? user.email.split("@")[0] : "");
       }
     }
   }, []);
@@ -34,7 +43,7 @@ const Header: React.FC = () => {
   };
 
   const getInitials = (name: string) => {
-    if (!name) return "U";
+    if (!name) return "";
     return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
   };
 
@@ -64,14 +73,14 @@ const Header: React.FC = () => {
           <div className="flex items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
             <Avatar className="h-9 w-9 border border-gray-700">
               {profileImage ? (
-                <AvatarImage src={profileImage} alt={userName} />
+                <AvatarImage src={profileImage} alt={userName || "User"} />
               ) : (
                 <AvatarFallback className="bg-gray-700 text-white">
                   {getInitials(userName)}
                 </AvatarFallback>
               )}
             </Avatar>
-            <span className="text-white text-sm">{userName}</span>
+            <span className="text-white text-sm">{userName || "User"}</span>
           </div>
         ) : (
           <Button 

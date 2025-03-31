@@ -5,8 +5,6 @@ import Header from "@/components/herohype/Header";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import UserProfileHeader from "@/components/profile/UserProfileHeader";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
 
 interface UserProfile {
   name: string;
@@ -20,7 +18,7 @@ const Profile: React.FC = () => {
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: "",
     description: "",
-    avatarUrl: "/placeholder.svg",
+    avatarUrl: "",
     hireLink: ""
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -50,9 +48,9 @@ const Profile: React.FC = () => {
     } else {
       // Set default profile values
       const defaultProfile = {
-        name: userData.email.split("@")[0],
+        name: "",
         description: "Edit your profile to add a description",
-        avatarUrl: "/placeholder.svg",
+        avatarUrl: "",
         hireLink: ""
       };
       setUserProfile(defaultProfile);
@@ -74,15 +72,6 @@ const Profile: React.FC = () => {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully",
-    });
-    navigate("/");
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -98,29 +87,11 @@ const Profile: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container mx-auto py-8 px-4">
-        <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-6">
-          <div className="w-full">
-            <UserProfileHeader 
-              profile={userProfile} 
-              onUpdateProfile={updateProfile}
-            />
-          </div>
-          <div className="flex space-x-3">
-            <Button 
-              className="bg-[rgba(183,255,29,1)] hover:bg-[rgba(163,235,9,1)] text-black font-medium px-6 py-3"
-              onClick={() => navigate("/submit")}
-            >
-              Submit Hero
-            </Button>
-            <Button 
-              variant="outline"
-              className="border-red-500 text-red-500 hover:bg-red-50"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+        <div className="w-full">
+          <UserProfileHeader 
+            profile={userProfile} 
+            onUpdateProfile={updateProfile}
+          />
         </div>
         <ProfileTabs user={user} />
       </div>

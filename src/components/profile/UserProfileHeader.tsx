@@ -6,8 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Edit, ExternalLink, Upload, Image } from "lucide-react";
+import { Edit, ExternalLink, Upload, Image, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface UserProfile {
   name: string;
@@ -27,6 +28,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const handleEditClick = () => {
     setEditedProfile(profile);
@@ -39,7 +41,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
   };
   
   const getInitials = (name: string) => {
-    if (!name) return "U";
+    if (!name) return "";
     return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
   };
 
@@ -89,6 +91,15 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
     }, 1000);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully",
+    });
+    navigate("/");
+  };
+
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
       <div className="flex flex-col md:flex-row items-center gap-6">
@@ -110,7 +121,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
         </div>
         
         <div className="flex-1 text-center md:text-left">
-          <h1 className="text-2xl font-serif font-semibold mb-2">{profile.name}</h1>
+          <h1 className="text-2xl font-serif font-semibold mb-2">{profile.name || "Add your name"}</h1>
           <p className="text-gray-600 mb-4 max-w-2xl">{profile.description}</p>
           
           <div className="flex flex-wrap gap-3 justify-center md:justify-start">
@@ -126,6 +137,24 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
             <Button variant="outline" size="sm" onClick={handleEditClick} className="flex items-center gap-1">
               <Edit className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
+            </Button>
+            
+            <Button 
+              className="bg-[rgba(183,255,29,1)] hover:bg-[rgba(163,235,9,1)] text-black font-medium"
+              size="sm"
+              onClick={() => navigate("/submit")}
+            >
+              Submit Hero
+            </Button>
+            
+            <Button 
+              variant="outline"
+              className="border-black text-black hover:bg-gray-100"
+              size="sm"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-3.5 w-3.5 mr-1" />
+              Logout
             </Button>
           </div>
         </div>

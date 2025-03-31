@@ -1,18 +1,42 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 interface CollectionsTabProps {
-  savedHeroes: any[];
+  savedHeroes: string[];
 }
 
 const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
   const navigate = useNavigate();
+  const [heroCards, setHeroCards] = useState<HeroCardProps[]>([]);
   
-  if (savedHeroes.length === 0) {
+  useEffect(() => {
+    // Get the approved submissions to find saved hero data
+    const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+    
+    // Filter and map the saved heroes
+    if (savedHeroes && savedHeroes.length > 0) {
+      const savedHeroCards = approvedSubmissions
+        .filter((hero: any) => savedHeroes.includes(hero.id))
+        .map((hero: any) => ({
+          id: hero.id,
+          imageUrl: hero.imageUrl,
+          twitterUsername: hero.twitterUsername,
+          categories: hero.categories || [],
+          likes: hero.likes || 0,
+          saves: hero.saves || 0,
+          status: "approved",
+          submissionDate: hero.submissionDate || hero.createdAt
+        }));
+      
+      setHeroCards(savedHeroCards);
+    }
+  }, [savedHeroes]);
+  
+  if (heroCards.length === 0) {
     return (
       <div className="text-center py-12">
         <h3 className="text-xl font-medium mb-2">No saved items</h3>
@@ -29,18 +53,6 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
       </div>
     );
   }
-
-  // Transform the saved heroes to match the HeroCardProps interface
-  const heroCards: HeroCardProps[] = savedHeroes.map(hero => ({
-    id: hero.id,
-    imageUrl: hero.imageUrl,
-    twitterUsername: hero.twitterUsername,
-    categories: hero.categories || [],
-    likes: hero.likes || 0,
-    saves: hero.saves || 0,
-    status: "approved",
-    submissionDate: hero.submissionDate || hero.createdAt
-  }));
 
   return (
     <div>

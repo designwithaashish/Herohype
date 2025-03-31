@@ -29,7 +29,30 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Mock registration functionality - would connect to backend
+      // Generate a unique ID for the user
+      const userId = `user_${Date.now()}`;
+      
+      // Create a minimal user object without auto-generated names or avatars
+      const user = {
+        id: userId,
+        email: email,
+        role: "user",
+      };
+      
+      // Store the user data in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      // Create an empty profile for the user
+      const emptyProfile = {
+        name: "",
+        description: "Edit your profile to add a description",
+        avatarUrl: "",
+        hireLink: ""
+      };
+      
+      // Store the profile data in localStorage
+      localStorage.setItem(`profile-${userId}`, JSON.stringify(emptyProfile));
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
@@ -37,7 +60,7 @@ const RegisterForm: React.FC = () => {
         description: "Your account has been created",
       });
       
-      navigate("/login");
+      navigate("/profile");
     } catch (error) {
       toast({
         title: "Registration failed",

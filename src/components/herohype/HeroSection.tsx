@@ -47,7 +47,7 @@ const HeroSection: React.FC = () => {
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
         <h1 className="w-full text-black leading-[1.2] font-instrument-serif">
           {/* First line */}
-          <div className="text-[64px] md:text-[80px] max-md:text-[48px] animate-[fade-in_0.5s_ease_0.2s_both]">
+          <div className="text-[54px] md:text-[70px] max-md:text-[38px] animate-[fade-in_0.5s_ease_0.2s_both]">
             Discover Trendy &
           </div>
           
@@ -55,7 +55,7 @@ const HeroSection: React.FC = () => {
           <div className="flex items-center justify-center gap-4 mt-5 animate-[fade-in_0.5s_ease_0.4s_both]">
             {/* Perfect text without border */}
             <div className="p-3">
-              <span className="text-[64px] md:text-[80px] max-md:text-[48px]">Perfect</span>
+              <span className="text-[54px] md:text-[70px] max-md:text-[38px]">Perfect</span>
             </div>
             
             {/* Image slider */}
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
             
             {/* Hero Section with dashed border */}
             <div className="border-2 border-dashed border-black p-3 rounded-md">
-              <span className="text-[64px] md:text-[80px] max-md:text-[48px]">Hero Section</span>
+              <span className="text-[54px] md:text-[70px] max-md:text-[38px]">Hero Section</span>
             </div>
           </div>
         </h1>
@@ -77,22 +77,22 @@ const HeroSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Search bar */}
-      <div className="self-stretch w-full max-w-5xl mx-auto leading-[1.2] mt-[40px] animate-[fade-in_0.5s_ease_0.8s_both]">
+      {/* Search bar - smaller size */}
+      <div className="self-stretch w-full max-w-2xl mx-auto leading-[1.2] mt-[40px] animate-[fade-in_0.5s_ease_0.8s_both]">
         <form
           onSubmit={handleSearch}
-          className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-10 py-3 rounded-[60px] max-md:pl-5"
+          className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-8 py-2 rounded-[60px] max-md:pl-4"
         >
           <input
             type="text"
             placeholder="hero section with purple gradient..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="bg-transparent text-[rgba(93,93,93,1)] text-xl font-medium outline-none w-full font-satoshi"
+            className="bg-transparent text-[rgba(93,93,93,1)] text-base font-medium outline-none w-full font-satoshi"
           />
           <button
             type="submit"
-            className="flex items-center justify-center bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-10 py-3 rounded-[38px] max-md:px-5 hover:bg-[rgba(40,40,40,1)] transition-colors font-satoshi text-[22px]"
+            className="flex items-center justify-center bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-6 py-2 rounded-[38px] max-md:px-4 hover:bg-[rgba(40,40,40,1)] transition-colors font-satoshi text-[18px]"
           >
             Search
           </button>

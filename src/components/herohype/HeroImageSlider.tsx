@@ -38,7 +38,7 @@ const HeroImageSlider: React.FC = () => {
       setCurrentIndex(prevIndex => 
         prevIndex === sliderImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 10000); // 10 seconds delay
+    }, 5000); // 5 seconds delay
     
     return () => clearInterval(interval);
   }, [sliderImages.length, currentIndex]);
