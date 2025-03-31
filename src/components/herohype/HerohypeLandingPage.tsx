@@ -13,7 +13,6 @@ const HerohypeLandingPage: React.FC = () => {
   return (
     <div className="bg-white">
       <Header />
-      <HeroSection />
       <HeadlineWithSlider />
       <div className="w-full mx-auto mt-6 px-4">
         <Filters 

@@ -51,7 +51,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
       if (imgElement.complete) {
         handleImageLoad();
       } else {
-        img.addEventListener("load", handleImageLoad);
+        imgElement.addEventListener("load", handleImageLoad);
       }
     });
 
@@ -64,7 +64,8 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
       }
       window.removeEventListener("resize", resizeGridItems);
       imageElements.forEach((img) => {
-        img.removeEventListener("load", handleImageLoad);
+        const imgElement = img as HTMLImageElement;
+        imgElement.removeEventListener("load", handleImageLoad);
       });
     };
   }, [heroes.length]);
