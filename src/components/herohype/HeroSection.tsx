@@ -1,6 +1,7 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import HeroImageSlider from "./HeroImageSlider";
 
 const HeroSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,34 +21,35 @@ const HeroSection: React.FC = () => {
   return (
     <section className="flex min-h-[520px] w-full flex-col items-center text-center justify-center mt-5 pt-[61px] pb-5 px-5 md:px-10 lg:px-20">
       <div className="bg-white border flex items-center gap-2 text-sm text-black font-medium uppercase tracking-[-0.28px] leading-[1.2] justify-center px-4 py-2 rounded-[60px] border-[rgba(0,0,0,0.3)] border-solid">
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/ca9cd70178b9ef63a5165be05724b3eb93b407cb?placeholderIfAbsent=true"
-          className="aspect-[1] object-contain w-2.5 self-stretch shrink-0 my-auto"
-          alt="Left arrow"
-        />
-        <div className="self-stretch my-auto font-satoshi">100+ Hero Sections Curated</div>
-        <img
-          src="https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/10791a020ddba0a8fbf526c0f7a49b4a7fcc2b6a?placeholderIfAbsent=true"
-          className="aspect-[1] object-contain w-2.5 self-stretch shrink-0 my-auto"
-          alt="Right arrow"
-        />
+        <span className="text-black">*</span>
+        <div className="self-stretch my-auto font-satoshi">100+ HERO SECTIONS CURATED</div>
+        <span className="text-black">*</span>
       </div>
 
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
-        <h1 className="w-full max-w-5xl text-black leading-[1.2] font-instrument-serif italic">
+        <h1 className="w-full max-w-5xl text-black leading-[1.2] font-instrument-serif">
           <div className="flex w-full items-center gap-5 text-[64px] md:text-[74px] justify-center flex-wrap max-md:text-[48px]">
             <div className="self-stretch my-auto">
               Discover
             </div>
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/4dcc644b12d8b5262921e7c60355f5cb0e5c7a62?placeholderIfAbsent=true"
-              className="aspect-[1.4] object-contain w-28 self-stretch shrink-0 my-auto rounded-[20px]"
-              alt="Decorative element"
-            />
+            <div className="self-stretch my-auto">
+              Trendy
+            </div>
+            <div className="self-stretch my-auto">
+              &
+            </div>
           </div>
           <div className="flex w-full items-center gap-5 justify-center flex-wrap mt-2.5">
-            <div className="text-[64px] md:text-[74px] self-stretch my-auto max-md:text-[48px]">
-              The Perfect Hero Section
+            <div className="border-2 border-dashed border-black p-3 rounded-md">
+              <span className="text-[64px] md:text-[74px] self-stretch my-auto max-md:text-[48px]">
+                Perfect
+              </span>
+            </div>
+            <HeroImageSlider />
+            <div className="border-2 border-dashed border-black p-3 rounded-md">
+              <span className="text-[64px] md:text-[74px] self-stretch my-auto max-md:text-[48px]">
+                Hero Sections
+              </span>
             </div>
           </div>
         </h1>
