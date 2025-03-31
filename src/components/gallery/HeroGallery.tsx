@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import HeroCard, { HeroCardProps } from "./HeroCard";
 import { Button } from "@/components/ui/button";

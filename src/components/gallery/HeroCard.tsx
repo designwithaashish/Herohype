@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Maximize } from "lucide-react";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface HeroCardProps {
   id: string;
@@ -28,9 +28,11 @@ const HeroCard: React.FC<HeroCardProps> = ({
       >
         <DialogTrigger className="w-full" asChild>
           <button className="w-full text-left">
-            <div className="relative w-full overflow-hidden rounded-[28px]">
+            <div className="relative w-full h-full overflow-hidden rounded-[28px] aspect-auto">
               {!isLoaded && (
-                <div className="absolute inset-0 bg-gray-100 animate-pulse" />
+                <div className="absolute inset-0 w-full h-full">
+                  <Skeleton className="w-full h-full bg-gray-100 animate-pulse" />
+                </div>
               )}
               <img
                 src={imageUrl}
