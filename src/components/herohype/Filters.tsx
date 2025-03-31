@@ -36,11 +36,12 @@ const Filters: React.FC<FiltersProps> = ({
       return;
     }
     
-    setActiveFilters(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category) 
-        : [...prev, category]
-    );
+    // Create new array directly instead of using a callback function
+    const newFilters = activeFilters.includes(category) 
+      ? activeFilters.filter(c => c !== category) 
+      : [...activeFilters, category];
+    
+    setActiveFilters(newFilters);
   };
   
   const handleSubmitClick = () => {
