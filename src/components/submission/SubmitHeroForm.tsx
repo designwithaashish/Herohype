@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const SubmitHeroForm: React.FC = () => {
-  const [submissionType, setSubmissionType] = useState<"url" | "image">("url");
+  const [submissionType, setSubmissionType] = useState<"url" | "image">("image");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [twitterUsername, setTwitterUsername] = useState("");
   const [description, setDescription] = useState("");
@@ -41,12 +41,12 @@ const SubmitHeroForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if the user is logged in with Google
+    // Check if the user is logged in
     const userStr = localStorage.getItem("user");
     if (!userStr) {
       toast({
         title: "Authentication required",
-        description: "Please log in with Google to submit a hero section",
+        description: "Please log in to submit a hero section",
         variant: "destructive",
       });
       return;
@@ -82,8 +82,31 @@ const SubmitHeroForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Mock submission functionality - would connect to backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Create a timestamp-based ID for the new submission
+      const submissionId = `submission-${Date.now()}`;
+      
+      // Create the submission object
+      const newSubmission = {
+        id: submissionId,
+        imageUrl: previewImage,
+        twitterUsername,
+        submissionType,
+        sourceUrl: submissionType === "url" ? websiteUrl : undefined,
+        description,
+        categories: selectedCategories,
+        createdAt: new Date().toISOString(),
+        status: "pending"
+      };
+      
+      // Get existing pending submissions or initialize empty array
+      const pendingStr = localStorage.getItem("pendingSubmissions");
+      const pendingSubmissions = pendingStr ? JSON.parse(pendingStr) : [];
+      
+      // Add new submission to the array
+      pendingSubmissions.push(newSubmission);
+      
+      // Save updated array back to localStorage
+      localStorage.setItem("pendingSubmissions", JSON.stringify(pendingSubmissions));
       
       toast({
         title: "Submission successful",
@@ -110,7 +133,7 @@ const SubmitHeroForm: React.FC = () => {
     }
   };
 
-  // Updated to match the categories mentioned in the request
+  // Categories
   const categories = [
     "Dark", "Light", "Crypto", "Minimal", "Animated", 
     "Illustrated", "3D", "Gradient", "Bento", "Typography"
@@ -120,7 +143,7 @@ const SubmitHeroForm: React.FC = () => {
     <div className="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
       <h2 className="text-2xl font-bold mb-6 text-center">Submit Your Hero Section</h2>
       
-      <Tabs defaultValue="url" onValueChange={(value) => setSubmissionType(value as "url" | "image")}>
+      <Tabs defaultValue="image" onValueChange={(value) => setSubmissionType(value as "url" | "image")}>
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="url">Website URL</TabsTrigger>
           <TabsTrigger value="image">Upload Image</TabsTrigger>
@@ -145,7 +168,7 @@ const SubmitHeroForm: React.FC = () => {
           
           <TabsContent value="image" className="space-y-4">
             <div>
-              <Label htmlFor="imageUpload">Upload Image</Label>
+              <Label htmlFor="imageUpload">Upload Image <span className="text-red-500">*</span></Label>
               <Input
                 id="imageUpload"
                 type="file"
@@ -153,6 +176,7 @@ const SubmitHeroForm: React.FC = () => {
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 className="mt-1"
+                required
               />
               {previewImage && (
                 <div className="mt-4">
@@ -168,7 +192,7 @@ const SubmitHeroForm: React.FC = () => {
           </TabsContent>
           
           <div>
-            <Label htmlFor="twitterUsername">Twitter Username</Label>
+            <Label htmlFor="twitterUsername">Twitter Username <span className="text-red-500">*</span></Label>
             <div className="flex">
               <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
                 @
@@ -180,6 +204,7 @@ const SubmitHeroForm: React.FC = () => {
                 placeholder="yourhandle"
                 value={twitterUsername}
                 onChange={(e) => setTwitterUsername(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -217,7 +242,7 @@ const SubmitHeroForm: React.FC = () => {
           
           <div className="pt-2">
             <p className="text-xs text-gray-600 mb-4">
-              All submissions require Google login and will be reviewed by an admin before appearing in the gallery.
+              All submissions require login and will be reviewed by an admin before appearing in the gallery.
             </p>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Submitting..." : "Submit Hero Section"}

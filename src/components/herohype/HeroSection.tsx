@@ -18,7 +18,7 @@ const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="flex min-h-[520px] w-full flex-col items-center text-center justify-center mt-5 pt-[61px] pb-5 px-[140px] max-md:max-w-full max-md:px-5">
+    <section className="flex min-h-[520px] w-full flex-col items-center text-center justify-center mt-5 pt-[61px] pb-5 px-5 md:px-10 lg:px-20">
       <div className="bg-white border flex items-center gap-2 text-sm text-black font-medium uppercase tracking-[-0.28px] leading-[1.2] justify-center px-4 py-2 rounded-[60px] border-[rgba(0,0,0,0.3)] border-solid">
         <img
           src="https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/ca9cd70178b9ef63a5165be05724b3eb93b407cb?placeholderIfAbsent=true"
@@ -33,10 +33,10 @@ const HeroSection: React.FC = () => {
         />
       </div>
 
-      <div className="flex w-[761px] max-w-full flex-col items-center mt-[30px]">
-        <h1 className="w-[645px] max-w-full text-black leading-[1.2] font-['Instrument_Sans'] italic">
-          <div className="flex w-full items-center gap-5 text-[74px] justify-center flex-wrap max-md:max-w-full max-md:text-[40px]">
-            <div className="self-stretch my-auto max-md:text-[40px]">
+      <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
+        <h1 className="w-full max-w-5xl text-black leading-[1.2] font-instrument-serif italic">
+          <div className="flex w-full items-center gap-5 text-[64px] md:text-[74px] justify-center flex-wrap max-md:text-[48px]">
+            <div className="self-stretch my-auto">
               Discover
             </div>
             <img
@@ -45,8 +45,8 @@ const HeroSection: React.FC = () => {
               alt="Decorative element"
             />
           </div>
-          <div className="flex w-full items-center gap-5 justify-center flex-wrap mt-2.5 max-md:max-w-full">
-            <div className="text-[74px] self-stretch my-auto max-md:text-[40px]">
+          <div className="flex w-full items-center gap-5 justify-center flex-wrap mt-2.5">
+            <div className="text-[64px] md:text-[74px] self-stretch my-auto max-md:text-[48px]">
               The Perfect Hero Section
             </div>
           </div>
@@ -60,7 +60,7 @@ const HeroSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="self-stretch w-full leading-[1.2] mt-[30px] px-40 max-md:max-w-full max-md:px-5">
+      <div className="self-stretch w-full max-w-5xl mx-auto leading-[1.2] mt-[30px]">
         <form
           onSubmit={handleSearch}
           className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-10 py-2 rounded-[60px] max-md:pl-5"

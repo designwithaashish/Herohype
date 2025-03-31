@@ -22,6 +22,8 @@ export default {
 			fontFamily: {
 				instrument: ["'Instrument Sans'", "sans-serif"],
 				'instrument-italic': ["'Instrument Sans'", "sans-serif"],
+				'instrument-serif': ["'Instrument Serif'", "serif"],
+				'instrument-serif-italic': ["'Instrument Serif'", "serif"],
 				satoshi: ["'Satoshi'", "sans-serif"],
 			},
 			colors: {

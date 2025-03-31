@@ -36,11 +36,12 @@ export const useHeroGallery = (
               likes: submission.likes || 0,
               saves: submission.saves || 0,
               categories: submission.categories || [],
-              status: submission.status || "approved"
+              status: submission.status || "approved",
+              submissionDate: submission.submissionDate || new Date().toISOString()
             }));
             
             setHeroes([...validSubmissions, ...initialHeroes]);
-            console.log("Loaded heroes from localStorage:", validSubmissions.length);
+            console.log("Loaded heroes from localStorage:", validSubmissions.length, validSubmissions);
           }
         } catch (error) {
           console.error("Error loading approved submissions:", error);
@@ -57,6 +58,7 @@ export const useHeroGallery = (
   // Sort heroes whenever the sort option or filters change
   useEffect(() => {
     const sortedHeroes = sortHeroes(filteredHeroes, sortOption);
+    console.log("Sorted heroes by", sortOption, ":", sortedHeroes.length, sortedHeroes);
     const initialItems = sortedHeroes.slice(0, 12);
     setVisibleHeroes(initialItems);
   }, [sortOption, filteredHeroes]);
