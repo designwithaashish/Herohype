@@ -46,7 +46,9 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
     // Add listeners for image load events
     const imageElements = document.querySelectorAll(".masonry-item img");
     imageElements.forEach((img) => {
-      if (img.complete) {
+      // Fix: Use correct type assertion for HTMLImageElement to access 'complete' property
+      const imgElement = img as HTMLImageElement;
+      if (imgElement.complete) {
         handleImageLoad();
       } else {
         img.addEventListener("load", handleImageLoad);
