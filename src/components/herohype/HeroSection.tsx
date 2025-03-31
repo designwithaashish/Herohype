@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeroImageSlider from "./HeroImageSlider";
 
 const HeroSection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [itemCount, setItemCount] = useState<number>(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get the count of approved submissions in CMS
+    const approvedSubmissions = localStorage.getItem("approvedSubmissions");
+    if (approvedSubmissions) {
+      try {
+        const parsedSubmissions = JSON.parse(approvedSubmissions);
+        if (Array.isArray(parsedSubmissions)) {
+          setItemCount(parsedSubmissions.length);
+        }
+      } catch (error) {
+        console.error("Error parsing approved submissions:", error);
+      }
+    }
+  }, []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -22,7 +39,7 @@ const HeroSection: React.FC = () => {
       {/* Top stat banner */}
       <div className="bg-white border flex items-center gap-2 text-xs text-black font-medium uppercase tracking-[0.5px] leading-[1.2] justify-center px-6 py-2 rounded-[60px] border-[rgba(0,0,0,0.15)] border-solid animate-fade-in">
         <span className="text-black">*</span>
-        <div className="self-stretch my-auto font-satoshi">100+ HERO SECTIONS CURATED</div>
+        <div className="self-stretch my-auto font-satoshi">{itemCount}+ HERO SECTIONS CURATED</div>
         <span className="text-black">*</span>
       </div>
 

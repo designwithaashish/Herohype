@@ -9,48 +9,35 @@ export const useHeroGallery = (
   activeFilters: string[],
   sortOption: string
 ) => {
-  const [heroes, setHeroes] = useState<HeroCardProps[]>(initialHeroes);
+  const [heroes, setHeroes] = useState<HeroCardProps[]>([]);
   const [visibleHeroes, setVisibleHeroes] = useState<HeroCardProps[]>([]);
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 0.1,
     triggerOnce: false,
   });
   
-  // Load heroes from localStorage when component mounts or initialHeroes changes
+  // Load heroes from CMS (approved submissions) and sync with initialHeroes
   useEffect(() => {
-    const loadApprovedSubmissions = () => {
+    const syncWithCMS = () => {
+      // Get approved submissions from CMS
       const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-      if (approvedSubmissions) {
-        try {
-          const parsedSubmissions = JSON.parse(approvedSubmissions);
-          if (Array.isArray(parsedSubmissions) && parsedSubmissions.length > 0) {
-            // Combine with initial heroes but avoid duplicates by id
-            const initialHeroIds = new Set(initialHeroes.map(hero => hero.id));
-            const uniqueSubmissions = parsedSubmissions.filter(
-              (submission: HeroCardProps) => !initialHeroIds.has(submission.id)
-            );
-            
-            // Ensure all submissions have the required properties
-            const validSubmissions = uniqueSubmissions.map((submission: any) => ({
-              ...submission,
-              likes: submission.likes || 0,
-              saves: submission.saves || 0,
-              categories: submission.categories || [],
-              status: submission.status || "approved",
-              submissionDate: submission.submissionDate || new Date().toISOString()
-            }));
-            
-            setHeroes([...validSubmissions, ...initialHeroes]);
-            console.log("Loaded heroes from localStorage:", validSubmissions.length, validSubmissions);
-          }
-        } catch (error) {
-          console.error("Error loading approved submissions:", error);
-        }
+      const cmsItems = approvedSubmissions ? JSON.parse(approvedSubmissions) : [];
+      
+      if (Array.isArray(cmsItems) && cmsItems.length > 0) {
+        console.log("Syncing gallery with CMS items:", cmsItems.length);
+        
+        // Set heroes to ONLY include items from the CMS (approved submissions)
+        // This removes any gallery items that aren't in the CMS
+        setHeroes(cmsItems);
+      } else {
+        // If no CMS items, display nothing
+        setHeroes([]);
+        console.log("No CMS items found, gallery will be empty");
       }
     };
     
-    loadApprovedSubmissions();
-  }, [initialHeroes]);
+    syncWithCMS();
+  }, [initialHeroes]); // Keep the dependency on initialHeroes to trigger on component mount
   
   // Apply filters to heroes
   const filteredHeroes = filterHeroes(heroes, activeFilters);
