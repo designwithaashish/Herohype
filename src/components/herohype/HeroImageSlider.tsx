@@ -23,7 +23,7 @@ const HeroImageSlider: React.FC = () => {
   }, [sliderImages.length]);
   
   return (
-    <div className="w-28 h-20 overflow-hidden rounded-[20px]">
+    <div className="w-[150px] h-[100px] overflow-hidden rounded-[8px]">
       <Carousel>
         <CarouselContent>
           {sliderImages.map((image, index) => (

@@ -14,19 +14,19 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
     if (!grid) return;
     
     const handleImagesLoaded = () => {
-      const images = grid.querySelectorAll('img');
+      const imageElements = grid.querySelectorAll('img');
       let loadedImages = 0;
       
       const imageLoaded = () => {
         loadedImages++;
-        if (loadedImages === images.length) {
+        if (loadedImages === imageElements.length) {
           // All images are loaded
           grid.classList.add('opacity-100');
           grid.classList.remove('opacity-0');
         }
       };
       
-      images.forEach((img) => {
+      imageElements.forEach((img) => {
         const imgElement = img as HTMLImageElement;
         if (imgElement.complete) {
           imageLoaded();
@@ -36,7 +36,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
       });
       
       return () => {
-        images.forEach((img) => {
+        imageElements.forEach((img) => {
           const imgElement = img as HTMLImageElement;
           imgElement.removeEventListener('load', imageLoaded);
         });
@@ -49,12 +49,12 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
   return (
     <div 
       ref={gridRef} 
-      className="masonry-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 px-4 opacity-0 transition-opacity duration-500"
+      className="masonry-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6 w-full opacity-0 transition-opacity duration-500"
     >
       {heroes.map(hero => (
         <div 
           key={`hero-${hero.id}`} 
-          className="masonry-item break-inside-avoid mb-4 transform transition-all duration-300 hover:scale-110 hover:shadow-lg rounded-md overflow-hidden"
+          className="masonry-item break-inside-avoid mb-6 transform transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-md overflow-hidden"
         >
           <HeroCard {...hero} />
         </div>
