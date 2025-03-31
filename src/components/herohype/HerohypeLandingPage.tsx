@@ -4,6 +4,7 @@ import Header from "./Header";
 import HeroSection from "./HeroSection";
 import HeroGallery from "../gallery/HeroGallery";
 import Filters from "./Filters";
+import HeadlineWithSlider from "../gallery/HeadlineWithSlider";
 
 const HerohypeLandingPage: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
@@ -13,6 +14,7 @@ const HerohypeLandingPage: React.FC = () => {
     <div className="bg-white">
       <Header />
       <HeroSection />
+      <HeadlineWithSlider />
       <div className="w-full mx-auto mt-6 px-4">
         <Filters 
           activeFilters={activeFilters}

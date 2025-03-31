@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -25,6 +24,7 @@ export default {
 				'instrument-serif': ["'Instrument Serif'", "serif"],
 				'instrument-serif-italic': ["'Instrument Serif'", "serif"],
 				satoshi: ["'Satoshi'", "sans-serif"],
+				playfair: ["'Playfair Display'", "'Instrument Serif'", "serif"],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
