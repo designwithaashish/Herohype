@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PendingSubmissionCard, { Submission } from "@/components/admin/PendingSubmissionCard";
@@ -94,7 +93,9 @@ const AdminApproval: React.FC = () => {
       const approvedSubmission = {
         ...submission,
         submissionDate: new Date().toISOString(),
-        status: "approved" as const
+        status: "approved" as const,
+        likes: 0,
+        saves: 0
       };
       
       setApprovedSubmissions(prev => [...prev, approvedSubmission]);
@@ -193,7 +194,9 @@ const AdminApproval: React.FC = () => {
       categories: selectedCategories,
       createdAt: new Date().toISOString(),
       submissionDate: new Date().toISOString(),
-      status: "approved"
+      status: "approved",
+      likes: 0,
+      saves: 0
     };
 
     setApprovedSubmissions(prev => [...prev, newSubmission]);

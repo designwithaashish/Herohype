@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,8 @@ export interface Submission {
   createdAt: string;
   submissionDate?: string;
   status: "pending" | "approved" | "rejected";
+  likes?: number;
+  saves?: number;
 }
 
 interface PendingSubmissionCardProps {

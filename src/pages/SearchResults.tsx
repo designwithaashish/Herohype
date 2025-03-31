@@ -16,7 +16,8 @@ const allHeroes: HeroCardProps[] = [
     twitterUsername: "designermark",
     categories: ["Dark", "Gradient", "Animated"],
     likes: 120,
-    saves: 45
+    saves: 45,
+    status: "approved"
   },
   {
     id: "2",
@@ -24,7 +25,8 @@ const allHeroes: HeroCardProps[] = [
     twitterUsername: "webdev_sarah",
     categories: ["Light", "Minimal", "Typography"],
     likes: 85,
-    saves: 32
+    saves: 32,
+    status: "approved"
   },
   {
     id: "3",
@@ -32,7 +34,8 @@ const allHeroes: HeroCardProps[] = [
     twitterUsername: "creative_jake",
     categories: ["3D", "Bento"],
     likes: 95,
-    saves: 28
+    saves: 28,
+    status: "approved"
   },
   // Add more mock hero data as needed
 ];
