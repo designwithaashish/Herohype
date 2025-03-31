@@ -45,17 +45,17 @@ const HeroSection: React.FC = () => {
 
       {/* Main headline with serif font */}
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
-        <h1 className="w-full text-black leading-[1.2] font-instrument-serif">
-          {/* First line */}
-          <div className="text-[54px] md:text-[70px] max-md:text-[38px] animate-[fade-in_0.5s_ease_0.2s_both]">
+        <h1 className="w-full text-black leading-[1.2] font-serif">
+          {/* First line - font size reduced by 10px */}
+          <div className="text-[44px] md:text-[60px] max-md:text-[28px] animate-[fade-in_0.5s_ease_0.2s_both]">
             Discover Trendy &
           </div>
           
-          {/* Second line with image and text */}
+          {/* Second line with image and text - font size reduced by 10px */}
           <div className="flex items-center justify-center gap-4 mt-5 animate-[fade-in_0.5s_ease_0.4s_both]">
             {/* Perfect text without border */}
             <div className="p-3">
-              <span className="text-[54px] md:text-[70px] max-md:text-[38px]">Perfect</span>
+              <span className="text-[44px] md:text-[60px] max-md:text-[28px]">Perfect</span>
             </div>
             
             {/* Image slider */}
@@ -63,7 +63,7 @@ const HeroSection: React.FC = () => {
             
             {/* Hero Section with dashed border */}
             <div className="border-2 border-dashed border-black p-3 rounded-md">
-              <span className="text-[54px] md:text-[70px] max-md:text-[38px]">Hero Section</span>
+              <span className="text-[44px] md:text-[60px] max-md:text-[28px]">Hero Section</span>
             </div>
           </div>
         </h1>
@@ -78,7 +78,7 @@ const HeroSection: React.FC = () => {
       </div>
 
       {/* Search bar - smaller size */}
-      <div className="self-stretch w-full max-w-2xl mx-auto leading-[1.2] mt-[40px] animate-[fade-in_0.5s_ease_0.8s_both]">
+      <div className="self-stretch w-full max-w-md mx-auto leading-[1.2] mt-[40px] animate-[fade-in_0.5s_ease_0.8s_both]">
         <form
           onSubmit={handleSearch}
           className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-8 py-2 rounded-[60px] max-md:pl-4"

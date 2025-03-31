@@ -14,7 +14,7 @@ const HerohypeLandingPage: React.FC = () => {
       <Header />
       <HeroSection />
       <div className="w-full mx-auto px-3 sm:px-4 lg:px-6">
-        <div className="flex justify-center w-full">
+        <div className="flex flex-col items-center justify-center w-full">
           <Filters 
             activeFilters={activeFilters}
             setActiveFilters={setActiveFilters}

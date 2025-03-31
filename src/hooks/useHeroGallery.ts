@@ -26,13 +26,43 @@ export const useHeroGallery = (
       if (Array.isArray(cmsItems) && cmsItems.length > 0) {
         console.log("Syncing gallery with CMS items:", cmsItems.length);
         
-        // Set heroes to ONLY include items from the CMS (approved submissions)
-        // This removes any gallery items that aren't in the CMS
-        setHeroes(cmsItems);
+        // Create demo items if no CMS items exist
+        if (cmsItems.length === 0) {
+          const demoItems = [
+            {
+              id: "demo-1",
+              imageUrl: "/placeholder.svg",
+              twitterUsername: "demo_user",
+              categories: ["Dark", "Minimal"],
+              likes: 5,
+              saves: 3,
+              status: "approved",
+              submissionDate: new Date().toISOString()
+            }
+          ];
+          localStorage.setItem("approvedSubmissions", JSON.stringify(demoItems));
+          setHeroes(demoItems);
+        } else {
+          // Set heroes from CMS items
+          setHeroes(cmsItems);
+        }
       } else {
-        // If no CMS items, display nothing
-        setHeroes([]);
-        console.log("No CMS items found, gallery will be empty");
+        // If no CMS items, create a demo item for testing
+        const demoItems = [
+          {
+            id: "demo-1",
+            imageUrl: "/placeholder.svg",
+            twitterUsername: "demo_user",
+            categories: ["Dark", "Minimal"],
+            likes: 5,
+            saves: 3,
+            status: "approved",
+            submissionDate: new Date().toISOString()
+          }
+        ];
+        localStorage.setItem("approvedSubmissions", JSON.stringify(demoItems));
+        setHeroes(demoItems);
+        console.log("No CMS items found, created demo item for testing");
       }
     };
     
