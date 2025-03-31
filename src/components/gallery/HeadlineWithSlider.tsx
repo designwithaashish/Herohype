@@ -41,7 +41,7 @@ const HeadlineWithSlider: React.FC = () => {
         </div>
         
         <div className="flex flex-wrap justify-center items-center gap-4">
-          <span className="headline-small">Trendy</span>
+          <span className="headline-large">Trendy</span>
           
           <span className="headline-large headline-bordered">
             Hero Sections

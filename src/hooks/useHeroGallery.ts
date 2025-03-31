@@ -61,7 +61,7 @@ export const useHeroGallery = (
     console.log("Sorted heroes by", sortOption, ":", sortedHeroes.length, sortedHeroes);
     const initialItems = sortedHeroes.slice(0, 12);
     setVisibleHeroes(initialItems);
-  }, [sortOption, filteredHeroes]);
+  }, [sortOption, filteredHeroes, heroes]); // Added heroes as a dependency to re-sort when new items are added
   
   // Handle infinite scroll loading
   useEffect(() => {

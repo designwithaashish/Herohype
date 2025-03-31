@@ -56,7 +56,19 @@ export const sortHeroes = (
       return sortedHeroes.sort((a, b) => {
         if (!a.submissionDate) return 1;
         if (!b.submissionDate) return -1;
-        return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+        
+        const dateA = new Date(a.submissionDate);
+        const dateB = new Date(b.submissionDate);
+        
+        // Ensure we're comparing valid dates
+        const validDateA = !isNaN(dateA.getTime());
+        const validDateB = !isNaN(dateB.getTime());
+        
+        if (!validDateA && !validDateB) return 0;
+        if (!validDateA) return 1;
+        if (!validDateB) return -1;
+        
+        return dateB.getTime() - dateA.getTime();
       });
       
     default:

@@ -28,7 +28,7 @@ const Header: React.FC = () => {
     <header className="bg-[rgba(15,16,20,1)] flex h-[80px] w-full items-center gap-[40px_100px] font-normal justify-between flex-wrap px-6 md:px-10 lg:px-20 py-5 max-md:max-w-full">
       <Link to="/" className="flex items-center whitespace-nowrap text-center tracking-[-0.5px] leading-[1.1] justify-center my-auto h-[32px]">
         <img
-          src="/lovable-uploads/5f7ef0c1-51ed-45da-969b-a2ee2eae94b1.png"
+          src="/lovable-uploads/ce7e4c9b-fa03-4aba-aaad-b8701b7a87eb.png"
           className="h-[32px]"
           alt="herohype logo"
         />
@@ -73,7 +73,7 @@ const Header: React.FC = () => {
         ) : (
           <Button 
             onClick={() => navigate("/login")}
-            className="bg-[rgba(183,255,29,1)] text-black shadow-[6px_6px_8px_rgba(0,0,0,0.2)] gap-2.5 px-5 py-3 rounded-lg hover:bg-[rgba(163,235,9,1)] transition-colors font-satoshi"
+            className="bg-[rgba(183,255,29,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] gap-2.5 px-5 py-3 rounded-lg hover:bg-[rgba(163,235,9,1)] transition-colors font-satoshi"
           >
             Login / Sign up
           </Button>
