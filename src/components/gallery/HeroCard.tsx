@@ -10,6 +10,8 @@ export interface HeroCardProps {
   twitterUsername: string;
   categories: string[];
   submissionDate?: string;
+  likes: number;
+  saves: number;
 }
 
 const HeroCard: React.FC<HeroCardProps> = ({
@@ -22,7 +24,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Effect to log when a card is viewed (no longer tracking views in CMS)
+  // Effect to log when a card is viewed
   useEffect(() => {
     console.log(`Viewed hero section: ${id}`);
   }, [id]);

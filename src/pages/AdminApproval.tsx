@@ -7,6 +7,8 @@ import Header from "@/components/herohype/Header";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // Mock data
 const mockSubmissions: Submission[] = [
@@ -19,6 +21,7 @@ const mockSubmissions: Submission[] = [
     description: "A dark theme gradient hero section with animated elements",
     categories: ["Dark", "Gradient", "Animated"],
     createdAt: "2023-06-15T10:30:00Z",
+    status: "pending"
   },
   {
     id: "2",
@@ -28,6 +31,7 @@ const mockSubmissions: Submission[] = [
     description: "Minimal and clean hero section with typography focus",
     categories: ["Light", "Minimal", "Typography"],
     createdAt: "2023-06-14T14:45:00Z",
+    status: "pending"
   },
   {
     id: "3",
@@ -38,6 +42,7 @@ const mockSubmissions: Submission[] = [
     description: "3D elements with a bento-style layout",
     categories: ["3D", "Bento"],
     createdAt: "2023-06-13T09:15:00Z",
+    status: "pending"
   },
 ];
 
@@ -51,6 +56,10 @@ const AdminApproval: React.FC = () => {
   const [pendingSubmissions, setPendingSubmissions] = useState<Submission[]>(mockSubmissions);
   const [approvedSubmissions, setApprovedSubmissions] = useState<Submission[]>([]);
   const [rejectedSubmissions, setRejectedSubmissions] = useState<Submission[]>([]);
+  const [uploadImage, setUploadImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [twitterUsername, setTwitterUsername] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -84,7 +93,8 @@ const AdminApproval: React.FC = () => {
       // Add current date as submission date
       const approvedSubmission = {
         ...submission,
-        submissionDate: new Date().toISOString()
+        submissionDate: new Date().toISOString(),
+        status: "approved" as const
       };
       
       setApprovedSubmissions(prev => [...prev, approvedSubmission]);
@@ -99,7 +109,11 @@ const AdminApproval: React.FC = () => {
   const handleReject = (id: string) => {
     const submission = pendingSubmissions.find(s => s.id === id);
     if (submission) {
-      setRejectedSubmissions(prev => [...prev, submission]);
+      const rejectedSubmission = {
+        ...submission,
+        status: "rejected" as const
+      };
+      setRejectedSubmissions(prev => [...prev, rejectedSubmission]);
       setPendingSubmissions(prev => prev.filter(s => s.id !== id));
       toast({
         title: "Submission rejected",
@@ -137,11 +151,62 @@ const AdminApproval: React.FC = () => {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadImage(file);
+      
+      // Create a preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCategorySelectToggle = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category) 
+        : [...prev, category]
+    );
+  };
+
   const handleManualSubmission = () => {
-    // In a real app, this would open a form to manually add a submission
+    if (!uploadImage || !twitterUsername) {
+      toast({
+        title: "Missing information",
+        description: "Please provide an image and Twitter username",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // In a real app, this would upload the image to a storage service
+    // For now, we'll use the image preview URL
+    const newSubmission: Submission = {
+      id: `manual-${Date.now()}`,
+      imageUrl: imagePreview || '',
+      twitterUsername: twitterUsername.startsWith('@') ? twitterUsername.substring(1) : twitterUsername,
+      submissionType: "image",
+      categories: selectedCategories,
+      createdAt: new Date().toISOString(),
+      submissionDate: new Date().toISOString(),
+      status: "approved"
+    };
+
+    setApprovedSubmissions(prev => [...prev, newSubmission]);
+    
+    // Reset form
+    setUploadImage(null);
+    setImagePreview(null);
+    setTwitterUsername("");
+    setSelectedCategories([]);
+    
     toast({
-      title: "Manual submission",
-      description: "This would open a form to manually add a hero section",
+      title: "Image added",
+      description: "The image has been successfully added to the gallery",
     });
   };
   
@@ -152,18 +217,16 @@ const AdminApproval: React.FC = () => {
         <h1 className="text-3xl font-bold mb-3">Admin Dashboard</h1>
         <div className="flex justify-between items-center mb-6">
           <p className="text-gray-600">Manage hero section submissions</p>
-          <div className="space-x-3">
-            <Button variant="outline" onClick={handleManualSubmission}>
-              + Add New Manually
-            </Button>
-            <Button variant="destructive" onClick={handleClearAll}>
-              Clear All Data
-            </Button>
-          </div>
+          <Button variant="destructive" onClick={handleClearAll}>
+            Clear All Data
+          </Button>
         </div>
         
-        <Tabs defaultValue="pending" className="w-full">
+        <Tabs defaultValue="add" className="w-full">
           <TabsList className="mb-6">
+            <TabsTrigger value="add">
+              Add New Manually
+            </TabsTrigger>
             <TabsTrigger value="pending">
               Pending ({pendingSubmissions.length})
             </TabsTrigger>
@@ -174,6 +237,76 @@ const AdminApproval: React.FC = () => {
               Rejected ({rejectedSubmissions.length})
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="add" className="space-y-4">
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h2 className="text-xl font-semibold mb-4">Add New Hero Section</h2>
+              
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="imageUpload">Upload Image</Label>
+                  <Input 
+                    id="imageUpload" 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageChange}
+                    className="mt-1"
+                  />
+                  
+                  {imagePreview && (
+                    <div className="mt-4 border rounded-md p-2">
+                      <p className="text-sm font-medium mb-2">Preview:</p>
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="max-h-60 rounded-md object-contain" 
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div>
+                  <Label htmlFor="twitterUsername">Twitter Username</Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
+                      @
+                    </span>
+                    <Input
+                      id="twitterUsername"
+                      type="text"
+                      className="rounded-l-none"
+                      placeholder="username"
+                      value={twitterUsername}
+                      onChange={(e) => setTwitterUsername(e.target.value)}
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label className="block mb-2">Select Categories</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {allCategories.map((category) => (
+                      <Badge
+                        key={category}
+                        variant={selectedCategories.includes(category) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => handleCategorySelectToggle(category)}
+                      >
+                        {category}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={handleManualSubmission}
+                  className="w-full mt-4"
+                >
+                  Add to Gallery
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
           
           <TabsContent value="pending">
             {pendingSubmissions.length === 0 ? (

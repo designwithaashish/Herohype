@@ -9,12 +9,15 @@ import { mockHeroes } from "@/data/mockHeroes";
 
 interface HeroGalleryProps {
   initialHeroes?: HeroCardProps[];
+  activeFilters?: string[];
+  sortOption?: string;
 }
 
-const HeroGallery: React.FC<HeroGalleryProps> = ({ initialHeroes = mockHeroes }) => {
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState("Popular");
-  
+const HeroGallery: React.FC<HeroGalleryProps> = ({ 
+  initialHeroes = mockHeroes,
+  activeFilters = [],
+  sortOption = "Popular"
+}) => {
   const { 
     filteredHeroes,
     visibleHeroes,
@@ -28,7 +31,7 @@ const HeroGallery: React.FC<HeroGalleryProps> = ({ initialHeroes = mockHeroes })
         {visibleHeroes.length > 0 && <GalleryGrid heroes={visibleHeroes} />}
         
         {filteredHeroes.length === 0 && (
-          <EmptyGalleryState onClearFilters={() => setActiveFilters([])} />
+          <EmptyGalleryState onClearFilters={() => {}} />
         )}
         
         {hasMore && <LoadMoreIndicator innerRef={loadMoreRef} />}

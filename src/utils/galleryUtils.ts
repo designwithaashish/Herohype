@@ -26,13 +26,13 @@ export const sortHeroes = (
   
   switch (sortOption) {
     case "Popular":
-      // Sort alphabetically by Twitter username
+      // Sort by most likes + 2x saves
       return sortedHeroes.sort((a, b) => 
-        a.twitterUsername.localeCompare(b.twitterUsername)
+        (b.likes + (b.saves * 2)) - (a.likes + (a.saves * 2))
       );
       
     case "Trending":
-      // Show only images from last 7 days, sorted by newest first
+      // Show images from last 7 days, sorted by likes + saves
       return sortedHeroes
         .filter(hero => {
           if (!hero.submissionDate) return false;
@@ -40,9 +40,15 @@ export const sortHeroes = (
           return heroDate >= sevenDaysAgo;
         })
         .sort((a, b) => {
-          if (!a.submissionDate) return 1;
-          if (!b.submissionDate) return -1;
-          return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+          // Sort by likes + saves, with newer items getting higher priority on ties
+          const aScore = a.likes + a.saves;
+          const bScore = b.likes + b.saves;
+          
+          if (aScore === bScore && a.submissionDate && b.submissionDate) {
+            return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+          }
+          
+          return bScore - aScore;
         });
       
     case "Recent":

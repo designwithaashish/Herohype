@@ -20,7 +20,10 @@ const HerohypeLandingPage: React.FC = () => {
         setSortOption={setSortOption}
       />
       <div className="w-full">
-        <HeroGallery />
+        <HeroGallery 
+          activeFilters={activeFilters}
+          sortOption={sortOption}
+        />
       </div>
     </div>
   );

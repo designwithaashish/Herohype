@@ -15,6 +15,7 @@ export interface Submission {
   categories: string[];
   createdAt: string;
   submissionDate?: string;
+  status: "pending" | "approved" | "rejected";
 }
 
 interface PendingSubmissionCardProps {
