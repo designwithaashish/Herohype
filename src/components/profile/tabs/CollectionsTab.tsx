@@ -2,12 +2,16 @@
 import React from "react";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface CollectionsTabProps {
   savedHeroes: any[];
 }
 
 const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
+  const navigate = useNavigate();
+  
   if (savedHeroes.length === 0) {
     return (
       <div className="text-center py-12">
@@ -15,9 +19,13 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
         <p className="text-gray-500 mb-6">
           You haven't saved any hero sections to your collection yet.
         </p>
-        <a href="/" className="text-blue-600 hover:underline">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate("/")}
+          className="hover:bg-gray-100"
+        >
           Browse the gallery
-        </a>
+        </Button>
       </div>
     );
   }

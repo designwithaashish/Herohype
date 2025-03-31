@@ -5,6 +5,7 @@ import Header from "@/components/herohype/Header";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import UserProfileHeader from "@/components/profile/UserProfileHeader";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface UserProfile {
   name: string;
@@ -87,10 +88,22 @@ const Profile: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container mx-auto py-8 px-4">
-        <UserProfileHeader 
-          profile={userProfile} 
-          onUpdateProfile={updateProfile}
-        />
+        <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-6">
+          <div className="w-full">
+            <UserProfileHeader 
+              profile={userProfile} 
+              onUpdateProfile={updateProfile}
+            />
+          </div>
+          <div className="w-full md:w-auto">
+            <Button 
+              className="bg-[rgba(183,255,29,1)] hover:bg-[rgba(163,235,9,1)] text-black font-medium px-6 py-3"
+              onClick={() => navigate("/submit")}
+            >
+              Submit Hero
+            </Button>
+          </div>
+        </div>
         <ProfileTabs user={user} />
       </div>
     </div>

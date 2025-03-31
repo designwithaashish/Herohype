@@ -61,15 +61,6 @@ const Header: React.FC = () => {
       </Link>
 
       <nav className="flex items-center gap-10 text-[15px] text-white font-medium justify-center my-auto">
-        {isLoggedIn && (
-          <Link
-            to="/submit"
-            className="hover:text-gray-300 transition-colors font-satoshi"
-          >
-            Submit
-          </Link>
-        )}
-        
         {isAdmin && (
           <Link
             to="/admin"
@@ -78,13 +69,6 @@ const Header: React.FC = () => {
             Admin
           </Link>
         )}
-        
-        <Link
-          to="/about"
-          className="hover:text-gray-300 transition-colors font-satoshi"
-        >
-          About
-        </Link>
       </nav>
 
       <div className="flex gap-3 text-[22px] text-center leading-[1.2] justify-center my-auto">

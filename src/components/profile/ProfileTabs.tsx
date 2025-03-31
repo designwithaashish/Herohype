@@ -49,10 +49,10 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
 
   return (
     <Tabs defaultValue="submissions" className="w-full">
-      <TabsList className="w-full mb-6">
-        <TabsTrigger value="submissions" className="flex-1">Your Submissions</TabsTrigger>
-        <TabsTrigger value="collections" className="flex-1">Collections</TabsTrigger>
-        <TabsTrigger value="uploads" className="flex-1">Uploads</TabsTrigger>
+      <TabsList className="w-full mb-6 bg-gray-100 p-1 rounded-lg">
+        <TabsTrigger value="submissions" className="text-sm py-1.5 px-3">Your Submissions</TabsTrigger>
+        <TabsTrigger value="collections" className="text-sm py-1.5 px-3">Collections</TabsTrigger>
+        <TabsTrigger value="uploads" className="text-sm py-1.5 px-3">Uploads</TabsTrigger>
       </TabsList>
       
       <TabsContent value="submissions">
