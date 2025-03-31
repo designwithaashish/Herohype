@@ -16,7 +16,7 @@ const Index: React.FC = () => {
         categories: ["Dark", "Minimal"],
         likes: 5,
         saves: 3,
-        status: "approved",
+        status: "approved" as const, // Explicitly type as "approved"
         submissionDate: new Date().toISOString()
       };
       

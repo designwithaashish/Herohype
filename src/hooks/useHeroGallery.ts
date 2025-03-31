@@ -26,29 +26,19 @@ export const useHeroGallery = (
       if (Array.isArray(cmsItems) && cmsItems.length > 0) {
         console.log("Syncing gallery with CMS items:", cmsItems.length);
         
-        // Create demo items if no CMS items exist
-        if (cmsItems.length === 0) {
-          const demoItems = [
-            {
-              id: "demo-1",
-              imageUrl: "/placeholder.svg",
-              twitterUsername: "demo_user",
-              categories: ["Dark", "Minimal"],
-              likes: 5,
-              saves: 3,
-              status: "approved",
-              submissionDate: new Date().toISOString()
-            }
-          ];
-          localStorage.setItem("approvedSubmissions", JSON.stringify(demoItems));
-          setHeroes(demoItems);
-        } else {
-          // Set heroes from CMS items
-          setHeroes(cmsItems);
-        }
+        // Ensure status is one of the allowed values in HeroCardProps
+        const typedCmsItems: HeroCardProps[] = cmsItems.map(item => ({
+          ...item,
+          status: (item.status === "approved" || item.status === "pending" || item.status === "rejected") 
+            ? item.status 
+            : "approved" // Default to approved if status is not one of the expected values
+        }));
+        
+        // Set heroes from CMS items
+        setHeroes(typedCmsItems);
       } else {
         // If no CMS items, create a demo item for testing
-        const demoItems = [
+        const demoItems: HeroCardProps[] = [
           {
             id: "demo-1",
             imageUrl: "/placeholder.svg",

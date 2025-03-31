@@ -5,24 +5,26 @@ import SubmissionsTab from "./tabs/SubmissionsTab";
 import UploadsTab from "./tabs/UploadsTab";
 import CollectionsTab from "./tabs/CollectionsTab";
 
-const ProfileTabs: React.FC = () => {
+interface ProfileTabsProps {
+  user?: any;
+}
+
+const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
   const [pendingSubmissions, setPendingSubmissions] = useState<any[]>([]);
   const [approvedSubmissions, setApprovedSubmissions] = useState<any[]>([]);
   const [savedHeroes, setSavedHeroes] = useState<string[]>([]);
   
   useEffect(() => {
-    // Get the current user
-    const userStr = localStorage.getItem("user");
-    if (!userStr) return;
-    
-    const user = JSON.parse(userStr);
+    // Get the current user if not provided as prop
+    const userObj = user || (localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "{}") : null);
+    if (!userObj) return;
     
     // Get pending submissions
     const pendingStr = localStorage.getItem("pendingSubmissions");
     const allPending = pendingStr ? JSON.parse(pendingStr) : [];
     
     // Filter to show only the current user's pending submissions
-    const userPending = allPending.filter((sub: any) => sub.userId === user.id);
+    const userPending = allPending.filter((sub: any) => sub.userId === userObj.id);
     setPendingSubmissions(userPending);
     
     // Get approved submissions
@@ -30,14 +32,14 @@ const ProfileTabs: React.FC = () => {
     const allApproved = approvedStr ? JSON.parse(approvedStr) : [];
     
     // Filter to show only the current user's approved submissions
-    const userApproved = allApproved.filter((sub: any) => sub.userId === user.id);
+    const userApproved = allApproved.filter((sub: any) => sub.userId === userObj.id);
     setApprovedSubmissions(userApproved);
     
     // Get saved heroes
     const savedStr = localStorage.getItem("savedHeroes");
     const saved = savedStr ? JSON.parse(savedStr) : [];
     setSavedHeroes(saved);
-  }, []);
+  }, [user]);
   
   return (
     <Tabs defaultValue="submissions" className="w-full">
