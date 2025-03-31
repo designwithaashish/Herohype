@@ -22,7 +22,14 @@ export const useHeroGallery = (
     if (approvedSubmissions) {
       const parsedSubmissions = JSON.parse(approvedSubmissions);
       if (Array.isArray(parsedSubmissions) && parsedSubmissions.length > 0) {
-        setHeroes([...parsedSubmissions, ...initialHeroes]);
+        // Combine with initial heroes but avoid duplicates by id
+        const initialHeroIds = new Set(initialHeroes.map(hero => hero.id));
+        const uniqueSubmissions = parsedSubmissions.filter(
+          (submission: HeroCardProps) => !initialHeroIds.has(submission.id)
+        );
+        
+        setHeroes([...uniqueSubmissions, ...initialHeroes]);
+        console.log("Loaded heroes from localStorage:", uniqueSubmissions.length);
       }
     }
   }, [initialHeroes]);

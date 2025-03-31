@@ -19,7 +19,6 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { PlusCircle, Image, Link2, Trash2, Edit, Eye } from "lucide-react";
 
-// Mock data
 const mockSubmissions: Submission[] = [
   {
     id: "1",
@@ -55,7 +54,6 @@ const mockSubmissions: Submission[] = [
   },
 ];
 
-// All available categories for assignments
 const allCategories = [
   "Dark", "Light", "Gradient", "3D", "Bento", "Minimal", 
   "Typography", "Animated", "Illustrated", "Crypto"
@@ -74,6 +72,7 @@ const AdminApproval: React.FC = () => {
   const [pendingSubmissions, setPendingSubmissions] = useState<Submission[]>(mockSubmissions);
   const [approvedSubmissions, setApprovedSubmissions] = useState<Submission[]>([]);
   const [rejectedSubmissions, setRejectedSubmissions] = useState<Submission[]>([]);
+  const [curatedSubmissions, setCuratedSubmissions] = useState<Submission[]>([]);
   const [uploadImage, setUploadImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -119,17 +118,28 @@ const AdminApproval: React.FC = () => {
     const storedPending = localStorage.getItem("pendingSubmissions");
     const storedApproved = localStorage.getItem("approvedSubmissions");
     const storedRejected = localStorage.getItem("rejectedSubmissions");
+    const storedCurated = localStorage.getItem("curatedSubmissions");
     
     if (storedPending) setPendingSubmissions(JSON.parse(storedPending));
     if (storedApproved) setApprovedSubmissions(JSON.parse(storedApproved));
     if (storedRejected) setRejectedSubmissions(JSON.parse(storedRejected));
+    if (storedCurated) setCuratedSubmissions(JSON.parse(storedCurated));
+    else {
+      if (storedApproved) {
+        const approved = JSON.parse(storedApproved);
+        const adminUploaded = approved.filter((s: Submission) => s.id.startsWith('manual-'));
+        setCuratedSubmissions(adminUploaded);
+        localStorage.setItem("curatedSubmissions", JSON.stringify(adminUploaded));
+      }
+    }
   }, [navigate, toast]);
   
   useEffect(() => {
     localStorage.setItem("pendingSubmissions", JSON.stringify(pendingSubmissions));
     localStorage.setItem("approvedSubmissions", JSON.stringify(approvedSubmissions));
     localStorage.setItem("rejectedSubmissions", JSON.stringify(rejectedSubmissions));
-  }, [pendingSubmissions, approvedSubmissions, rejectedSubmissions]);
+    localStorage.setItem("curatedSubmissions", JSON.stringify(curatedSubmissions));
+  }, [pendingSubmissions, approvedSubmissions, rejectedSubmissions, curatedSubmissions]);
   
   const handleApprove = (id: string, categories: string[]) => {
     const submission = pendingSubmissions.find(s => s.id === id);
@@ -198,13 +208,21 @@ const AdminApproval: React.FC = () => {
       submissionDate: new Date().toISOString(),
       status: "approved",
       likes: 0,
-      saves: 0
+      saves: 0,
+      isAdminUploaded: true
     };
 
     if (editingSubmission) {
+      if (editingSubmission.id.startsWith('manual-') || editingSubmission.isAdminUploaded) {
+        setCuratedSubmissions(prev => 
+          prev.map(sub => sub.id === editingSubmission.id ? newSubmission : sub)
+        );
+      }
+      
       setApprovedSubmissions(prev => 
         prev.map(sub => sub.id === editingSubmission.id ? newSubmission : sub)
       );
+      
       setEditingSubmission(null);
       toast({
         title: "Hero section updated",
@@ -212,6 +230,7 @@ const AdminApproval: React.FC = () => {
       });
     } else {
       setApprovedSubmissions(prev => [...prev, newSubmission]);
+      setCuratedSubmissions(prev => [...prev, newSubmission]);
       toast({
         title: "Hero section added",
         description: "The hero section has been successfully added to the gallery",
@@ -228,6 +247,9 @@ const AdminApproval: React.FC = () => {
   const handleDeleteApproved = (id: string) => {
     if (window.confirm("Are you sure you want to delete this hero section?")) {
       setApprovedSubmissions(prev => prev.filter(s => s.id !== id));
+      
+      setCuratedSubmissions(prev => prev.filter(s => s.id !== id));
+      
       toast({
         title: "Hero section deleted",
         description: "The hero section has been removed from the gallery",
@@ -257,9 +279,11 @@ const AdminApproval: React.FC = () => {
       setPendingSubmissions([]);
       setApprovedSubmissions([]);
       setRejectedSubmissions([]);
+      setCuratedSubmissions([]);
       localStorage.removeItem("pendingSubmissions");
       localStorage.removeItem("approvedSubmissions");
       localStorage.removeItem("rejectedSubmissions");
+      localStorage.removeItem("curatedSubmissions");
       toast({
         title: "Data cleared",
         description: "All submission data has been deleted",
@@ -292,6 +316,9 @@ const AdminApproval: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger value="approved" className="flex items-center gap-1">
               Gallery ({approvedSubmissions.length})
+            </TabsTrigger>
+            <TabsTrigger value="curated" className="flex items-center gap-1">
+              Curated ({curatedSubmissions.length})
             </TabsTrigger>
             <TabsTrigger value="rejected" className="flex items-center gap-1">
               Rejected ({rejectedSubmissions.length})
@@ -570,6 +597,88 @@ const AdminApproval: React.FC = () => {
                   </TableHeader>
                   <TableBody>
                     {approvedSubmissions.map((submission) => (
+                      <TableRow key={submission.id}>
+                        <TableCell>
+                          <div className="w-12 h-12 rounded overflow-hidden">
+                            <img 
+                              src={submission.imageUrl} 
+                              alt={`Hero by @${submission.twitterUsername}`}
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">@{submission.twitterUsername}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {submission.categories.map((category) => (
+                              <Badge key={category} variant="secondary" className="text-xs">
+                                {category}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(submission.submissionDate || submission.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex justify-center gap-4">
+                            <span className="text-sm">♥ {submission.likes || 0}</span>
+                            <span className="text-sm">⭐ {submission.saves || 0}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEditApproved(submission)}
+                            >
+                              <Edit size={16} />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteApproved(submission.id)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="curated">
+            {curatedSubmissions.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-md shadow">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Image size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No curated content yet</h3>
+                <p className="text-gray-500 max-w-sm mx-auto">
+                  Items that you upload directly as an admin will appear here for easy management.
+                </p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">Preview</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Categories</TableHead>
+                      <TableHead>Added On</TableHead>
+                      <TableHead className="text-center">Stats</TableHead>
+                      <TableHead className="w-24 text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {curatedSubmissions.map((submission) => (
                       <TableRow key={submission.id}>
                         <TableCell>
                           <div className="w-12 h-12 rounded overflow-hidden">

@@ -28,7 +28,7 @@ export const sortHeroes = (
     case "Popular":
       // Sort by most likes + 2x saves
       return sortedHeroes.sort((a, b) => 
-        (b.likes + (b.saves * 2)) - (a.likes + (a.saves * 2))
+        ((b.likes || 0) + ((b.saves || 0) * 2)) - ((a.likes || 0) + ((a.saves || 0) * 2))
       );
       
     case "Trending":
@@ -41,8 +41,8 @@ export const sortHeroes = (
         })
         .sort((a, b) => {
           // Sort by likes + saves, with newer items getting higher priority on ties
-          const aScore = a.likes + a.saves;
-          const bScore = b.likes + b.saves;
+          const aScore = (a.likes || 0) + (a.saves || 0);
+          const bScore = (b.likes || 0) + (b.saves || 0);
           
           if (aScore === bScore && a.submissionDate && b.submissionDate) {
             return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
