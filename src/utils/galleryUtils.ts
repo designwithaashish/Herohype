@@ -11,7 +11,7 @@ export const filterHeroes = (
   }
   
   return heroes.filter(hero => 
-    activeFilters.every(filter => hero.categories.includes(filter))
+    activeFilters.every(filter => hero.categories?.includes(filter))
   );
 };
 

@@ -16,22 +16,39 @@ export const useHeroGallery = (
     triggerOnce: false,
   });
   
-  // Load heroes from localStorage when it changes
+  // Load heroes from localStorage when component mounts or initialHeroes changes
   useEffect(() => {
-    const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-    if (approvedSubmissions) {
-      const parsedSubmissions = JSON.parse(approvedSubmissions);
-      if (Array.isArray(parsedSubmissions) && parsedSubmissions.length > 0) {
-        // Combine with initial heroes but avoid duplicates by id
-        const initialHeroIds = new Set(initialHeroes.map(hero => hero.id));
-        const uniqueSubmissions = parsedSubmissions.filter(
-          (submission: HeroCardProps) => !initialHeroIds.has(submission.id)
-        );
-        
-        setHeroes([...uniqueSubmissions, ...initialHeroes]);
-        console.log("Loaded heroes from localStorage:", uniqueSubmissions.length);
+    const loadApprovedSubmissions = () => {
+      const approvedSubmissions = localStorage.getItem("approvedSubmissions");
+      if (approvedSubmissions) {
+        try {
+          const parsedSubmissions = JSON.parse(approvedSubmissions);
+          if (Array.isArray(parsedSubmissions) && parsedSubmissions.length > 0) {
+            // Combine with initial heroes but avoid duplicates by id
+            const initialHeroIds = new Set(initialHeroes.map(hero => hero.id));
+            const uniqueSubmissions = parsedSubmissions.filter(
+              (submission: HeroCardProps) => !initialHeroIds.has(submission.id)
+            );
+            
+            // Ensure all submissions have the required properties
+            const validSubmissions = uniqueSubmissions.map((submission: any) => ({
+              ...submission,
+              likes: submission.likes || 0,
+              saves: submission.saves || 0,
+              categories: submission.categories || [],
+              status: submission.status || "approved"
+            }));
+            
+            setHeroes([...validSubmissions, ...initialHeroes]);
+            console.log("Loaded heroes from localStorage:", validSubmissions.length);
+          }
+        } catch (error) {
+          console.error("Error loading approved submissions:", error);
+        }
       }
-    }
+    };
+    
+    loadApprovedSubmissions();
   }, [initialHeroes]);
   
   // Apply filters to heroes

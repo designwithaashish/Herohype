@@ -155,6 +155,10 @@ const AdminApproval: React.FC = () => {
       
       setApprovedSubmissions(prev => [...prev, approvedSubmission]);
       setPendingSubmissions(prev => prev.filter(s => s.id !== id));
+      
+      const currentApproved = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      localStorage.setItem("approvedSubmissions", JSON.stringify([...currentApproved, approvedSubmission]));
+      
       toast({
         title: "Submission approved",
         description: `@${submission.twitterUsername}'s hero section has been approved`,
@@ -208,12 +212,11 @@ const AdminApproval: React.FC = () => {
       submissionDate: new Date().toISOString(),
       status: "approved",
       likes: 0,
-      saves: 0,
-      isAdminUploaded: true
+      saves: 0
     };
 
     if (editingSubmission) {
-      if (editingSubmission.id.startsWith('manual-') || editingSubmission.isAdminUploaded) {
+      if (editingSubmission.id.startsWith('manual-')) {
         setCuratedSubmissions(prev => 
           prev.map(sub => sub.id === editingSubmission.id ? newSubmission : sub)
         );
@@ -223,6 +226,11 @@ const AdminApproval: React.FC = () => {
         prev.map(sub => sub.id === editingSubmission.id ? newSubmission : sub)
       );
       
+      const currentApproved = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      localStorage.setItem("approvedSubmissions", JSON.stringify(
+        currentApproved.map((sub: Submission) => sub.id === editingSubmission.id ? newSubmission : sub)
+      ));
+      
       setEditingSubmission(null);
       toast({
         title: "Hero section updated",
@@ -231,6 +239,13 @@ const AdminApproval: React.FC = () => {
     } else {
       setApprovedSubmissions(prev => [...prev, newSubmission]);
       setCuratedSubmissions(prev => [...prev, newSubmission]);
+      
+      const currentApproved = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      localStorage.setItem("approvedSubmissions", JSON.stringify([...currentApproved, newSubmission]));
+      
+      const currentCurated = JSON.parse(localStorage.getItem("curatedSubmissions") || "[]");
+      localStorage.setItem("curatedSubmissions", JSON.stringify([...currentCurated, newSubmission]));
+      
       toast({
         title: "Hero section added",
         description: "The hero section has been successfully added to the gallery",
