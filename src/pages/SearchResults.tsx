@@ -15,18 +15,24 @@ const allHeroes: HeroCardProps[] = [
     imageUrl: "https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/1c9a27ca109627531b07f63bf67d7584e234fb6a",
     twitterUsername: "designermark",
     categories: ["Dark", "Gradient", "Animated"],
+    likes: 120,
+    saves: 45
   },
   {
     id: "2",
     imageUrl: "https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/4dcc644b12d8b5262921e7c60355f5cb0e5c7a62",
     twitterUsername: "webdev_sarah",
     categories: ["Light", "Minimal", "Typography"],
+    likes: 85,
+    saves: 32
   },
   {
     id: "3",
     imageUrl: "https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/ca9cd70178b9ef63a5165be05724b3eb93b407cb",
     twitterUsername: "creative_jake",
     categories: ["3D", "Bento"],
+    likes: 95,
+    saves: 28
   },
   // Add more mock hero data as needed
 ];

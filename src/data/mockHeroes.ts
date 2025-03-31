@@ -9,6 +9,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "designermark",
     categories: ["Dark", "Gradient", "Animated"],
     submissionDate: "2023-06-15",
+    likes: 245,
+    saves: 89
   },
   {
     id: "2",
@@ -16,6 +18,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "webdev_sarah",
     categories: ["Light", "Minimal", "Typography"],
     submissionDate: "2023-07-22",
+    likes: 189,
+    saves: 67
   },
   {
     id: "3",
@@ -23,6 +27,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "creative_jake",
     categories: ["3D", "Bento"],
     submissionDate: "2023-05-10",
+    likes: 320,
+    saves: 105
   },
   {
     id: "4",
@@ -30,6 +36,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ui_master",
     categories: ["Light", "Minimal"],
     submissionDate: "2023-08-05",
+    likes: 156,
+    saves: 42
   },
   {
     id: "5",
@@ -37,6 +45,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "frontend_dev",
     categories: ["Dark", "Typography"],
     submissionDate: "2023-09-18",
+    likes: 278,
+    saves: 91
   },
   {
     id: "6",
@@ -44,6 +54,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "designguru",
     categories: ["Gradient", "3D"],
     submissionDate: "2023-04-25",
+    likes: 342,
+    saves: 127
   },
   {
     id: "7",
@@ -51,6 +63,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "pixel_perfect",
     categories: ["Light", "Minimal"],
     submissionDate: "2023-10-02",
+    likes: 187,
+    saves: 54
   },
   {
     id: "8",
@@ -58,6 +72,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ui_unicorn",
     categories: ["Dark", "Gradient"],
     submissionDate: "2023-06-30",
+    likes: 201,
+    saves: 75
   },
   {
     id: "9",
@@ -65,6 +81,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "websmith",
     categories: ["3D", "Typography"],
     submissionDate: "2023-03-15",
+    likes: 263,
+    saves: 82
   },
   {
     id: "10",
@@ -72,6 +90,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "digital_nomad",
     categories: ["Bento", "Light"],
     submissionDate: "2023-01-01",
+    likes: 198,
+    saves: 63
   },
   {
     id: "11",
@@ -79,6 +99,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "uidesigner_pro",
     categories: ["Dark", "Minimal"],
     submissionDate: "2023-02-10",
+    likes: 241,
+    saves: 89
   },
   {
     id: "12",
@@ -86,6 +108,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "creative_coder",
     categories: ["Gradient", "Typography"],
     submissionDate: "2023-03-15",
+    likes: 312,
+    saves: 94
   },
   {
     id: "13",
@@ -93,6 +117,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "design_ninja",
     categories: ["Light", "3D"],
     submissionDate: "2023-04-01",
+    likes: 175,
+    saves: 58
   },
   {
     id: "14",
@@ -100,6 +126,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "web_artist",
     categories: ["Bento", "Dark"],
     submissionDate: "2023-05-01",
+    likes: 230,
+    saves: 76
   },
   {
     id: "15",
@@ -107,6 +135,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ux_explorer",
     categories: ["Minimal", "Typography"],
     submissionDate: "2023-06-01",
+    likes: 186,
+    saves: 47
   },
   {
     id: "16",
@@ -114,6 +144,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "interface_guru",
     categories: ["Gradient", "Light"],
     submissionDate: "2023-07-01",
+    likes: 275,
+    saves: 92
   },
   {
     id: "17",
@@ -121,6 +153,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "product_designer",
     categories: ["Dark", "3D"],
     submissionDate: "2023-08-01",
+    likes: 327,
+    saves: 118
   },
   {
     id: "18",
@@ -128,6 +162,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "webflow_expert",
     categories: ["Bento", "Typography"],
     submissionDate: "2023-09-01",
+    likes: 217,
+    saves: 73
   },
   {
     id: "19",
@@ -135,6 +171,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "frontend_ninja",
     categories: ["Light", "Minimal"],
     submissionDate: "2023-10-01",
+    likes: 193,
+    saves: 64
   },
   {
     id: "20",
@@ -142,6 +180,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "react_dev",
     categories: ["Gradient", "Dark"],
     submissionDate: "2023-11-01",
+    likes: 285,
+    saves: 97
   },
   {
     id: "21",
@@ -149,6 +189,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "figma_master",
     categories: ["3D", "Light"],
     submissionDate: "2023-12-01",
+    likes: 226,
+    saves: 83
   },
   {
     id: "22",
@@ -156,6 +198,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ui_engineer",
     categories: ["Bento", "Typography"],
     submissionDate: "2024-01-01",
+    likes: 188,
+    saves: 59
   },
   {
     id: "23",
@@ -163,6 +207,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "design_system",
     categories: ["Minimal", "Dark"],
     submissionDate: "2024-02-01",
+    likes: 253,
+    saves: 81
   },
   {
     id: "24",
@@ -170,6 +216,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "css_wizard",
     categories: ["Gradient", "Typography"],
     submissionDate: "2024-03-01",
+    likes: 312,
+    saves: 106
   },
   {
     id: "25",
@@ -177,6 +225,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ui_creator",
     categories: ["Light", "3D"],
     submissionDate: "2024-04-01",
+    likes: 176,
+    saves: 48
   },
   {
     id: "26",
@@ -184,6 +234,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "motion_designer",
     categories: ["Bento", "Dark"],
     submissionDate: "2024-05-01",
+    likes: 235,
+    saves: 87
   },
   {
     id: "27",
@@ -191,6 +243,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "webdesign_pro",
     categories: ["Minimal", "Typography"],
     submissionDate: "2024-06-01",
+    likes: 194,
+    saves: 62
   },
   {
     id: "28",
@@ -198,6 +252,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ux_builder",
     categories: ["Gradient", "Light"],
     submissionDate: "2024-07-01",
+    likes: 268,
+    saves: 93
   },
   {
     id: "29",
@@ -205,6 +261,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "tailwind_master",
     categories: ["Dark", "3D"],
     submissionDate: "2024-08-01",
+    likes: 329,
+    saves: 112
   },
   {
     id: "30",
@@ -212,6 +270,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "framer_motion",
     categories: ["Bento", "Typography"],
     submissionDate: "2024-09-01",
+    likes: 213,
+    saves: 71
   },
   {
     id: "31",
@@ -219,6 +279,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "next_js_dev",
     categories: ["Light", "Minimal"],
     submissionDate: "2024-10-01",
+    likes: 198,
+    saves: 65
   },
   {
     id: "32",
@@ -226,6 +288,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "ui_craftsman",
     categories: ["Gradient", "Dark"],
     submissionDate: "2024-11-01",
+    likes: 287,
+    saves: 96
   },
   {
     id: "33",
@@ -233,6 +297,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "gsap_expert",
     categories: ["3D", "Light"],
     submissionDate: "2024-12-01",
+    likes: 226,
+    saves: 79
   },
   {
     id: "34",
@@ -240,6 +306,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "svelte_dev",
     categories: ["Bento", "Typography"],
     submissionDate: "2025-01-01",
+    likes: 186,
+    saves: 56
   },
   {
     id: "35",
@@ -247,6 +315,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "vue_engineer",
     categories: ["Minimal", "Dark"],
     submissionDate: "2025-02-01",
+    likes: 249,
+    saves: 84
   },
   {
     id: "36",
@@ -254,6 +324,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "three_js_dev",
     categories: ["Gradient", "Typography"],
     submissionDate: "2025-03-01",
+    likes: 307,
+    saves: 103
   },
   {
     id: "37",
@@ -261,6 +333,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "webgl_master",
     categories: ["Light", "3D"],
     submissionDate: "2025-04-01",
+    likes: 174,
+    saves: 51
   },
   {
     id: "38",
@@ -268,6 +342,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "react_native",
     categories: ["Bento", "Dark"],
     submissionDate: "2025-05-01",
+    likes: 231,
+    saves: 82
   },
   {
     id: "39",
@@ -275,6 +351,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "flutter_dev",
     categories: ["Minimal", "Typography"],
     submissionDate: "2025-06-01",
+    likes: 192,
+    saves: 61
   },
   {
     id: "40",
@@ -282,6 +360,8 @@ export const mockHeroes: HeroCardProps[] = [
     twitterUsername: "react_designer",
     categories: ["Gradient", "Light"],
     submissionDate: "2025-07-01",
+    likes: 271,
+    saves: 91
   },
 ];
 
