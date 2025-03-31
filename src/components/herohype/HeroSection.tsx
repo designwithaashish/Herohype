@@ -21,7 +21,7 @@ const HeroSection: React.FC = () => {
   return (
     <section className="flex min-h-[520px] w-full flex-col items-center text-center justify-center mt-5 pt-[61px] pb-5 px-5 md:px-10 lg:px-20">
       {/* Top stat banner */}
-      <div className="bg-white border flex items-center gap-2 text-xs text-black font-medium uppercase tracking-[0.5px] leading-[1.2] justify-center px-6 py-2 rounded-[60px] border-[rgba(0,0,0,0.15)] border-solid">
+      <div className="bg-white border flex items-center gap-2 text-xs text-black font-medium uppercase tracking-[0.5px] leading-[1.2] justify-center px-6 py-2 rounded-[60px] border-[rgba(0,0,0,0.15)] border-solid animate-fade-in">
         <span className="text-black">*</span>
         <div className="self-stretch my-auto font-satoshi">100+ HERO SECTIONS CURATED</div>
         <span className="text-black">*</span>
@@ -31,12 +31,12 @@ const HeroSection: React.FC = () => {
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
         <h1 className="w-full text-black leading-[1.2] font-playfair">
           {/* First line */}
-          <div className="text-[64px] md:text-[80px] max-md:text-[48px]">
+          <div className="text-[64px] md:text-[80px] max-md:text-[48px] animate-[fade-in_0.5s_ease_0.2s_both]">
             Discover Trendy &
           </div>
           
           {/* Second line with image and text */}
-          <div className="flex items-center justify-center gap-4 mt-5">
+          <div className="flex items-center justify-center gap-4 mt-5 animate-[fade-in_0.5s_ease_0.4s_both]">
             {/* Perfect text without border */}
             <div className="p-3">
               <span className="text-[64px] md:text-[80px] max-md:text-[48px]">Perfect</span>
@@ -53,7 +53,7 @@ const HeroSection: React.FC = () => {
         </h1>
 
         {/* Subheadline */}
-        <p className="w-full max-w-3xl text-lg text-[rgba(61,61,61,1)] leading-7 mt-8 mx-auto font-satoshi">
+        <p className="w-full max-w-3xl text-lg text-[rgba(61,61,61,1)] leading-7 mt-8 mx-auto font-satoshi animate-[fade-in_0.5s_ease_0.6s_both]">
           Explore a stunning collection of curated hero designs.
           <br />
           Filter by style, vibe, or trend. From bold gradients to sleek
@@ -62,7 +62,7 @@ const HeroSection: React.FC = () => {
       </div>
 
       {/* Search bar */}
-      <div className="self-stretch w-full max-w-5xl mx-auto leading-[1.2] mt-[40px]">
+      <div className="self-stretch w-full max-w-5xl mx-auto leading-[1.2] mt-[40px] animate-[fade-in_0.5s_ease_0.8s_both]">
         <form
           onSubmit={handleSearch}
           className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-10 py-3 rounded-[60px] max-md:pl-5"

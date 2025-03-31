@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Maximize, Heart, Bookmark } from "lucide-react";
+import { Heart, Bookmark } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -124,7 +124,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
   return (
     <Dialog>
       <div 
-        className="group relative bg-white rounded-[32px] shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-4 border-gray-100"
+        className="group relative bg-white rounded-[32px] shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:scale-[1.05] border-4 border-gray-100"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -139,64 +139,58 @@ const HeroCard: React.FC<HeroCardProps> = ({
               <img
                 src={imageUrl}
                 alt={`Hero section by @${twitterUsername}`}
-                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
+                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${
                   isLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 loading="lazy"
                 onLoad={() => setIsLoaded(true)}
               />
               
-              <div className={`absolute inset-0 bg-black bg-opacity-0 transition-opacity duration-300 ${isHovered ? 'bg-opacity-30' : ''}`}></div>
+              {/* Gradient overlay at the bottom, visible on hover */}
+              <div 
+                className={`absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300 ${
+                  isHovered ? 'opacity-100' : 'opacity-0'
+                }`}
+              ></div>
               
               {isHovered && (
-                <div className="absolute inset-0 flex items-center justify-center p-4">
-                  <span className="bg-white text-black p-2 rounded-full flex items-center justify-center w-10 h-10 transform transition-transform duration-300">
-                    <Maximize size={18} />
-                  </span>
-                </div>
-              )}
-
-              {isHovered && (
-                <div className="absolute bottom-3 right-3">
+                <div className="absolute bottom-3 left-0 right-0 px-3 flex justify-between items-center z-10">
+                  {/* Twitter username */}
                   <a
                     href={`https://twitter.com/${twitterUsername}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-black bg-opacity-70 hover:bg-opacity-90 text-white px-3 py-1 rounded-full text-sm transition-all"
+                    className="text-white text-sm hover:underline transition-all"
                     onClick={(e) => e.stopPropagation()}
                   >
                     @{twitterUsername}
                   </a>
+                  
+                  {/* Like and Save buttons */}
+                  {status === "approved" && (
+                    <div className="flex items-center space-x-3">
+                      <button
+                        className={`flex items-center text-sm text-white`}
+                        onClick={handleLike}
+                      >
+                        <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current text-red-500' : ''}`} />
+                        <span className="text-xs">{likeCount}</span>
+                      </button>
+                      
+                      <button
+                        className={`flex items-center text-sm text-white`}
+                        onClick={handleSave}
+                      >
+                        <Bookmark className={`h-4 w-4 mr-1 ${isSaved ? 'fill-current text-blue-500' : ''}`} />
+                        <span className="text-xs">{saveCount}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           </button>
         </DialogTrigger>
-
-        {/* Like/Save buttons, only visible for approved images */}
-        {status === "approved" && (
-          <div className="absolute top-3 left-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <Button
-              variant="secondary"
-              size="sm"
-              className={`rounded-full bg-white ${isLiked ? 'text-red-500' : 'text-gray-500'} hover:bg-gray-100`}
-              onClick={handleLike}
-            >
-              <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current' : ''}`} />
-              <span>{likeCount}</span>
-            </Button>
-            
-            <Button
-              variant="secondary"
-              size="sm"
-              className={`rounded-full bg-white ${isSaved ? 'text-blue-500' : 'text-gray-500'} hover:bg-gray-100`}
-              onClick={handleSave}
-            >
-              <Bookmark className={`h-4 w-4 mr-1 ${isSaved ? 'fill-current' : ''}`} />
-              <span>{saveCount}</span>
-            </Button>
-          </div>
-        )}
       </div>
       
       <DialogContent className="max-w-5xl w-[90vw] max-h-[90vh] p-0 overflow-hidden">
@@ -206,39 +200,41 @@ const HeroCard: React.FC<HeroCardProps> = ({
             alt={`Hero section by @${twitterUsername}`}
             className="w-full h-full object-contain"
           />
-          <div className="absolute bottom-4 right-4">
+          
+          {/* Bottom gradient and info in modal view */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent"></div>
+          
+          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
             <a
               href={`https://twitter.com/${twitterUsername}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-black bg-opacity-70 hover:bg-opacity-90 text-white px-3 py-1 rounded-full text-sm transition-all"
+              className="text-white text-sm hover:underline"
             >
               @{twitterUsername}
             </a>
+            
+            {/* Like/Save buttons in modal view, only visible for approved images */}
+            {status === "approved" && (
+              <div className="flex items-center space-x-4">
+                <button
+                  className="flex items-center text-white"
+                  onClick={handleLike}
+                >
+                  <Heart className={`h-5 w-5 mr-2 ${isLiked ? 'fill-current text-red-500' : ''}`} />
+                  <span>{likeCount}</span>
+                </button>
+                
+                <button
+                  className="flex items-center text-white"
+                  onClick={handleSave}
+                >
+                  <Bookmark className={`h-5 w-5 mr-2 ${isSaved ? 'fill-current text-blue-500' : ''}`} />
+                  <span>{saveCount}</span>
+                </button>
+              </div>
+            )}
           </div>
-          
-          {/* Like/Save buttons in modal view, only visible for approved images */}
-          {status === "approved" && (
-            <div className="absolute top-4 left-4 flex space-x-3">
-              <Button
-                variant="secondary"
-                className={`rounded-full bg-white ${isLiked ? 'text-red-500' : 'text-gray-500'} hover:bg-gray-100`}
-                onClick={handleLike}
-              >
-                <Heart className={`h-5 w-5 mr-2 ${isLiked ? 'fill-current' : ''}`} />
-                <span>{likeCount}</span>
-              </Button>
-              
-              <Button
-                variant="secondary"
-                className={`rounded-full bg-white ${isSaved ? 'text-blue-500' : 'text-gray-500'} hover:bg-gray-100`}
-                onClick={handleSave}
-              >
-                <Bookmark className={`h-5 w-5 mr-2 ${isSaved ? 'fill-current' : ''}`} />
-                <span>{saveCount}</span>
-              </Button>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>

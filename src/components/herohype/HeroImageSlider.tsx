@@ -5,6 +5,7 @@ import { mockHeroes } from "@/data/mockHeroes";
 
 const HeroImageSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(0);
   
   // Get random images from the mockHeroes data
   const sliderImages = mockHeroes
@@ -14,20 +15,27 @@ const HeroImageSlider: React.FC = () => {
   
   useEffect(() => {
     const interval = setInterval(() => {
+      setPrevIndex(currentIndex);
       setCurrentIndex(prevIndex => 
         prevIndex === sliderImages.length - 1 ? 0 : prevIndex + 1
       );
     }, 20000); // 20 seconds delay
     
     return () => clearInterval(interval);
-  }, [sliderImages.length]);
+  }, [sliderImages.length, currentIndex]);
   
   return (
-    <div className="w-[150px] h-[100px] overflow-hidden rounded-[8px]">
+    <div className="w-[150px] h-[100px] overflow-hidden rounded-[30px] border-4 border-gray-200">
       <Carousel>
         <CarouselContent>
           {sliderImages.map((image, index) => (
-            <CarouselItem key={index} className={index === currentIndex ? "block" : "hidden"}>
+            <CarouselItem 
+              key={index} 
+              className={`transform transition-transform duration-1000 ${
+                index === currentIndex ? "opacity-100 translate-x-0" : 
+                index === prevIndex ? "opacity-0 -translate-x-full" : "opacity-0 translate-x-full"
+              }`}
+            >
               <img 
                 src={image} 
                 alt={`Hero image ${index + 1}`} 
