@@ -2,72 +2,72 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SubmissionsTab from "./tabs/SubmissionsTab";
-import UploadsTab from "./tabs/UploadsTab";
 import CollectionsTab from "./tabs/CollectionsTab";
+import UploadsTab from "./tabs/UploadsTab";
 
 interface ProfileTabsProps {
-  user?: any;
+  user: any;
 }
 
 const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
   const [pendingSubmissions, setPendingSubmissions] = useState<any[]>([]);
   const [approvedSubmissions, setApprovedSubmissions] = useState<any[]>([]);
-  const [savedHeroes, setSavedHeroes] = useState<string[]>([]);
+  const [savedHeroes, setSavedHeroes] = useState<any[]>([]);
   
   useEffect(() => {
-    // Get the current user if not provided as prop
-    const userObj = user || (localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "{}") : null);
-    if (!userObj) return;
-    
-    // Get pending submissions
+    // Load user submissions
     const pendingStr = localStorage.getItem("pendingSubmissions");
-    const allPending = pendingStr ? JSON.parse(pendingStr) : [];
+    const pending = pendingStr ? JSON.parse(pendingStr) : [];
     
-    // Filter to show only the current user's pending submissions
-    const userPending = allPending.filter((sub: any) => sub.userId === userObj.id);
-    setPendingSubmissions(userPending);
+    // Filter submissions by user
+    const userPendingSubmissions = pending.filter((submission: any) => 
+      submission.userId === user.id || submission.createdBy === user.id || submission.userEmail === user.email
+    );
     
-    // Get approved submissions
+    setPendingSubmissions(userPendingSubmissions);
+    
+    // Load approved heroes (published in CMS)
     const approvedStr = localStorage.getItem("approvedSubmissions");
-    const allApproved = approvedStr ? JSON.parse(approvedStr) : [];
+    const approved = approvedStr ? JSON.parse(approvedStr) : [];
     
-    // Filter to show only the current user's approved submissions
-    const userApproved = allApproved.filter((sub: any) => sub.userId === userObj.id);
-    setApprovedSubmissions(userApproved);
+    // Filter approved items by user
+    const userApprovedSubmissions = approved.filter((hero: any) => 
+      hero.userId === user.id || hero.submittedBy === user.id || hero.userEmail === user.email
+    );
     
-    // Get saved heroes
-    const savedStr = localStorage.getItem("savedHeroes");
-    const saved = savedStr ? JSON.parse(savedStr) : [];
-    setSavedHeroes(saved);
+    setApprovedSubmissions(userApprovedSubmissions);
+    
+    // Load saved heroes
+    const savedStr = localStorage.getItem("savedHeroes") || "[]";
+    const savedIds = JSON.parse(savedStr);
+    
+    if (savedIds.length > 0 && approved.length > 0) {
+      const savedItems = approved.filter((hero: any) => savedIds.includes(hero.id));
+      setSavedHeroes(savedItems);
+    }
   }, [user]);
-  
+
   return (
     <Tabs defaultValue="submissions" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 max-w-md mx-auto">
-        <TabsTrigger value="submissions" className="text-sm">
-          Submissions
-        </TabsTrigger>
-        <TabsTrigger value="uploads" className="text-sm">
-          Uploads
-        </TabsTrigger>
-        <TabsTrigger value="collections" className="text-sm">
-          Collections
-        </TabsTrigger>
+      <TabsList className="w-full mb-6 bg-gray-100 p-1 rounded-lg">
+        <TabsTrigger value="submissions" className="text-xs py-1 px-2 md:text-sm md:py-1.5 md:px-3">Your Submissions</TabsTrigger>
+        <TabsTrigger value="collections" className="text-xs py-1 px-2 md:text-sm md:py-1.5 md:px-3">Collections</TabsTrigger>
+        <TabsTrigger value="uploads" className="text-xs py-1 px-2 md:text-sm md:py-1.5 md:px-3">Uploads</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="submissions" className="mt-6">
+      <TabsContent value="submissions">
         <SubmissionsTab 
           pendingSubmissions={pendingSubmissions} 
-          approvedSubmissions={approvedSubmissions}
+          approvedSubmissions={approvedSubmissions} 
         />
       </TabsContent>
       
-      <TabsContent value="uploads" className="mt-6">
-        <UploadsTab approvedSubmissions={approvedSubmissions} />
+      <TabsContent value="collections">
+        <CollectionsTab savedHeroes={savedHeroes} />
       </TabsContent>
       
-      <TabsContent value="collections" className="mt-6">
-        <CollectionsTab savedHeroes={savedHeroes} />
+      <TabsContent value="uploads">
+        <UploadsTab approvedSubmissions={approvedSubmissions} />
       </TabsContent>
     </Tabs>
   );

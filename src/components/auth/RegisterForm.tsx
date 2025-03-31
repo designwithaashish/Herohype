@@ -9,8 +9,7 @@ import { useNavigate } from "react-router-dom";
 const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [username, setUsername] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -18,20 +17,10 @@ const RegisterForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Form validation
-    if (!email || !password || !passwordConfirm) {
+    if (password !== confirmPassword) {
       toast({
-        title: "Registration failed",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (password !== passwordConfirm) {
-      toast({
-        title: "Registration failed",
-        description: "Passwords do not match",
+        title: "Passwords don't match",
+        description: "Please ensure both passwords match",
         variant: "destructive",
       });
       return;
@@ -40,52 +29,42 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Mock registration process with localStorage
-      // In a real app, this would be an API call
-      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-      
-      // Check if email already exists
-      if (existingUsers.some((user: any) => user.email === email)) {
-        toast({
-          title: "Registration failed",
-          description: "An account with this email already exists",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-      
       // Generate a unique ID for the user
-      const userId = `user-${Date.now()}`;
+      const userId = `user_${Date.now()}`;
       
-      // Create new user object (no random username or avatar)
-      const newUser = {
+      // Create a minimal user object without auto-generated names or avatars
+      const user = {
         id: userId,
-        email,
-        username: username || "",
-        createdAt: new Date().toISOString(),
-        avatarUrl: "",
+        email: email,
+        role: "user",
       };
       
-      // Add new user to existing users
-      existingUsers.push(newUser);
-      localStorage.setItem("users", JSON.stringify(existingUsers));
+      // Store the user data in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
       
-      // Set current user in localStorage
-      localStorage.setItem("user", JSON.stringify(newUser));
+      // Create an empty profile for the user
+      const emptyProfile = {
+        name: "",
+        description: "Edit your profile to add a description",
+        avatarUrl: "",
+        hireLink: ""
+      };
+      
+      // Store the profile data in localStorage
+      localStorage.setItem(`profile-${userId}`, JSON.stringify(emptyProfile));
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: "Registration successful",
-        description: "Welcome to HeroHype!",
+        description: "Your account has been created",
       });
       
-      // Navigate to homepage after successful registration
-      navigate("/");
-      
+      navigate("/profile");
     } catch (error) {
       toast({
         title: "Registration failed",
-        description: "An error occurred during registration. Please try again.",
+        description: "Please try again later",
         variant: "destructive",
       });
     } finally {
@@ -94,64 +73,63 @@ const RegisterForm: React.FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-sm space-y-6 bg-white p-6 rounded-lg shadow">
-      <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Create an Account</h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Enter your details below to create your account
+    <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold">Create Account</h2>
+        <p className="mt-2 text-sm text-gray-600">
+          Join our community to submit and discover hero designs
         </p>
       </div>
-      <form className="space-y-4" onSubmit={handleSubmit}>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
             type="email"
-            placeholder="m@example.com"
+            placeholder="yourname@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="username">Username (Optional)</Label>
-          <Input
-            id="username"
-            type="text"
-            placeholder="johndoe"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
+        
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             type="password"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
+        
         <div className="space-y-2">
           <Label htmlFor="confirmPassword">Confirm Password</Label>
           <Input
             id="confirmPassword"
             type="password"
-            value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
+            placeholder="••••••••"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
         </div>
+        
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Create account"}
+          {isLoading ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
-      <div className="text-center text-sm">
-        Already have an account?{" "}
-        <Button variant="link" className="p-0" onClick={() => navigate("/login")}>
-          Sign in
-        </Button>
+      
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Already have an account?{" "}
+          <Button variant="link" className="p-0" onClick={() => navigate("/login")}>
+            Sign in
+          </Button>
+        </p>
       </div>
     </div>
   );
