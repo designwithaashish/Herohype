@@ -33,8 +33,8 @@ const HeroSection: React.FC = () => {
         />
       </div>
 
-      <div className="flex w-[761px] max-w-full flex-col items-center font-normal mt-[30px]">
-        <h1 className="w-[645px] max-w-full text-black leading-[1.2]">
+      <div className="flex w-[761px] max-w-full flex-col items-center mt-[30px]">
+        <h1 className="w-[645px] max-w-full text-black leading-[1.2] font-['Instrument_Sans']">
           <div className="flex w-full items-center gap-5 text-[74px] justify-center flex-wrap max-md:max-w-full max-md:text-[40px]">
             <div className="self-stretch my-auto max-md:text-[40px]">
               Discover
@@ -58,7 +58,7 @@ const HeroSection: React.FC = () => {
           </div>
         </h1>
 
-        <p className="w-full text-xl text-[rgba(61,61,61,1)] leading-6 mt-5 px-[11px] rounded-[0px_0px_0px_0px] max-md:max-w-full">
+        <p className="w-full text-xl text-[rgba(61,61,61,1)] leading-6 mt-5 px-[11px] rounded-[0px_0px_0px_0px] max-md:max-w-full font-['Satoshi']">
           Explore a stunning collection of curated hero designs.
           <br />
           Filter by style, vibe, or trend. From bold gradients to sleek

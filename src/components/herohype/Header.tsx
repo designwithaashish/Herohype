@@ -36,13 +36,6 @@ const Header: React.FC = () => {
       </Link>
 
       <nav className="self-stretch flex min-w-60 h-[22px] items-center gap-10 text-[15px] text-white font-medium justify-center w-[342px] my-auto">
-        <Link
-          to="/"
-          className="self-stretch my-auto hover:text-gray-300 transition-colors"
-        >
-          Gallery
-        </Link>
-        
         {isLoggedIn && (
           <Link
             to="/submit"
