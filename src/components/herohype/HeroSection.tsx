@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeroImageSlider from "./HeroImageSlider";
@@ -27,9 +26,9 @@ const HeroSection: React.FC = () => {
         <span className="text-black">*</span>
       </div>
 
-      {/* Main headline */}
+      {/* Main headline with serif font */}
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
-        <h1 className="w-full text-black leading-[1.2] font-playfair">
+        <h1 className="w-full text-black leading-[1.2] font-instrument-serif">
           {/* First line */}
           <div className="text-[64px] md:text-[80px] max-md:text-[48px] animate-[fade-in_0.5s_ease_0.2s_both]">
             Discover Trendy &

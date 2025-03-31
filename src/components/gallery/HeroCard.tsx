@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Heart, Bookmark } from "lucide-react";
@@ -23,7 +22,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
   twitterUsername,
   categories,
   submissionDate,
-  status = "approved", // Default to approved for backward compatibility
+  status = "approved",
   likes,
   saves,
 }) => {
@@ -35,12 +34,10 @@ const HeroCard: React.FC<HeroCardProps> = ({
   const [saveCount, setSaveCount] = useState(saves);
   const { toast } = useToast();
 
-  // Effect to log when a card is viewed
   useEffect(() => {
     console.log(`Viewed hero section: ${id}`);
   }, [id]);
 
-  // Check if user has previously liked/saved this hero
   useEffect(() => {
     const likedHeroes = JSON.parse(localStorage.getItem("likedHeroes") || "[]");
     const savedHeroes = JSON.parse(localStorage.getItem("savedHeroes") || "[]");
@@ -52,7 +49,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Check if user is logged in
     const user = localStorage.getItem("user");
     if (!user) {
       toast({
@@ -66,13 +62,11 @@ const HeroCard: React.FC<HeroCardProps> = ({
     const likedHeroes = JSON.parse(localStorage.getItem("likedHeroes") || "[]");
     
     if (isLiked) {
-      // Unlike
       const updatedLikes = likedHeroes.filter((heroId: string) => heroId !== id);
       localStorage.setItem("likedHeroes", JSON.stringify(updatedLikes));
       setIsLiked(false);
       setLikeCount(prev => prev - 1);
     } else {
-      // Like
       likedHeroes.push(id);
       localStorage.setItem("likedHeroes", JSON.stringify(likedHeroes));
       setIsLiked(true);
@@ -88,7 +82,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Check if user is logged in
     const user = localStorage.getItem("user");
     if (!user) {
       toast({
@@ -102,13 +95,11 @@ const HeroCard: React.FC<HeroCardProps> = ({
     const savedHeroes = JSON.parse(localStorage.getItem("savedHeroes") || "[]");
     
     if (isSaved) {
-      // Unsave
       const updatedSaves = savedHeroes.filter((heroId: string) => heroId !== id);
       localStorage.setItem("savedHeroes", JSON.stringify(updatedSaves));
       setIsSaved(false);
       setSaveCount(prev => prev - 1);
     } else {
-      // Save
       savedHeroes.push(id);
       localStorage.setItem("savedHeroes", JSON.stringify(savedHeroes));
       setIsSaved(true);
@@ -124,7 +115,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
   return (
     <Dialog>
       <div 
-        className="group relative bg-white rounded-[32px] shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:scale-[1.05] border-4 border-gray-100"
+        className="group relative bg-white rounded-[32px] shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl border-4 border-gray-100"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -146,7 +137,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
                 onLoad={() => setIsLoaded(true)}
               />
               
-              {/* Gradient overlay at the bottom, visible on hover */}
               <div 
                 className={`absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300 ${
                   isHovered ? 'opacity-100' : 'opacity-0'
@@ -155,7 +145,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
               
               {isHovered && (
                 <div className="absolute bottom-3 left-0 right-0 px-3 flex justify-between items-center z-10">
-                  {/* Twitter username */}
                   <a
                     href={`https://twitter.com/${twitterUsername}`}
                     target="_blank"
@@ -166,7 +155,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
                     @{twitterUsername}
                   </a>
                   
-                  {/* Like and Save buttons */}
                   {status === "approved" && (
                     <div className="flex items-center space-x-3">
                       <button
@@ -201,7 +189,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
             className="w-full h-full object-contain"
           />
           
-          {/* Bottom gradient and info in modal view */}
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent"></div>
           
           <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
@@ -214,7 +201,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
               @{twitterUsername}
             </a>
             
-            {/* Like/Save buttons in modal view, only visible for approved images */}
             {status === "approved" && (
               <div className="flex items-center space-x-4">
                 <button
