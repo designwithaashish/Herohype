@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PendingSubmissionCard, { Submission } from "@/components/admin/PendingSubmissionCard";
@@ -8,6 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { PlusCircle, Image, Link2, Trash2, Edit, Eye } from "lucide-react";
 
 // Mock data
 const mockSubmissions: Submission[] = [
@@ -51,16 +62,38 @@ const allCategories = [
   "Typography", "Animated", "Illustrated", "Crypto"
 ];
 
+const formSchema = z.object({
+  imageSource: z.enum(["upload", "url"]),
+  imageFile: z.any().optional(),
+  imageUrl: z.string().url("Please enter a valid URL").optional(),
+  twitterUsername: z.string().min(1, "Twitter username is required"),
+  description: z.string().optional(),
+  categories: z.array(z.string()).min(1, "Select at least one category")
+});
+
 const AdminApproval: React.FC = () => {
   const [pendingSubmissions, setPendingSubmissions] = useState<Submission[]>(mockSubmissions);
   const [approvedSubmissions, setApprovedSubmissions] = useState<Submission[]>([]);
   const [rejectedSubmissions, setRejectedSubmissions] = useState<Submission[]>([]);
   const [uploadImage, setUploadImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [twitterUsername, setTwitterUsername] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [imageSource, setImageSource] = useState<"upload" | "url">("upload");
+  const [editingSubmission, setEditingSubmission] = useState<Submission | null>(null);
+  
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      imageSource: "upload",
+      imageUrl: "",
+      twitterUsername: "",
+      description: "",
+      categories: []
+    }
+  });
   
   useEffect(() => {
     // Check if user is logged in and is an admin
@@ -84,14 +117,31 @@ const AdminApproval: React.FC = () => {
       });
       navigate("/");
     }
+    
+    // Load submissions from localStorage if available
+    const storedPending = localStorage.getItem("pendingSubmissions");
+    const storedApproved = localStorage.getItem("approvedSubmissions");
+    const storedRejected = localStorage.getItem("rejectedSubmissions");
+    
+    if (storedPending) setPendingSubmissions(JSON.parse(storedPending));
+    if (storedApproved) setApprovedSubmissions(JSON.parse(storedApproved));
+    if (storedRejected) setRejectedSubmissions(JSON.parse(storedRejected));
   }, [navigate, toast]);
   
-  const handleApprove = (id: string) => {
+  useEffect(() => {
+    // Save submissions to localStorage when they change
+    localStorage.setItem("pendingSubmissions", JSON.stringify(pendingSubmissions));
+    localStorage.setItem("approvedSubmissions", JSON.stringify(approvedSubmissions));
+    localStorage.setItem("rejectedSubmissions", JSON.stringify(rejectedSubmissions));
+  }, [pendingSubmissions, approvedSubmissions, rejectedSubmissions]);
+  
+  const handleApprove = (id: string, categories: string[]) => {
     const submission = pendingSubmissions.find(s => s.id === id);
     if (submission) {
       // Add current date as submission date
       const approvedSubmission = {
         ...submission,
+        categories,
         submissionDate: new Date().toISOString(),
         status: "approved" as const,
         likes: 0,
@@ -123,20 +173,90 @@ const AdminApproval: React.FC = () => {
     }
   };
 
-  const handleCategoryToggle = (submissionId: string, category: string) => {
-    // Toggle category for pending submission
-    setPendingSubmissions(prev => 
-      prev.map(submission => {
-        if (submission.id === submissionId) {
-          const updatedCategories = submission.categories.includes(category)
-            ? submission.categories.filter(c => c !== category)
-            : [...submission.categories, category];
-          
-          return { ...submission, categories: updatedCategories };
-        }
-        return submission;
-      })
-    );
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadImage(file);
+      form.setValue("imageFile", file);
+      
+      // Create a preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = form.handleSubmit((data) => {
+    // Create new submission
+    const newSubmission: Submission = {
+      id: `manual-${Date.now()}`,
+      imageUrl: data.imageSource === "upload" ? (imagePreview || '') : (data.imageUrl || ''),
+      twitterUsername: data.twitterUsername.startsWith('@') 
+        ? data.twitterUsername.substring(1) 
+        : data.twitterUsername,
+      submissionType: data.imageSource as "url" | "image",
+      sourceUrl: data.imageSource === "url" ? data.imageUrl : undefined,
+      description: data.description,
+      categories: data.categories,
+      createdAt: new Date().toISOString(),
+      submissionDate: new Date().toISOString(),
+      status: "approved",
+      likes: 0,
+      saves: 0
+    };
+
+    if (editingSubmission) {
+      // Update existing submission
+      setApprovedSubmissions(prev => 
+        prev.map(sub => sub.id === editingSubmission.id ? newSubmission : sub)
+      );
+      setEditingSubmission(null);
+      toast({
+        title: "Hero section updated",
+        description: "The hero section has been successfully updated",
+      });
+    } else {
+      // Add new submission
+      setApprovedSubmissions(prev => [...prev, newSubmission]);
+      toast({
+        title: "Hero section added",
+        description: "The hero section has been successfully added to the gallery",
+      });
+    }
+    
+    // Reset form
+    form.reset();
+    setUploadImage(null);
+    setImagePreview(null);
+    setSelectedCategories([]);
+    setImageSource("upload");
+  });
+
+  const handleDeleteApproved = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this hero section?")) {
+      setApprovedSubmissions(prev => prev.filter(s => s.id !== id));
+      toast({
+        title: "Hero section deleted",
+        description: "The hero section has been removed from the gallery",
+      });
+    }
+  };
+
+  const handleEditApproved = (submission: Submission) => {
+    setEditingSubmission(submission);
+    setImageSource(submission.submissionType);
+    setImagePreview(submission.imageUrl);
+    
+    form.reset({
+      imageSource: submission.submissionType,
+      imageUrl: submission.sourceUrl || "",
+      twitterUsername: submission.twitterUsername,
+      description: submission.description || "",
+      categories: submission.categories
+    });
   };
 
   const handleClearAll = () => {
@@ -145,202 +265,288 @@ const AdminApproval: React.FC = () => {
       setPendingSubmissions([]);
       setApprovedSubmissions([]);
       setRejectedSubmissions([]);
+      localStorage.removeItem("pendingSubmissions");
+      localStorage.removeItem("approvedSubmissions");
+      localStorage.removeItem("rejectedSubmissions");
       toast({
         title: "Data cleared",
         description: "All submission data has been deleted",
       });
     }
   };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUploadImage(file);
-      
-      // Create a preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCategorySelectToggle = (category: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category) 
-        : [...prev, category]
-    );
-  };
-
-  const handleManualSubmission = () => {
-    if (!uploadImage || !twitterUsername) {
-      toast({
-        title: "Missing information",
-        description: "Please provide an image and Twitter username",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // In a real app, this would upload the image to a storage service
-    // For now, we'll use the image preview URL
-    const newSubmission: Submission = {
-      id: `manual-${Date.now()}`,
-      imageUrl: imagePreview || '',
-      twitterUsername: twitterUsername.startsWith('@') ? twitterUsername.substring(1) : twitterUsername,
-      submissionType: "image",
-      categories: selectedCategories,
-      createdAt: new Date().toISOString(),
-      submissionDate: new Date().toISOString(),
-      status: "approved",
-      likes: 0,
-      saves: 0
-    };
-
-    setApprovedSubmissions(prev => [...prev, newSubmission]);
-    
-    // Reset form
-    setUploadImage(null);
-    setImagePreview(null);
-    setTwitterUsername("");
-    setSelectedCategories([]);
-    
-    toast({
-      title: "Image added",
-      description: "The image has been successfully added to the gallery",
-    });
-  };
   
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-3">Admin Dashboard</h1>
+      <div className="container mx-auto py-8 px-4 max-w-7xl">
         <div className="flex justify-between items-center mb-6">
-          <p className="text-gray-600">Manage hero section submissions</p>
-          <Button variant="destructive" onClick={handleClearAll}>
+          <div>
+            <h1 className="text-3xl font-bold mb-1">HeroHype CMS</h1>
+            <p className="text-gray-600">Manage your hero section gallery</p>
+          </div>
+          <Button variant="destructive" onClick={handleClearAll} className="whitespace-nowrap">
             Clear All Data
           </Button>
         </div>
         
         <Tabs defaultValue="add" className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="add">
-              Add New Manually
+            <TabsTrigger value="add" className="flex items-center gap-1">
+              <PlusCircle size={16} />
+              Add New Hero
             </TabsTrigger>
-            <TabsTrigger value="pending">
+            <TabsTrigger value="pending" className="flex items-center gap-1">
               Pending ({pendingSubmissions.length})
             </TabsTrigger>
-            <TabsTrigger value="approved">
-              Approved ({approvedSubmissions.length})
+            <TabsTrigger value="approved" className="flex items-center gap-1">
+              Gallery ({approvedSubmissions.length})
             </TabsTrigger>
-            <TabsTrigger value="rejected">
+            <TabsTrigger value="rejected" className="flex items-center gap-1">
               Rejected ({rejectedSubmissions.length})
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="add" className="space-y-4">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Add New Hero Section</h2>
+          <TabsContent value="add">
+            <Card>
+              <CardHeader>
+                <CardTitle>{editingSubmission ? "Edit Hero Section" : "Add New Hero Section"}</CardTitle>
+                <CardDescription>
+                  {editingSubmission 
+                    ? "Edit the details of this hero section" 
+                    : "Upload an image or provide a URL to add a new hero section to your gallery"}
+                </CardDescription>
+              </CardHeader>
               
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="imageUpload">Upload Image</Label>
-                  <Input 
-                    id="imageUpload" 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageChange}
-                    className="mt-1"
-                  />
-                  
-                  {imagePreview && (
-                    <div className="mt-4 border rounded-md p-2">
-                      <p className="text-sm font-medium mb-2">Preview:</p>
-                      <img 
-                        src={imagePreview} 
-                        alt="Preview" 
-                        className="max-h-60 rounded-md object-contain" 
+              <CardContent>
+                <Form {...form}>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="flex flex-col gap-4 sm:flex-row">
+                        <div className="flex-1">
+                          <FormField
+                            control={form.control}
+                            name="imageSource"
+                            render={({ field }) => (
+                              <FormItem className="space-y-3">
+                                <FormLabel>Image Source</FormLabel>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                  <div className="flex items-center space-x-2">
+                                    <input
+                                      type="radio"
+                                      id="upload"
+                                      value="upload"
+                                      checked={field.value === "upload"}
+                                      onChange={() => {
+                                        field.onChange("upload");
+                                        setImageSource("upload");
+                                      }}
+                                      className="h-4 w-4"
+                                    />
+                                    <Label htmlFor="upload" className="cursor-pointer flex items-center gap-1">
+                                      <Image size={16} /> Upload Image
+                                    </Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <input
+                                      type="radio"
+                                      id="url"
+                                      value="url"
+                                      checked={field.value === "url"}
+                                      onChange={() => {
+                                        field.onChange("url");
+                                        setImageSource("url");
+                                      }}
+                                      className="h-4 w-4"
+                                    />
+                                    <Label htmlFor="url" className="cursor-pointer flex items-center gap-1">
+                                      <Link2 size={16} /> Website URL
+                                    </Label>
+                                  </div>
+                                </div>
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        
+                        <div className="flex-1">
+                          <FormField
+                            control={form.control}
+                            name="twitterUsername"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Twitter Username</FormLabel>
+                                <div className="flex">
+                                  <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
+                                    @
+                                  </span>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="username"
+                                      className="rounded-l-none"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                </div>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                      
+                      {imageSource === "upload" ? (
+                        <div className="space-y-2">
+                          <Label htmlFor="imageUpload">Upload Image</Label>
+                          <Input 
+                            id="imageUpload" 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleImageChange}
+                          />
+                        </div>
+                      ) : (
+                        <FormField
+                          control={form.control}
+                          name="imageUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Website URL</FormLabel>
+                              <FormControl>
+                                <Input placeholder="https://example.com" {...field} />
+                              </FormControl>
+                              <FormDescription>
+                                We'll capture the hero section from this website
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                      
+                      {imagePreview && (
+                        <div className="border rounded-md p-2">
+                          <p className="text-sm font-medium mb-2">Preview:</p>
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            className="max-h-60 rounded-md object-contain" 
+                          />
+                        </div>
+                      )}
+                      
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                placeholder="Brief description of the hero section" 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="categories"
+                        render={() => (
+                          <FormItem>
+                            <div className="mb-4">
+                              <FormLabel className="text-base">Categories</FormLabel>
+                              <FormDescription>
+                                Select at least one category
+                              </FormDescription>
+                            </div>
+                            <div className="flex flex-wrap gap-2 border p-3 rounded-md">
+                              {allCategories.map((category) => (
+                                <FormField
+                                  key={category}
+                                  control={form.control}
+                                  name="categories"
+                                  render={({ field }) => {
+                                    return (
+                                      <FormItem
+                                        key={category}
+                                        className="flex items-center space-x-2 space-y-0"
+                                      >
+                                        <FormControl>
+                                          <Checkbox
+                                            checked={field.value?.includes(category)}
+                                            onCheckedChange={(checked) => {
+                                              return checked
+                                                ? field.onChange([...field.value, category])
+                                                : field.onChange(
+                                                    field.value?.filter(
+                                                      (value) => value !== category
+                                                    )
+                                                  )
+                                            }}
+                                          />
+                                        </FormControl>
+                                        <FormLabel className="cursor-pointer">
+                                          {category}
+                                        </FormLabel>
+                                      </FormItem>
+                                    )
+                                  }}
+                                />
+                              ))}
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
                     </div>
-                  )}
-                </div>
-                
-                <div>
-                  <Label htmlFor="twitterUsername">Twitter Username</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
-                      @
-                    </span>
-                    <Input
-                      id="twitterUsername"
-                      type="text"
-                      className="rounded-l-none"
-                      placeholder="username"
-                      value={twitterUsername}
-                      onChange={(e) => setTwitterUsername(e.target.value)}
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <Label className="block mb-2">Select Categories</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {allCategories.map((category) => (
-                      <Badge
-                        key={category}
-                        variant={selectedCategories.includes(category) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => handleCategorySelectToggle(category)}
+                    
+                    <CardFooter className="flex justify-between px-0">
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => {
+                          form.reset();
+                          setEditingSubmission(null);
+                          setImagePreview(null);
+                          setUploadImage(null);
+                        }}
                       >
-                        {category}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                
-                <Button 
-                  onClick={handleManualSubmission}
-                  className="w-full mt-4"
-                >
-                  Add to Gallery
-                </Button>
-              </div>
-            </div>
+                        Reset
+                      </Button>
+                      <Button type="submit">
+                        {editingSubmission ? "Update Hero Section" : "Add to Gallery"}
+                      </Button>
+                    </CardFooter>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           <TabsContent value="pending">
             {pendingSubmissions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No pending submissions to review
+              <div className="text-center py-12 bg-white rounded-md shadow">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Image size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No pending submissions</h3>
+                <p className="text-gray-500 max-w-sm mx-auto">
+                  When users submit hero sections, they will appear here for your review.
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pendingSubmissions.map((submission) => (
-                  <div key={submission.id} className="bg-white rounded-lg shadow p-4">
-                    <PendingSubmissionCard
-                      submission={submission}
-                      onApprove={handleApprove}
-                      onReject={handleReject}
-                    />
-                    <div className="mt-4">
-                      <p className="font-medium mb-2">Assign Categories:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {allCategories.map((category) => (
-                          <Badge
-                            key={category}
-                            variant={submission.categories.includes(category) ? "default" : "outline"}
-                            className="cursor-pointer"
-                            onClick={() => handleCategoryToggle(submission.id, category)}
-                          >
-                            {category}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <PendingSubmissionCard
+                    key={submission.id}
+                    submission={submission}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
+                    availableCategories={allCategories}
+                  />
                 ))}
               </div>
             )}
@@ -348,52 +554,113 @@ const AdminApproval: React.FC = () => {
           
           <TabsContent value="approved">
             {approvedSubmissions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No approved submissions yet
+              <div className="text-center py-12 bg-white rounded-md shadow">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Image size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">Your gallery is empty</h3>
+                <p className="text-gray-500 max-w-sm mx-auto">
+                  Add hero sections using the "Add New" tab or approve pending submissions.
+                </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {approvedSubmissions.map((submission) => (
-                  <div key={submission.id} className="bg-white rounded-lg shadow p-4">
-                    <img 
-                      src={submission.imageUrl} 
-                      alt={`Hero by @${submission.twitterUsername}`}
-                      className="w-full h-40 object-cover rounded-md mb-3"
-                    />
-                    <p className="font-medium">@{submission.twitterUsername}</p>
-                    <p className="text-sm text-gray-500 mb-2">
-                      Approved: {new Date(submission.submissionDate || submission.createdAt).toLocaleDateString()}
-                    </p>
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {submission.categories.map((category) => (
-                        <Badge key={category} variant="secondary" className="text-xs">
-                          {category}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">Preview</TableHead>
+                      <TableHead>Username</TableHead>
+                      <TableHead>Categories</TableHead>
+                      <TableHead>Added On</TableHead>
+                      <TableHead className="text-center">Stats</TableHead>
+                      <TableHead className="w-24 text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {approvedSubmissions.map((submission) => (
+                      <TableRow key={submission.id}>
+                        <TableCell>
+                          <div className="w-12 h-12 rounded overflow-hidden">
+                            <img 
+                              src={submission.imageUrl} 
+                              alt={`Hero by @${submission.twitterUsername}`}
+                              className="w-full h-full object-cover" 
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">@{submission.twitterUsername}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {submission.categories.map((category) => (
+                              <Badge key={category} variant="secondary" className="text-xs">
+                                {category}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(submission.submissionDate || submission.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex justify-center gap-4">
+                            <span className="text-sm">♥ {submission.likes || 0}</span>
+                            <span className="text-sm">⭐ {submission.saves || 0}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleEditApproved(submission)}
+                            >
+                              <Edit size={16} />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteApproved(submission.id)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </TabsContent>
           
           <TabsContent value="rejected">
             {rejectedSubmissions.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                No rejected submissions
+              <div className="text-center py-12 bg-white rounded-md shadow">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Image size={32} className="text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">No rejected submissions</h3>
+                <p className="text-gray-500 max-w-sm mx-auto">
+                  Submissions you reject will appear here.
+                </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {rejectedSubmissions.map((submission) => (
-                  <div key={submission.id} className="bg-white rounded-lg shadow p-4">
-                    <img 
-                      src={submission.imageUrl} 
-                      alt={`Hero by @${submission.twitterUsername}`}
-                      className="w-full h-40 object-cover rounded-md mb-3 opacity-50"
-                    />
-                    <p className="font-medium">@{submission.twitterUsername}</p>
-                    <p className="text-sm text-red-500">Rejected</p>
-                  </div>
+                  <Card key={submission.id} className="overflow-hidden">
+                    <div className="relative aspect-video">
+                      <img 
+                        src={submission.imageUrl} 
+                        alt={`Hero by @${submission.twitterUsername}`}
+                        className="w-full h-full object-cover opacity-50"
+                      />
+                    </div>
+                    <CardContent className="p-3">
+                      <p className="font-medium">@{submission.twitterUsername}</p>
+                      <p className="text-sm text-red-500">Rejected on {new Date(submission.createdAt).toLocaleDateString()}</p>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
