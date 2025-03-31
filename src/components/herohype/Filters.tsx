@@ -15,9 +15,19 @@ const categories = [
   "All", "Dark", "Light", "Gradient", "3D", "Bento", "Minimal", "Typography"
 ];
 
-const Filters: React.FC = () => {
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState("Popular");
+interface FiltersProps {
+  activeFilters: string[];
+  setActiveFilters: (filters: string[]) => void;
+  sortOption: string;
+  setSortOption: (option: string) => void;
+}
+
+const Filters: React.FC<FiltersProps> = ({ 
+  activeFilters, 
+  setActiveFilters, 
+  sortOption, 
+  setSortOption 
+}) => {
   const navigate = useNavigate();
   
   const toggleFilter = (category: string) => {
@@ -41,7 +51,7 @@ const Filters: React.FC = () => {
     <div className="w-full px-6 lg:px-20 py-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Select defaultValue={sortOption} onValueChange={setSortOption}>
+          <Select value={sortOption} onValueChange={setSortOption}>
             <SelectTrigger className="w-[180px] bg-[rgba(239,239,239,1)] rounded-[32px]">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
