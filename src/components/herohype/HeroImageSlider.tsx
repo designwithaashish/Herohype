@@ -1,25 +1,44 @@
 
 import React, { useState, useEffect } from "react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-import { mockHeroes } from "@/data/mockHeroes";
 
 const HeroImageSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState(0);
-  
-  // Get random images from the mockHeroes data
-  const sliderImages = mockHeroes
-    .sort(() => 0.5 - Math.random()) // Shuffle the array
-    .slice(0, 5) // Take the first 5 items
-    .map(hero => hero.imageUrl);
+  const [sliderImages, setSliderImages] = useState<string[]>([]);
   
   useEffect(() => {
+    // Get images from the approvedSubmissions in localStorage
+    const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+    
+    if (approvedItems.length > 0) {
+      // Get image URLs from the approved items
+      const imageUrls = approvedItems
+        .filter((item: any) => item.imageUrl) // Ensure there's an image URL
+        .map((item: any) => item.imageUrl);
+      
+      // If we have at least one image, set it. Otherwise use a placeholder
+      if (imageUrls.length > 0) {
+        setSliderImages(imageUrls);
+      } else {
+        // Use default images if no approved submissions
+        setSliderImages(["/placeholder.svg"]);
+      }
+    } else {
+      // Use default images if no approved submissions
+      setSliderImages(["/placeholder.svg"]);
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (sliderImages.length <= 1) return;
+    
     const interval = setInterval(() => {
       setPrevIndex(currentIndex);
       setCurrentIndex(prevIndex => 
         prevIndex === sliderImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 20000); // 20 seconds delay
+    }, 10000); // 10 seconds delay
     
     return () => clearInterval(interval);
   }, [sliderImages.length, currentIndex]);

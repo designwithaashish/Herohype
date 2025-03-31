@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Heart, Bookmark } from "lucide-react";
@@ -43,7 +44,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
     const savedHeroes = JSON.parse(localStorage.getItem("savedHeroes") || "[]");
     
     setIsLiked(likedHeroes.includes(id));
-    setIsSaved(savedHeroes.includes(id));
+    setIsSaved(savedHeroes.some((heroId: string) => heroId === id));
   }, [id]);
 
   const handleLike = (e: React.MouseEvent) => {
@@ -66,11 +67,32 @@ const HeroCard: React.FC<HeroCardProps> = ({
       localStorage.setItem("likedHeroes", JSON.stringify(updatedLikes));
       setIsLiked(false);
       setLikeCount(prev => prev - 1);
+      
+      // Update the approved items with new like count
+      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      const updatedApproved = approvedItems.map((item: any) => {
+        if (item.id === id) {
+          return { ...item, likes: (item.likes || likes) - 1 };
+        }
+        return item;
+      });
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
+      
     } else {
       likedHeroes.push(id);
       localStorage.setItem("likedHeroes", JSON.stringify(likedHeroes));
       setIsLiked(true);
       setLikeCount(prev => prev + 1);
+      
+      // Update the approved items with new like count
+      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      const updatedApproved = approvedItems.map((item: any) => {
+        if (item.id === id) {
+          return { ...item, likes: (item.likes || likes) + 1 };
+        }
+        return item;
+      });
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
       
       toast({
         title: "Hero section liked",
@@ -99,11 +121,32 @@ const HeroCard: React.FC<HeroCardProps> = ({
       localStorage.setItem("savedHeroes", JSON.stringify(updatedSaves));
       setIsSaved(false);
       setSaveCount(prev => prev - 1);
+      
+      // Update the approved items with new save count
+      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      const updatedApproved = approvedItems.map((item: any) => {
+        if (item.id === id) {
+          return { ...item, saves: (item.saves || saves) - 1 };
+        }
+        return item;
+      });
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
+      
     } else {
       savedHeroes.push(id);
       localStorage.setItem("savedHeroes", JSON.stringify(savedHeroes));
       setIsSaved(true);
       setSaveCount(prev => prev + 1);
+      
+      // Update the approved items with new save count
+      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      const updatedApproved = approvedItems.map((item: any) => {
+        if (item.id === id) {
+          return { ...item, saves: (item.saves || saves) + 1 };
+        }
+        return item;
+      });
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
       
       toast({
         title: "Hero section saved",

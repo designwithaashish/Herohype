@@ -38,7 +38,8 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
     categories: hero.categories || [],
     likes: hero.likes || 0,
     saves: hero.saves || 0,
-    status: "approved"
+    status: "approved",
+    submissionDate: hero.submissionDate || hero.createdAt
   }));
 
   return (

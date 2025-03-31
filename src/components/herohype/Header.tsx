@@ -3,15 +3,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { User, LogOut } from "lucide-react";
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -38,11 +29,8 @@ const Header: React.FC = () => {
     }
   }, []);
   
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    setIsLoggedIn(false);
-    setIsAdmin(false);
-    navigate("/");
+  const handleProfileClick = () => {
+    navigate("/profile");
   };
 
   const getInitials = (name: string) => {
@@ -71,41 +59,20 @@ const Header: React.FC = () => {
         )}
       </nav>
 
-      <div className="flex gap-3 text-[22px] text-center leading-[1.2] justify-center my-auto">
+      <div className="flex gap-3 items-center text-[22px] text-center leading-[1.2] justify-center my-auto">
         {isLoggedIn ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-9 w-9 border border-gray-700">
-                  {profileImage ? (
-                    <AvatarImage src={profileImage} alt={userName} />
-                  ) : (
-                    <AvatarFallback className="bg-gray-700 text-white">
-                      {getInitials(userName)}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel>
-                <div className="font-normal">
-                  <p className="text-sm font-medium leading-none">{userName}</p>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile" className="cursor-pointer flex justify-between items-center w-full">
-                  <span>Profile</span>
-                  <User className="h-4 w-4" />
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer flex justify-between items-center">
-                <span>Log out</span>
-                <LogOut className="h-4 w-4" />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
+            <Avatar className="h-9 w-9 border border-gray-700">
+              {profileImage ? (
+                <AvatarImage src={profileImage} alt={userName} />
+              ) : (
+                <AvatarFallback className="bg-gray-700 text-white">
+                  {getInitials(userName)}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <span className="text-white text-sm">{userName}</span>
+          </div>
         ) : (
           <Button 
             onClick={() => navigate("/login")}
