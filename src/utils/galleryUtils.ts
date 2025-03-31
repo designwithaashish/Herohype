@@ -15,25 +15,38 @@ export const filterHeroes = (
   );
 };
 
-// Sort heroes based on sort option
+// Sort heroes based on sort option with updated logic
 export const sortHeroes = (
   heroes: HeroCardProps[],
   sortOption: string
 ): HeroCardProps[] => {
   const sortedHeroes = [...heroes];
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   
   switch (sortOption) {
     case "Popular":
-      return sortedHeroes.sort((a, b) => {
-        const scoreA = (a.likes || 0) * 2 + (a.views || 0);
-        const scoreB = (b.likes || 0) * 2 + (b.views || 0);
-        return scoreB - scoreA;
-      });
+      // Sort alphabetically by Twitter username
+      return sortedHeroes.sort((a, b) => 
+        a.twitterUsername.localeCompare(b.twitterUsername)
+      );
       
     case "Trending":
-      return sortedHeroes.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      // Show only images from last 7 days, sorted by newest first
+      return sortedHeroes
+        .filter(hero => {
+          if (!hero.submissionDate) return false;
+          const heroDate = new Date(hero.submissionDate);
+          return heroDate >= sevenDaysAgo;
+        })
+        .sort((a, b) => {
+          if (!a.submissionDate) return 1;
+          if (!b.submissionDate) return -1;
+          return new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime();
+        });
       
     case "Recent":
+      // Sort by submission date, newest first
       return sortedHeroes.sort((a, b) => {
         if (!a.submissionDate) return 1;
         if (!b.submissionDate) return -1;

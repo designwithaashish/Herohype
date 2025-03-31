@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/herohype/Header";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
 // Mock data
 const mockSubmissions: Submission[] = [
@@ -38,6 +39,12 @@ const mockSubmissions: Submission[] = [
     categories: ["3D", "Bento"],
     createdAt: "2023-06-13T09:15:00Z",
   },
+];
+
+// All available categories for assignments
+const allCategories = [
+  "Dark", "Light", "Gradient", "3D", "Bento", "Minimal", 
+  "Typography", "Animated", "Illustrated", "Crypto"
 ];
 
 const AdminApproval: React.FC = () => {
@@ -74,7 +81,13 @@ const AdminApproval: React.FC = () => {
   const handleApprove = (id: string) => {
     const submission = pendingSubmissions.find(s => s.id === id);
     if (submission) {
-      setApprovedSubmissions(prev => [...prev, submission]);
+      // Add current date as submission date
+      const approvedSubmission = {
+        ...submission,
+        submissionDate: new Date().toISOString()
+      };
+      
+      setApprovedSubmissions(prev => [...prev, approvedSubmission]);
       setPendingSubmissions(prev => prev.filter(s => s.id !== id));
       toast({
         title: "Submission approved",
@@ -94,12 +107,60 @@ const AdminApproval: React.FC = () => {
       });
     }
   };
+
+  const handleCategoryToggle = (submissionId: string, category: string) => {
+    // Toggle category for pending submission
+    setPendingSubmissions(prev => 
+      prev.map(submission => {
+        if (submission.id === submissionId) {
+          const updatedCategories = submission.categories.includes(category)
+            ? submission.categories.filter(c => c !== category)
+            : [...submission.categories, category];
+          
+          return { ...submission, categories: updatedCategories };
+        }
+        return submission;
+      })
+    );
+  };
+
+  const handleClearAll = () => {
+    // Confirm with the user before clearing
+    if (window.confirm("Are you sure you want to delete all data? This cannot be undone.")) {
+      setPendingSubmissions([]);
+      setApprovedSubmissions([]);
+      setRejectedSubmissions([]);
+      toast({
+        title: "Data cleared",
+        description: "All submission data has been deleted",
+      });
+    }
+  };
+
+  const handleManualSubmission = () => {
+    // In a real app, this would open a form to manually add a submission
+    toast({
+      title: "Manual submission",
+      description: "This would open a form to manually add a hero section",
+    });
+  };
   
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-3">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-6">
+          <p className="text-gray-600">Manage hero section submissions</p>
+          <div className="space-x-3">
+            <Button variant="outline" onClick={handleManualSubmission}>
+              + Add New Manually
+            </Button>
+            <Button variant="destructive" onClick={handleClearAll}>
+              Clear All Data
+            </Button>
+          </div>
+        </div>
         
         <Tabs defaultValue="pending" className="w-full">
           <TabsList className="mb-6">
@@ -122,12 +183,28 @@ const AdminApproval: React.FC = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pendingSubmissions.map((submission) => (
-                  <PendingSubmissionCard
-                    key={submission.id}
-                    submission={submission}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
-                  />
+                  <div key={submission.id} className="bg-white rounded-lg shadow p-4">
+                    <PendingSubmissionCard
+                      submission={submission}
+                      onApprove={handleApprove}
+                      onReject={handleReject}
+                    />
+                    <div className="mt-4">
+                      <p className="font-medium mb-2">Assign Categories:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {allCategories.map((category) => (
+                          <Badge
+                            key={category}
+                            variant={submission.categories.includes(category) ? "default" : "outline"}
+                            className="cursor-pointer"
+                            onClick={() => handleCategoryToggle(submission.id, category)}
+                          >
+                            {category}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -148,6 +225,9 @@ const AdminApproval: React.FC = () => {
                       className="w-full h-40 object-cover rounded-md mb-3"
                     />
                     <p className="font-medium">@{submission.twitterUsername}</p>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Approved: {new Date(submission.submissionDate || submission.createdAt).toLocaleDateString()}
+                    </p>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {submission.categories.map((category) => (
                         <Badge key={category} variant="secondary" className="text-xs">

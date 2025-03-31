@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -42,6 +41,17 @@ const SubmitHeroForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Check if the user is logged in with Google
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in with Google to submit a hero section",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!twitterUsername) {
       toast({
         title: "Twitter username required",
@@ -64,15 +74,6 @@ const SubmitHeroForm: React.FC = () => {
       toast({
         title: "Image required",
         description: "Please upload an image",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (selectedCategories.length === 0) {
-      toast({
-        title: "Categories required",
-        description: "Please select at least one category",
         variant: "destructive",
       });
       return;
@@ -109,8 +110,10 @@ const SubmitHeroForm: React.FC = () => {
     }
   };
 
+  // Updated to match the categories mentioned in the request
   const categories = [
-    "Dark", "Light", "Gradient", "3D", "Bento", "Minimal", "Typography", "Animated"
+    "Dark", "Light", "Crypto", "Minimal", "Animated", 
+    "Illustrated", "3D", "Gradient", "Bento", "Typography"
   ];
 
   return (
@@ -193,7 +196,7 @@ const SubmitHeroForm: React.FC = () => {
           </div>
           
           <div>
-            <Label className="block mb-2">Categories</Label>
+            <Label className="block mb-2">Select Categories (for admin reference)</Label>
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
                 <Button
@@ -207,11 +210,19 @@ const SubmitHeroForm: React.FC = () => {
                 </Button>
               ))}
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Note: Final category assignment will be done by the admin during approval
+            </p>
           </div>
           
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Submitting..." : "Submit Hero Section"}
-          </Button>
+          <div className="pt-2">
+            <p className="text-xs text-gray-600 mb-4">
+              All submissions require Google login and will be reviewed by an admin before appearing in the gallery.
+            </p>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Submitting..." : "Submit Hero Section"}
+            </Button>
+          </div>
         </form>
       </Tabs>
     </div>

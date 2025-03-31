@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Maximize, Heart, Bookmark } from "lucide-react";
+import { Maximize } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export interface HeroCardProps {
@@ -9,10 +9,6 @@ export interface HeroCardProps {
   imageUrl: string;
   twitterUsername: string;
   categories: string[];
-  likes?: number;
-  views?: number;
-  savedToCollection?: boolean;
-  isLiked?: boolean;
   submissionDate?: string;
 }
 
@@ -21,46 +17,15 @@ const HeroCard: React.FC<HeroCardProps> = ({
   imageUrl,
   twitterUsername,
   categories,
-  likes = 0,
-  views = 0,
-  savedToCollection = false,
-  isLiked = false,
   submissionDate,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [liked, setLiked] = useState(isLiked);
-  const [saved, setSaved] = useState(savedToCollection);
-  const [likeCount, setLikeCount] = useState(likes);
 
-  // Increment view count when card is rendered
+  // Effect to log when a card is viewed (no longer tracking views in CMS)
   useEffect(() => {
-    // In a real app, this would be an API call to increment views
     console.log(`Viewed hero section: ${id}`);
   }, [id]);
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Toggle like status
-    const newLikedStatus = !liked;
-    setLiked(newLikedStatus);
-    
-    // Update like count
-    setLikeCount(prev => newLikedStatus ? prev + 1 : prev - 1);
-    
-    // In a real app, this would be an API call to update likes in the CMS
-    console.log(`${newLikedStatus ? 'Liked' : 'Unliked'} hero section: ${id}`);
-  };
-
-  const handleSave = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Toggle saved status
-    const newSavedStatus = !saved;
-    setSaved(newSavedStatus);
-    
-    // In a real app, this would be an API call to update saved status in the CMS
-    console.log(`${newSavedStatus ? 'Saved to' : 'Removed from'} collection: ${id}`);
-  };
 
   return (
     <Dialog>
@@ -98,29 +63,6 @@ const HeroCard: React.FC<HeroCardProps> = ({
               )}
 
               {isHovered && (
-                <div className="absolute bottom-3 left-3 flex gap-2">
-                  <button 
-                    onClick={handleLike}
-                    className="bg-white bg-opacity-90 hover:bg-opacity-100 text-black p-2 rounded-full flex items-center justify-center w-8 h-8 transition-colors"
-                  >
-                    <Heart 
-                      size={16} 
-                      className={liked ? "fill-red-500 text-red-500" : "text-gray-700"} 
-                    />
-                  </button>
-                  <button 
-                    onClick={handleSave}
-                    className="bg-white bg-opacity-90 hover:bg-opacity-100 text-black p-2 rounded-full flex items-center justify-center w-8 h-8 transition-colors"
-                  >
-                    <Bookmark 
-                      size={16} 
-                      className={saved ? "fill-black text-black" : "text-gray-700"} 
-                    />
-                  </button>
-                </div>
-              )}
-
-              {isHovered && (
                 <div className="absolute bottom-3 right-3">
                   <a
                     href={`https://twitter.com/${twitterUsername}`}
@@ -145,27 +87,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
             alt={`Hero section by @${twitterUsername}`}
             className="w-full h-full object-contain"
           />
-          <div className="absolute bottom-4 right-4 flex items-center gap-2">
-            <div className="flex gap-2 mr-3">
-              <button 
-                onClick={handleLike}
-                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-black p-2 rounded-full flex items-center justify-center w-8 h-8 transition-colors"
-              >
-                <Heart 
-                  size={16} 
-                  className={liked ? "fill-red-500 text-red-500" : "text-gray-700"} 
-                />
-              </button>
-              <button 
-                onClick={handleSave}
-                className="bg-white bg-opacity-90 hover:bg-opacity-100 text-black p-2 rounded-full flex items-center justify-center w-8 h-8 transition-colors"
-              >
-                <Bookmark 
-                  size={16} 
-                  className={saved ? "fill-black text-black" : "text-gray-700"} 
-                />
-              </button>
-            </div>
+          <div className="absolute bottom-4 right-4">
             <a
               href={`https://twitter.com/${twitterUsername}`}
               target="_blank"
