@@ -9,8 +9,8 @@ interface GalleryGridProps {
 const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
   return (
     <div className="masonry-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 px-4">
-      {heroes.map(hero => (
-        <div key={`hero-${hero.id}`} className="masonry-item break-inside-avoid mb-4 transform transition-all duration-500 animate-fade-in">
+      {heroes.map((hero, index) => (
+        <div key={`hero-${hero.id}-${index}`} className="masonry-item break-inside-avoid mb-4 transform transition-all duration-500 animate-fade-in">
           <HeroCard {...hero} />
         </div>
       ))}

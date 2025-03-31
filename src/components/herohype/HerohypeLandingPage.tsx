@@ -7,13 +7,13 @@ import Filters from "./Filters";
 
 const HerohypeLandingPage: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-  const [sortOption, setSortOption] = useState("Popular");
+  const [sortOption, setSortOption] = useState("Recent");
 
   return (
     <div className="bg-white">
       <Header />
       <HeroSection />
-      <div className="w-full max-w-7xl mx-auto mt-6 px-4">
+      <div className="w-full mx-auto mt-6 px-4">
         <Filters 
           activeFilters={activeFilters}
           setActiveFilters={setActiveFilters}
