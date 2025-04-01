@@ -19,61 +19,46 @@ const MyCollections: React.FC = () => {
     // Check if user is logged in and if they are an admin
     const userStr = localStorage.getItem("user");
     if (userStr) {
-      const user = JSON.parse(userStr);
-      setIsLoggedIn(true);
-      setIsAdmin(user.role === "admin");
-      
-      // Load moodboard items
-      loadMoodboardItems();
+      try {
+        const user = JSON.parse(userStr);
+        setIsLoggedIn(true);
+        setIsAdmin(user.role === "admin");
+        
+        // Load moodboard items
+        loadMoodboardItems();
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+        navigate("/login");
+      }
     } else {
-      // Not logged in, redirect to login
-      toast({
-        title: "Authentication required",
-        description: "Please log in to view moodboards.",
-        variant: "destructive",
-      });
-      
-      setTimeout(() => navigate("/login"), 1000);
+      // Not logged in, show public moodboards with empty state
+      setIsLoggedIn(false);
+      setIsAdmin(false);
+      loadMoodboardItems();
     }
     
     setLoading(false);
-  }, [navigate, toast]);
+  }, [navigate]);
   
   const loadMoodboardItems = () => {
     // Check if there are moodboard items in localStorage
-    const moodboardDataStr = localStorage.getItem("adminMoodboard");
-    if (moodboardDataStr) {
-      const moodboardData = JSON.parse(moodboardDataStr);
-      setMoodboardItems(moodboardData);
-    } else {
-      // Initialize empty moodboard
-      setMoodboardItems([]);
-      localStorage.setItem("adminMoodboard", JSON.stringify([]));
-    }
-  };
-  
-  // Function to add an item to the moodboard
-  const addToMoodboard = (item: HeroCardProps) => {
-    setMoodboardItems(prev => {
-      // Check if item already exists
-      if (prev.some(existing => existing.id === item.id)) {
-        toast({
-          title: "Already in Moodboard",
-          description: "This item is already in your moodboard.",
-        });
-        return prev;
+    try {
+      const moodboardDataStr = localStorage.getItem("adminMoodboard");
+      if (moodboardDataStr) {
+        const moodboardData = JSON.parse(moodboardDataStr);
+        console.log("Loaded moodboard items:", moodboardData.length, moodboardData);
+        setMoodboardItems(moodboardData);
+      } else {
+        // Initialize empty moodboard
+        setMoodboardItems([]);
+        if (isAdmin) {
+          localStorage.setItem("adminMoodboard", JSON.stringify([]));
+        }
       }
-      
-      const newItems = [...prev, item];
-      localStorage.setItem("adminMoodboard", JSON.stringify(newItems));
-      
-      toast({
-        title: "Added to Moodboard",
-        description: "Item has been added to your moodboard.",
-      });
-      
-      return newItems;
-    });
+    } catch (error) {
+      console.error("Error loading moodboard items:", error);
+      setMoodboardItems([]);
+    }
   };
   
   // Function to remove an item from the moodboard
@@ -83,6 +68,12 @@ const MyCollections: React.FC = () => {
     setMoodboardItems(prev => {
       const newItems = prev.filter(item => item.id !== id);
       localStorage.setItem("adminMoodboard", JSON.stringify(newItems));
+      
+      toast({
+        title: "Removed from Moodboard",
+        description: "Item has been removed from your moodboard.",
+      });
+      
       return newItems;
     });
   };
@@ -111,31 +102,29 @@ const MyCollections: React.FC = () => {
           </p>
         </div>
         
-        {isLoggedIn && (
-          <>
-            {moodboardItems.length > 0 ? (
-              <GalleryGrid heroes={moodboardItems.map(item => ({
-                ...item,
-                showRemoveOption: isAdmin,
-                onRemove: removeFromMoodboard
-              }))} />
-            ) : (
-              <div className="text-center py-16">
-                <h2 className="text-2xl font-bold mb-2">No moodboard items yet</h2>
-                <p className="text-gray-600 mb-6">
-                  {isAdmin 
-                    ? "Start saving hero sections from the gallery to create your moodboard."
-                    : "Check back soon for curated moodboards."}
-                </p>
-                {isAdmin && (
-                  <Button onClick={() => navigate("/")} variant="default">
-                    Explore Gallery
-                  </Button>
-                )}
-              </div>
-            )}
-          </>
-        )}
+        <>
+          {moodboardItems.length > 0 ? (
+            <GalleryGrid heroes={moodboardItems.map(item => ({
+              ...item,
+              showRemoveOption: isAdmin,
+              onRemove: removeFromMoodboard
+            }))} />
+          ) : (
+            <div className="text-center py-16">
+              <h2 className="text-2xl font-bold mb-2">No moodboard items yet</h2>
+              <p className="text-gray-600 mb-6">
+                {isAdmin 
+                  ? "Start saving hero sections from the gallery to create your moodboard."
+                  : "Check back soon for curated moodboards."}
+              </p>
+              {isAdmin && (
+                <Button onClick={() => navigate("/")} variant="default">
+                  Explore Gallery
+                </Button>
+              )}
+            </div>
+          )}
+        </>
       </div>
     </div>
   );

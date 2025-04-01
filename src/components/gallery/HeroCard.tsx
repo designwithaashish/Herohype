@@ -66,7 +66,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   };
 
   return (
-    <div className="overflow-hidden rounded-lg transition-all duration-200 border border-gray-100 hover:shadow-md group">
+    <div className="overflow-hidden rounded-[30px] border border-gray-200 hover:shadow-md group">
       <div className="relative">
         {/* Featured badge */}
         {isFeatured && (
@@ -87,13 +87,13 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
           <img
             src={imageUrl}
             alt={`Hero design by ${twitterUsername}`}
-            className="w-full object-cover transition-transform duration-300"
+            className="w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           
-          {/* Hover overlay with details */}
-          <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
-            <div className="text-white text-sm font-medium mb-2">@{twitterUsername}</div>
-            <div className="flex justify-between items-center">
+          {/* Hover overlay with details - only at the bottom with gradient */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent h-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+            <div className="w-full flex justify-between items-center">
+              <div className="text-white text-sm font-medium">@{twitterUsername}</div>
               <div className="flex space-x-3">
                 <div className="flex items-center text-xs text-white">
                   <HeartIcon className="w-3.5 h-3.5 mr-1" />
@@ -103,26 +103,26 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
                   <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
                   <span>{saves}</span>
                 </div>
+                
+                {/* Admin controls */}
+                {showCuratedControls && (
+                  <button 
+                    onClick={handleToggleCurated}
+                    className={`p-1 rounded-full ${isCurated ? 'bg-yellow-400 text-black' : 'bg-gray-200 text-gray-700'}`}
+                  >
+                    <StarIcon className="w-4 h-4" />
+                  </button>
+                )}
+                
+                {showRemoveOption && (
+                  <button 
+                    onClick={handleRemove}
+                    className="p-1 rounded-full bg-red-500 text-white"
+                  >
+                    <XCircleIcon className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-              
-              {/* Admin controls */}
-              {showCuratedControls && (
-                <button 
-                  onClick={handleToggleCurated}
-                  className={`p-1 rounded-full ${isCurated ? 'bg-yellow-400 text-black' : 'bg-gray-200 text-gray-700'}`}
-                >
-                  <StarIcon className="w-4 h-4" />
-                </button>
-              )}
-              
-              {showRemoveOption && (
-                <button 
-                  onClick={handleRemove}
-                  className="p-1 rounded-full bg-red-500 text-white"
-                >
-                  <XCircleIcon className="w-4 h-4" />
-                </button>
-              )}
             </div>
           </div>
         </div>

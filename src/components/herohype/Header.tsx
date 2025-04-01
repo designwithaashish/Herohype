@@ -10,6 +10,7 @@ const Header: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
   const [userInitials, setUserInitials] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -17,17 +18,25 @@ const Header: React.FC = () => {
     const checkUserData = () => {
       const userStr = localStorage.getItem("user");
       if (userStr) {
-        const user = JSON.parse(userStr);
-        setIsLoggedIn(true);
-        setIsAdmin(user.role === "admin");
-        const displayName = user.username || user.email?.split('@')[0] || "user";
-        setUsername(displayName);
-        setUserInitials(displayName.slice(0, 2).toUpperCase());
+        try {
+          const user = JSON.parse(userStr);
+          setIsLoggedIn(true);
+          setIsAdmin(user.role === "admin");
+          const displayName = user.username || user.email?.split('@')[0] || "user";
+          setUsername(displayName);
+          setUserInitials(displayName.slice(0, 2).toUpperCase());
+          // Set avatar URL if available
+          setAvatarUrl(user.avatarUrl || "");
+        } catch (error) {
+          console.error("Error parsing user data:", error);
+          setIsLoggedIn(false);
+        }
       } else {
         setIsLoggedIn(false);
         setIsAdmin(false);
         setUsername("");
         setUserInitials("");
+        setAvatarUrl("");
       }
     };
     
@@ -81,7 +90,9 @@ const Header: React.FC = () => {
             <HoverCardTrigger asChild>
               <Link to="/profile" className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/placeholder.svg" />
+                  {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt={username} />
+                  ) : null}
                   <AvatarFallback className="bg-gray-200 text-gray-700">
                     {userInitials}
                   </AvatarFallback>

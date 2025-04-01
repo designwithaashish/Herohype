@@ -15,19 +15,29 @@ const Curated: React.FC = () => {
     // Check if user is admin
     const userStr = localStorage.getItem("user");
     if (userStr) {
-      const user = JSON.parse(userStr);
-      setIsAdmin(user.role === "admin");
+      try {
+        const user = JSON.parse(userStr);
+        setIsAdmin(user.role === "admin");
+      } catch (error) {
+        console.error("Error parsing user data:", error);
+      }
     }
 
     // Load curated items from localStorage (marked with isCurated: true)
     const loadCuratedItems = () => {
-      const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-      if (approvedSubmissions) {
-        const items = JSON.parse(approvedSubmissions);
-        // Filter for curated items only
-        const curatedHeroes = items.filter((item: any) => item.isCurated === true);
-        setCuratedItems(curatedHeroes);
-      } else {
+      try {
+        const approvedSubmissions = localStorage.getItem("approvedSubmissions");
+        if (approvedSubmissions) {
+          const items = JSON.parse(approvedSubmissions);
+          // Filter for curated items only
+          const curatedHeroes = items.filter((item: any) => item.isCurated === true);
+          console.log("Found curated heroes:", curatedHeroes.length, curatedHeroes);
+          setCuratedItems(curatedHeroes);
+        } else {
+          setCuratedItems([]);
+        }
+      } catch (error) {
+        console.error("Error loading curated items:", error);
         setCuratedItems([]);
       }
       setLoading(false);

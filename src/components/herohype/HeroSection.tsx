@@ -27,18 +27,23 @@ const HeroSection: React.FC = () => {
     if (approvedSubmissions) {
       const items = JSON.parse(approvedSubmissions);
       if (items.length > 0) {
-        // Find items with the highest likes
-        const sortedItems = [...items].sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        const topImages = sortedItems.slice(0, 3).map(item => ({
-          imageUrl: item.imageUrl,
-          twitterUsername: item.twitterUsername,
-          id: item.id
-        }));
+        // Find items with approved status only
+        const approvedItems = items.filter((item: any) => item.status === "approved");
         
-        if (topImages.length > 0) {
-          setFeaturedImages(topImages);
+        // Get up to 3 image URLs from the approved items
+        const imageUrls = approvedItems
+          .slice(0, 3)
+          .map((item: any) => ({
+            imageUrl: item.imageUrl,
+            twitterUsername: item.twitterUsername,
+            id: item.id
+          }));
+        
+        // If we have at least one image, set it. Otherwise use a placeholder
+        if (imageUrls.length > 0) {
+          setFeaturedImages(imageUrls);
         } else {
-          // Default image if no submissions
+          // Default image if no approved submissions
           setFeaturedImages([{
             imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
             twitterUsername: "herohype",
@@ -67,22 +72,28 @@ const HeroSection: React.FC = () => {
   useEffect(() => {
     if (featuredImages.length <= 1) return;
     
-    const sliderInterval = setInterval(() => {
+    const transitionTime = 600; // ms for transition animation
+    const displayTime = 10000; // 10 seconds per image
+    
+    const interval = setInterval(() => {
+      // Start transition
       setIsTransitioning(true);
       
-      // Wait for transition to complete
+      // Wait for transition to complete before changing the index
       setTimeout(() => {
         setCurrentImageIndex(prev => 
           prev === featuredImages.length - 1 ? 0 : prev + 1
         );
         
+        // Wait a bit then remove the transition state
         setTimeout(() => {
           setIsTransitioning(false);
-        }, 300);
-      }, 300);
-    }, 10000); // 10 seconds per image
+        }, 50);
+      }, transitionTime);
+      
+    }, displayTime);
     
-    return () => clearInterval(sliderInterval);
+    return () => clearInterval(interval);
   }, [featuredImages.length]);
 
   const handleExploreClick = () => {
@@ -149,12 +160,12 @@ const HeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero image with featured tag and creator info - increased size */}
-        <div className="mt-10 md:mt-0 max-w-[480px] md:min-h-[440px] relative">
+        {/* Hero image slider with featured tag and creator info - with increased size */}
+        <div className="mt-10 md:mt-0 w-full max-w-[520px] md:min-h-[440px] relative">
           {featuredImages.length > 0 && featuredImages.map((image, index) => (
             <div 
               key={image.id}
-              className={`absolute inset-0 transition-all duration-300 ${
+              className={`absolute inset-0 transition-all duration-600 ${
                 currentImageIndex === index 
                   ? 'opacity-100 z-10 scale-100' 
                   : 'opacity-0 z-0 scale-95'
