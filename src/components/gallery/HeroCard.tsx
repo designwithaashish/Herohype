@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { StarIcon, HeartIcon, BookmarkIcon, XCircleIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -61,20 +62,22 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     checkSavedStatus();
     
     // Load user moodboards
-    loadUserMoodboards();
+    if (isAdmin) {
+      loadUserMoodboards();
+    }
     
     // Set initial starred state
     setIsStarred(isCurated || false);
   }, [id, isCurated]);
   
   const checkSavedStatus = () => {
-    // Check if user has moodboards and if this item is in any of them
-    const userMoodboardsStr = localStorage.getItem("userMoodboards");
-    if (userMoodboardsStr) {
+    // Check if user has collections and if this item is in any of them
+    const userCollectionsStr = localStorage.getItem("userCollections");
+    if (userCollectionsStr) {
       try {
-        const moodboards = JSON.parse(userMoodboardsStr);
-        for (const moodboard of moodboards) {
-          if (moodboard.items && moodboard.items.some((item: any) => item.id === id)) {
+        const collections = JSON.parse(userCollectionsStr);
+        for (const collection of collections) {
+          if (collection.items && collection.items.some((item: any) => item.id === id)) {
             setIsSaved(true);
             break;
           }
@@ -107,6 +110,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: isLiked ? "Removed like" : "Added like",
       description: isLiked ? "You've removed your like" : "You've liked this hero section",
+      className: "bg-[#3F521F] text-white border-0",
     });
   };
   
@@ -116,14 +120,80 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     if (!localStorage.getItem("user")) {
       toast({
         title: "Login required",
-        description: "Please log in to save items to moodboards",
-        variant: "destructive"
+        description: "Please log in to save items",
+        variant: "destructive",
+        className: "bg-red-700 text-white border-0",
       });
       navigate("/login");
       return;
     }
     
-    setMoodboardDialogOpen(true);
+    if (isAdmin) {
+      // Admins can add to moodboards
+      setMoodboardDialogOpen(true);
+    } else {
+      // Regular users can only add to their collection
+      addToUserCollection();
+    }
+  };
+
+  const addToUserCollection = () => {
+    const userCollectionsStr = localStorage.getItem("userCollections");
+    let collections = [];
+    
+    if (userCollectionsStr) {
+      try {
+        collections = JSON.parse(userCollectionsStr);
+      } catch (error) {
+        console.error("Error parsing user collections:", error);
+      }
+    }
+
+    // Get the item data from approved submissions
+    const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+    const itemData = approvedSubmissions.find((item: any) => item.id === id);
+    
+    if (!itemData) {
+      console.error("Item not found in approved submissions");
+      return;
+    }
+
+    // Check if user has a default collection
+    let defaultCollection = collections.find((c: any) => c.name === "My Collection");
+    
+    // If no default collection, create one
+    if (!defaultCollection) {
+      defaultCollection = {
+        id: `collection-${Date.now()}`,
+        name: "My Collection",
+        items: []
+      };
+      collections.push(defaultCollection);
+    }
+
+    // Check if item is already in the collection
+    if (defaultCollection.items.some((item: any) => item.id === id)) {
+      toast({
+        title: "Already saved",
+        description: "This item is already in your collection",
+        className: "bg-[#3F521F] text-white border-0",
+      });
+      return;
+    }
+
+    // Add item to collection
+    defaultCollection.items.push(itemData);
+    localStorage.setItem("userCollections", JSON.stringify(collections));
+    
+    // Update saved state
+    setIsSaved(true);
+    setSaveCount(prev => prev + 1);
+    
+    toast({
+      title: "Added to collection",
+      description: "Item added to your collection",
+      className: "bg-[#3F521F] text-white border-0",
+    });
   };
   
   const handleStar = (e: React.MouseEvent) => {
@@ -151,6 +221,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         description: newStarredState 
           ? "This hero section has been added to Curated Picks" 
           : "This hero section has been removed from Curated Picks",
+        className: "bg-[#3F521F] text-white border-0",
       });
     }
   };
@@ -190,6 +261,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: "Moodboard created",
       description: `New moodboard "${newMoodboardName}" created`,
+      className: "bg-[#3F521F] text-white border-0",
     });
   };
   
@@ -198,7 +270,8 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       toast({
         title: "No moodboard selected",
         description: "Please select or create a moodboard first",
-        variant: "destructive"
+        variant: "destructive",
+        className: "bg-red-700 text-white border-0",
       });
       return;
     }
@@ -212,7 +285,8 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       toast({
         title: "Moodboard full",
         description: "A moodboard can contain a maximum of 10 items",
-        variant: "destructive"
+        variant: "destructive",
+        className: "bg-red-700 text-white border-0",
       });
       return;
     }
@@ -222,6 +296,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       toast({
         title: "Already in moodboard",
         description: `This item is already in "${moodboard.name}"`,
+        className: "bg-[#3F521F] text-white border-0",
       });
       return;
     }
@@ -256,6 +331,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: "Added to moodboard",
       description: `Item added to "${moodboard.name}"`,
+      className: "bg-[#3F521F] text-white border-0",
     });
     
     // Close dialog
@@ -339,7 +415,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         </div>
       </div>
       
-      {/* Save to Moodboard Dialog */}
+      {/* Admin Only: Save to Moodboard Dialog */}
       <Dialog open={moodboardDialogOpen} onOpenChange={setMoodboardDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

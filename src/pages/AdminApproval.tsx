@@ -21,6 +21,18 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { PlusCircle, Image, Trash2, Edit, Eye, Star } from "lucide-react";
 
+interface Submission {
+  id: string;
+  imageUrl: string;
+  twitterUsername: string;
+  categories: string[];
+  status: "pending" | "approved" | "rejected";
+  submissionDate: string;
+  userId: string;
+  submittedBy: string;
+  isCurated?: boolean;
+}
+
 const mockSubmissions: Submission[] = [
   {
     id: "1",
