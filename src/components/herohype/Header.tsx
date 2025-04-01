@@ -25,9 +25,23 @@ const Header: React.FC = () => {
           const displayName = user.username || user.email?.split('@')[0] || "user";
           setUsername(displayName);
           setUserInitials(displayName.slice(0, 2).toUpperCase());
-          // Set avatar URL if available
-          setAvatarUrl(user.avatarUrl || "");
-          console.log("User avatar URL:", user.avatarUrl);
+          
+          // Set avatar URL if available - check both user.avatarUrl and profile data
+          let avatarImage = user.avatarUrl || "";
+          
+          // Check for profile data which might have the avatar URL
+          if (user.id) {
+            const profileStr = localStorage.getItem(`profile-${user.id}`);
+            if (profileStr) {
+              const profile = JSON.parse(profileStr);
+              if (profile.avatarUrl) {
+                avatarImage = profile.avatarUrl;
+              }
+            }
+          }
+          
+          setAvatarUrl(avatarImage);
+          console.log("User avatar URL:", avatarImage);
         } catch (error) {
           console.error("Error parsing user data:", error);
           setIsLoggedIn(false);
@@ -47,8 +61,12 @@ const Header: React.FC = () => {
     // Setup event listener for storage changes
     window.addEventListener("storage", checkUserData);
     
+    // Also check when component mounts and every few seconds
+    const intervalId = setInterval(checkUserData, 5000);
+    
     return () => {
       window.removeEventListener("storage", checkUserData);
+      clearInterval(intervalId);
     };
   }, []);
 
@@ -99,11 +117,23 @@ const Header: React.FC = () => {
             </HoverCardTrigger>
             <HoverCardContent className="w-64">
               <div className="flex flex-col space-y-3">
-                <p className="text-sm">{username}</p>
+                <p className="text-sm font-medium">{username}</p>
                 <p className="text-sm text-gray-500">Manage your profile, submissions, and moodboards</p>
-                <Link to="/profile" className="text-sm text-blue-600 hover:underline">
-                  View Profile
-                </Link>
+                <div className="flex flex-col space-y-1">
+                  <Link to="/profile" className="text-sm text-blue-600 hover:underline">
+                    View Profile
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem("user");
+                      navigate("/");
+                      location.reload();
+                    }}
+                    className="text-sm text-red-600 hover:underline text-left"
+                  >
+                    Log Out
+                  </button>
+                </div>
               </div>
             </HoverCardContent>
           </HoverCard>

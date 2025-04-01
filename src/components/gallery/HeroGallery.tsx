@@ -10,12 +10,14 @@ interface HeroGalleryProps {
   initialHeroes?: HeroCardProps[];
   activeFilters?: string[];
   sortOption?: string;
+  columns?: number;
 }
 
 const HeroGallery: React.FC<HeroGalleryProps> = ({ 
   initialHeroes = [],
   activeFilters = [],
-  sortOption = "Popular"
+  sortOption = "Popular",
+  columns = 4
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   
@@ -49,7 +51,7 @@ const HeroGallery: React.FC<HeroGalleryProps> = ({
   return (
     <>
       <div className="w-full px-0 lg:px-0 max-w-none">
-        {visibleHeroes.length > 0 && <GalleryGrid heroes={visibleHeroes} />}
+        {visibleHeroes.length > 0 && <GalleryGrid heroes={visibleHeroes} columns={columns} />}
         
         {(filteredHeroes.length === 0 && activeFilters.length > 0) && (
           <EmptyGalleryState onClearFilters={handleClearFilters} />

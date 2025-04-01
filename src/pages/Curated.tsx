@@ -106,11 +106,14 @@ const Curated: React.FC = () => {
         ) : (
           <>
             {curatedItems.length > 0 ? (
-              <GalleryGrid heroes={curatedItems.map(item => ({
-                ...item,
-                showCuratedControls: isAdmin,
-                onToggleCurated: handleToggleCurated
-              }))} />
+              <GalleryGrid 
+                heroes={curatedItems.map(item => ({
+                  ...item,
+                  showCuratedControls: isAdmin,
+                  onToggleCurated: handleToggleCurated
+                }))}
+                columns={5}
+              />
             ) : (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-2">No curated items yet</h2>

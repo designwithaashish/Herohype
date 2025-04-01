@@ -5,9 +5,10 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GalleryGridProps {
   heroes: HeroCardProps[];
+  columns?: number;
 }
 
-const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
+const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes, columns = 4 }) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
@@ -48,10 +49,23 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
     handleImagesLoaded();
   }, [heroes]);
   
+  // Generate column classes based on the columns prop
+  const getColumnClasses = () => {
+    if (isMobile) return 'columns-1 gap-2';
+    
+    switch (columns) {
+      case 2: return 'columns-1 sm:columns-2 gap-2';
+      case 3: return 'columns-1 sm:columns-2 md:columns-3 gap-2';
+      case 5: return 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-2';
+      case 4:
+      default: return 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-2';
+    }
+  };
+  
   return (
     <div 
       ref={gridRef} 
-      className={`masonry-grid ${isMobile ? 'columns-1 gap-2' : 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-2'} w-full opacity-0 transition-opacity duration-500`}
+      className={`masonry-grid ${getColumnClasses()} w-full opacity-0 transition-opacity duration-500`}
     >
       {heroes.map(hero => (
         <div 

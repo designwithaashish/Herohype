@@ -28,6 +28,7 @@ const HerohypeLandingPage: React.FC = () => {
           <HeroGallery 
             activeFilters={activeFilters}
             sortOption={sortOption}
+            columns={4}
           />
         </div>
       </div>

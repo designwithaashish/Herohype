@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
 const HeroSection: React.FC = () => {
-  const [itemCount] = useState<number>(100);
+  const [itemCount, setItemCount] = useState<number>(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [featuredImages, setFeaturedImages] = useState<{
     imageUrl: string;
@@ -22,13 +22,14 @@ const HeroSection: React.FC = () => {
       setIsLoggedIn(true);
     }
 
-    // Get featured hero images from approved submissions
+    // Get featured hero images and count from approved submissions
     const approvedSubmissions = localStorage.getItem("approvedSubmissions");
     if (approvedSubmissions) {
       const items = JSON.parse(approvedSubmissions);
       if (items.length > 0) {
-        // Find items with approved status only
+        // Count approved items
         const approvedItems = items.filter((item: any) => item.status === "approved");
+        setItemCount(approvedItems.length);
         
         // Get up to 3 image URLs from the approved items
         const imageUrls = approvedItems
@@ -49,6 +50,9 @@ const HeroSection: React.FC = () => {
             twitterUsername: "herohype",
             id: "default-1"
           }]);
+          
+          // Set default count if no approved submissions
+          setItemCount(100);
         }
       } else {
         // Default image if no submissions
@@ -57,6 +61,9 @@ const HeroSection: React.FC = () => {
           twitterUsername: "herohype",
           id: "default-1"
         }]);
+        
+        // Set default count if no submissions
+        setItemCount(100);
       }
     } else {
       // Default image if no submissions
@@ -65,6 +72,9 @@ const HeroSection: React.FC = () => {
         twitterUsername: "herohype",
         id: "default-1"
       }]);
+      
+      // Set default count if no submissions
+      setItemCount(100);
     }
   }, []);
 
@@ -171,24 +181,26 @@ const HeroSection: React.FC = () => {
                   : 'opacity-0 z-0 scale-95'
               } ${isTransitioning && currentImageIndex === index ? 'opacity-0 scale-105' : ''}`}
             >
-              <div className="absolute top-4 left-0 right-0 flex justify-between items-center px-4 z-10">
-                <Badge className="bg-[#3A5A40] hover:bg-[#3A5A40] text-white font-medium">
+              <img
+                src={image.imageUrl}
+                alt={`Featured hero section by ${image.twitterUsername}`}
+                className="rounded-[40px] border-6 border-white w-full h-full object-cover md:min-h-[440px]"
+              />
+              
+              {/* Featured tag and creator info - repositioned to bottom with padding */}
+              <div className="absolute left-0 right-0 bottom-0 flex justify-between items-center px-8 py-6 z-10">
+                <Badge className="bg-black hover:bg-black text-white font-medium uppercase">
                   Featured
                 </Badge>
                 <a 
                   href={`https://twitter.com/${image.twitterUsername}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white text-sm bg-black/50 px-2 py-1 rounded-full hover:bg-black/70 transition-colors"
+                  className="text-white text-sm bg-black/70 px-3 py-1.5 rounded-full hover:bg-black transition-colors"
                 >
                   @{image.twitterUsername}
                 </a>
               </div>
-              <img
-                src={image.imageUrl}
-                alt={`Featured hero section by ${image.twitterUsername}`}
-                className="rounded-[40px] border-6 border-white w-full h-full object-cover md:min-h-[440px]"
-              />
             </div>
           ))}
         </div>
