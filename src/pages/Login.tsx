@@ -8,11 +8,11 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="flex items-center justify-center p-4 pt-[100px]">
+      <div className="flex items-center justify-center p-4 pt-[50px]">
         <div className="w-full max-w-6xl rounded-xl overflow-hidden shadow-2xl flex bg-white">
           {/* Left side - Image Carousel */}
           <div className="hidden md:block w-1/2 bg-black">
-            <LoginImageCarousel />
+            <LoginImageCarousel showText={false} />
           </div>
           
           {/* Right side - Login Form */}
