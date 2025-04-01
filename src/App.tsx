@@ -14,6 +14,7 @@ import SearchResults from "./pages/SearchResults";
 import MyCollections from "./pages/MyCollections";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Curated from "./pages/Curated";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App: React.FC = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/curated" element={<Curated />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/submit" element={<SubmitHero />} />

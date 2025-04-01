@@ -48,61 +48,23 @@ const Filters: React.FC<FiltersProps> = ({
     setSortOption(option);
     setIsSortOpen(false);
   };
-  
-  const getActiveCount = () => {
-    let count = activeFilters.length;
-    return count > 0 ? ` (${count})` : '';
-  };
 
   return (
     <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4 px-1">
       <div className="flex flex-wrap gap-2 items-center">
-        <DropdownMenu open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-          <DropdownMenuTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="bg-white text-sm h-9 px-3 flex gap-2 items-center"
-            >
-              <span>Filter{getActiveCount()}</span>
-              <ChevronDownIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            <DropdownMenuGroup>
-              {categoryOptions.map((category) => (
-                <DropdownMenuItem 
-                  key={category}
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => toggleFilter(category)}
-                >
-                  <div className={`h-4 w-4 rounded flex items-center justify-center border ${
-                    activeFilters.includes(category) 
-                      ? 'bg-primary border-primary' 
-                      : 'border-gray-300'
-                  }`}>
-                    {activeFilters.includes(category) && <CheckIcon className="h-3 w-3 text-white" />}
-                  </div>
-                  <span>{category}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {/* Display active filters as tags */}
+        {/* Display all category options as pills outside dropdown */}
         <div className="flex flex-wrap gap-2">
-          {activeFilters.map((filter) => (
+          {categoryOptions.map((category) => (
             <div 
-              key={filter}
-              className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm flex items-center gap-1"
+              key={category}
+              onClick={() => toggleFilter(category)}
+              className={`px-3 py-1 rounded-full text-sm cursor-pointer transition-colors ${
+                activeFilters.includes(category) 
+                  ? 'bg-black text-white' 
+                  : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+              }`}
             >
-              {filter}
-              <button 
-                onClick={() => toggleFilter(filter)}
-                className="ml-1 text-gray-500 hover:text-gray-800"
-              >
-                ×
-              </button>
+              {category}
             </div>
           ))}
           

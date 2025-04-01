@@ -1,289 +1,92 @@
 
-import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Heart, Bookmark } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
+import React from "react";
+import { StarIcon, HeartIcon, BookmarkIcon } from "lucide-react";
 
 export interface HeroCardProps {
   id: string;
   imageUrl: string;
   twitterUsername: string;
-  categories: string[];
+  categories?: string[];
+  likes?: number;
+  saves?: number;
+  status?: "approved" | "pending" | "rejected";
   submissionDate?: string;
-  status?: "pending" | "approved" | "rejected";
-  likes: number;
-  saves: number;
+  userId?: string;
+  submittedBy?: string;
+  isCurated?: boolean;
+  isFeatured?: boolean;
 }
 
 const HeroCard: React.FC<HeroCardProps> = ({
-  id,
   imageUrl,
   twitterUsername,
-  categories,
-  submissionDate,
-  status = "approved",
-  likes,
-  saves,
+  categories = [],
+  likes = 0,
+  saves = 0,
+  isCurated,
+  isFeatured
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
-  const [saveCount, setSaveCount] = useState(saves);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    console.log(`Viewed hero section: ${id}`);
-  }, [id]);
-
-  useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (!userStr) return;
-    
-    const user = JSON.parse(userStr);
-    const userId = user.id;
-    
-    // Use user-specific keys for likes and saves
-    const likedHeroesKey = `likedHeroes-${userId}`;
-    const savedHeroesKey = `savedHeroes-${userId}`;
-    
-    const likedHeroes = JSON.parse(localStorage.getItem(likedHeroesKey) || "[]");
-    const savedHeroes = JSON.parse(localStorage.getItem(savedHeroesKey) || "[]");
-    
-    setIsLiked(likedHeroes.includes(id));
-    setIsSaved(savedHeroes.includes(id));
-  }, [id]);
-
-  const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    const userStr = localStorage.getItem("user");
-    if (!userStr) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to like hero sections",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const user = JSON.parse(userStr);
-    const userId = user.id;
-    const likedHeroesKey = `likedHeroes-${userId}`;
-    
-    const likedHeroes = JSON.parse(localStorage.getItem(likedHeroesKey) || "[]");
-    
-    if (isLiked) {
-      const updatedLikes = likedHeroes.filter((heroId: string) => heroId !== id);
-      localStorage.setItem(likedHeroesKey, JSON.stringify(updatedLikes));
-      setIsLiked(false);
-      setLikeCount(prev => prev - 1);
-      
-      // Update the approved items with new like count
-      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-      const updatedApproved = approvedItems.map((item: any) => {
-        if (item.id === id) {
-          return { ...item, likes: (item.likes || likes) - 1 };
-        }
-        return item;
-      });
-      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
-      
-    } else {
-      likedHeroes.push(id);
-      localStorage.setItem(likedHeroesKey, JSON.stringify(likedHeroes));
-      setIsLiked(true);
-      setLikeCount(prev => prev + 1);
-      
-      // Update the approved items with new like count
-      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-      const updatedApproved = approvedItems.map((item: any) => {
-        if (item.id === id) {
-          return { ...item, likes: (item.likes || likes) + 1 };
-        }
-        return item;
-      });
-      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
-      
-      toast({
-        title: "Hero section liked",
-        description: "This hero section has been added to your likes",
-      });
-    }
-  };
-
-  const handleSave = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    const userStr = localStorage.getItem("user");
-    if (!userStr) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to save hero sections to your collection",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    const user = JSON.parse(userStr);
-    const userId = user.id;
-    const savedHeroesKey = `savedHeroes-${userId}`;
-    
-    const savedHeroes = JSON.parse(localStorage.getItem(savedHeroesKey) || "[]");
-    
-    if (isSaved) {
-      const updatedSaves = savedHeroes.filter((heroId: string) => heroId !== id);
-      localStorage.setItem(savedHeroesKey, JSON.stringify(updatedSaves));
-      setIsSaved(false);
-      setSaveCount(prev => prev - 1);
-      
-      // Update the approved items with new save count
-      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-      const updatedApproved = approvedItems.map((item: any) => {
-        if (item.id === id) {
-          return { ...item, saves: (item.saves || saves) - 1 };
-        }
-        return item;
-      });
-      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
-      
-    } else {
-      savedHeroes.push(id);
-      localStorage.setItem(savedHeroesKey, JSON.stringify(savedHeroes));
-      setIsSaved(true);
-      setSaveCount(prev => prev + 1);
-      
-      // Update the approved items with new save count
-      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-      const updatedApproved = approvedItems.map((item: any) => {
-        if (item.id === id) {
-          return { ...item, saves: (item.saves || saves) + 1 };
-        }
-        return item;
-      });
-      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApproved));
-      
-      toast({
-        title: "Hero section saved",
-        description: "This hero section has been saved to your collection",
-      });
-    }
-  };
-
   return (
-    <Dialog>
-      <div 
-        className="group relative bg-white rounded-[32px] shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl border-4 border-gray-100"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <DialogTrigger className="w-full" asChild>
-          <button className="w-full text-left">
-            <div className="relative w-full h-full overflow-hidden rounded-[28px] aspect-auto">
-              {!isLoaded && (
-                <div className="absolute inset-0 w-full h-full">
-                  <Skeleton className="w-full h-full bg-gray-100 animate-pulse" />
-                </div>
-              )}
-              <img
-                src={imageUrl}
-                alt={`Hero section by @${twitterUsername}`}
-                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03] ${
-                  isLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-                loading="lazy"
-                onLoad={() => setIsLoaded(true)}
-              />
-              
-              <div 
-                className={`absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent transition-opacity duration-300 ${
-                  isHovered ? 'opacity-100' : 'opacity-0'
-                }`}
-              ></div>
-              
-              {isHovered && (
-                <div className="absolute bottom-3 left-0 right-0 px-3 flex justify-between items-center z-10">
-                  <a
-                    href={`https://twitter.com/${twitterUsername}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white text-sm hover:underline transition-all"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    @{twitterUsername}
-                  </a>
-                  
-                  {status === "approved" && (
-                    <div className="flex items-center space-x-3">
-                      <button
-                        className={`flex items-center text-sm text-white`}
-                        onClick={handleLike}
-                      >
-                        <Heart className={`h-4 w-4 mr-1 ${isLiked ? 'fill-current text-red-500' : ''}`} />
-                        <span className="text-xs">{likeCount}</span>
-                      </button>
-                      
-                      <button
-                        className={`flex items-center text-sm text-white`}
-                        onClick={handleSave}
-                      >
-                        <Bookmark className={`h-4 w-4 mr-1 ${isSaved ? 'fill-current text-blue-500' : ''}`} />
-                        <span className="text-xs">{saveCount}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </button>
-        </DialogTrigger>
-      </div>
-      
-      <DialogContent className="max-w-5xl w-[90vw] max-h-[90vh] p-0 overflow-hidden">
-        <div className="relative w-full h-full">
+    <div className="overflow-hidden rounded-lg shadow-sm transition-all duration-200 border border-gray-100 hover:shadow-md">
+      <div className="relative">
+        {/* Featured badge */}
+        {isFeatured && (
+          <div className="absolute top-3 left-3 z-10 bg-[#DAFF00] text-black px-3 py-1 rounded-full text-xs font-medium">
+            Featured
+          </div>
+        )}
+        
+        {/* Curated badge */}
+        {isCurated && (
+          <div className="absolute top-3 right-3 z-10 bg-black text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+            <StarIcon className="h-3 w-3" />
+            <span>Curated</span>
+          </div>
+        )}
+        
+        <div className="overflow-hidden">
           <img
             src={imageUrl}
-            alt={`Hero section by @${twitterUsername}`}
-            className="w-full h-full object-contain"
+            alt={`Hero design by ${twitterUsername}`}
+            className="w-full object-cover transition-transform duration-300"
           />
-          
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent"></div>
-          
-          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
-            <a
-              href={`https://twitter.com/${twitterUsername}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white text-sm hover:underline"
-            >
-              @{twitterUsername}
-            </a>
-            
-            {status === "approved" && (
-              <div className="flex items-center space-x-4">
-                <button
-                  className="flex items-center text-white"
-                  onClick={handleLike}
-                >
-                  <Heart className={`h-5 w-5 mr-2 ${isLiked ? 'fill-current text-red-500' : ''}`} />
-                  <span>{likeCount}</span>
-                </button>
-                
-                <button
-                  className="flex items-center text-white"
-                  onClick={handleSave}
-                >
-                  <Bookmark className={`h-5 w-5 mr-2 ${isSaved ? 'fill-current text-blue-500' : ''}`} />
-                  <span>{saveCount}</span>
-                </button>
-              </div>
-            )}
+        </div>
+      </div>
+      
+      <div className="p-3 bg-white">
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-sm font-medium">@{twitterUsername}</div>
+          <div className="flex space-x-3">
+            <div className="flex items-center text-xs text-gray-500">
+              <HeartIcon className="w-3.5 h-3.5 mr-1" />
+              <span>{likes}</span>
+            </div>
+            <div className="flex items-center text-xs text-gray-500">
+              <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
+              <span>{saves}</span>
+            </div>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        
+        {categories && categories.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {categories.slice(0, 3).map((category, index) => (
+              <span
+                key={index}
+                className="inline-block bg-gray-100 rounded-full px-2 py-1 text-xs text-gray-800"
+              >
+                {category}
+              </span>
+            ))}
+            {categories.length > 3 && (
+              <span className="inline-block bg-gray-100 rounded-full px-2 py-1 text-xs text-gray-800">
+                +{categories.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

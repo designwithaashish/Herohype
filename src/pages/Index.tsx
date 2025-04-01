@@ -8,8 +8,8 @@ const Index: React.FC = () => {
     const approvedSubmissions = localStorage.getItem("approvedSubmissions");
     const items = approvedSubmissions ? JSON.parse(approvedSubmissions) : [];
     
-    // If no items exist, create 5 demo items for testing
-    if (!items || items.length === 0) {
+    // If no items exist or fewer than 5, create demo items for testing
+    if (!items || items.length < 5) {
       console.log("Adding demo hero sections for testing");
       
       const demoItems = [
@@ -51,7 +51,7 @@ const Index: React.FC = () => {
         },
         {
           id: "demo-hero-126",
-          imageUrl: "/placeholder.svg",
+          imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
           twitterUsername: "creativepro",
           categories: ["3D", "Animated"],
           likes: 42,
@@ -63,7 +63,7 @@ const Index: React.FC = () => {
         },
         {
           id: "demo-hero-127",
-          imageUrl: "/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png",
+          imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
           twitterUsername: "designsystem",
           categories: ["Typography", "Minimal"],
           likes: 29,
@@ -75,7 +75,9 @@ const Index: React.FC = () => {
         }
       ];
       
-      localStorage.setItem("approvedSubmissions", JSON.stringify(demoItems));
+      // Merge with existing items if any
+      const updatedItems = [...items, ...demoItems.slice(0, 5 - items.length)];
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedItems));
     }
   }, []);
   
