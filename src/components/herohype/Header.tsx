@@ -27,6 +27,7 @@ const Header: React.FC = () => {
           setUserInitials(displayName.slice(0, 2).toUpperCase());
           // Set avatar URL if available
           setAvatarUrl(user.avatarUrl || "");
+          console.log("User avatar URL:", user.avatarUrl);
         } catch (error) {
           console.error("Error parsing user data:", error);
           setIsLoggedIn(false);
@@ -87,7 +88,7 @@ const Header: React.FC = () => {
             <HoverCardTrigger asChild>
               <Link to="/profile" className="flex items-center">
                 <Avatar className="h-8 w-8">
-                  {avatarUrl ? (
+                  {avatarUrl && avatarUrl !== "" ? (
                     <AvatarImage src={avatarUrl} alt={username} />
                   ) : null}
                   <AvatarFallback className="bg-gray-200 text-gray-700">
