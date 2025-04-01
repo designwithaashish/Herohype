@@ -29,10 +29,23 @@ const SubmitHeroForm: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Image must be less than 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Preview the image
       const reader = new FileReader();
       reader.onload = (e) => {
-        setPreviewImage(e.target?.result as string);
+        const result = e.target?.result;
+        if (result) {
+          setPreviewImage(result as string);
+        }
       };
       reader.readAsDataURL(file);
     }

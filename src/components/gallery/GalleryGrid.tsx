@@ -51,12 +51,12 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
   return (
     <div 
       ref={gridRef} 
-      className={`masonry-grid ${isMobile ? 'columns-1 gap-2' : 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3'} w-full opacity-0 transition-opacity duration-500`}
+      className={`masonry-grid ${isMobile ? 'columns-1 gap-2' : 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-2'} w-full opacity-0 transition-opacity duration-500`}
     >
       {heroes.map(hero => (
         <div 
           key={`hero-${hero.id}`} 
-          className="masonry-item break-inside-avoid mb-3 transform transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-md overflow-hidden"
+          className="masonry-item break-inside-avoid mb-2 transform transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-md overflow-hidden"
         >
           <HeroCard {...hero} />
         </div>

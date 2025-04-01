@@ -9,34 +9,74 @@ const Header: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userName, setUserName] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [userId, setUserId] = useState("");
   const navigate = useNavigate();
   
   useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      setIsLoggedIn(true);
-      setIsAdmin(user.role === "admin");
-      
-      // Check if user has a profile with custom name and avatar
-      const profileStr = localStorage.getItem(`profile-${user.id}`);
-      if (profileStr) {
-        const profile = JSON.parse(profileStr);
-        if (profile.name) {
-          setUserName(profile.name);
+    // Check for user data whenever localStorage changes
+    const checkUserData = () => {
+      const userStr = localStorage.getItem("user");
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setIsLoggedIn(true);
+        setIsAdmin(user.role === "admin");
+        setUserId(user.id);
+        
+        // Check if user has a profile with custom name and avatar
+        const profileStr = localStorage.getItem(`profile-${user.id}`);
+        if (profileStr) {
+          const profile = JSON.parse(profileStr);
+          if (profile.name) {
+            setUserName(profile.name);
+          } else {
+            // Fall back to email if no name is set
+            setUserName(user.email ? user.email.split("@")[0] : "");
+          }
+          if (profile.avatarUrl) {
+            setProfileImage(profile.avatarUrl);
+          }
         } else {
-          // Fall back to email if no name is set
+          // Fall back to email if no profile exists
           setUserName(user.email ? user.email.split("@")[0] : "");
         }
-        if (profile.avatarUrl) {
-          setProfileImage(profile.avatarUrl);
-        }
       } else {
-        // Fall back to email if no profile exists
-        setUserName(user.email ? user.email.split("@")[0] : "");
+        setIsLoggedIn(false);
+        setIsAdmin(false);
+        setUserName("");
+        setProfileImage("");
+        setUserId("");
       }
-    }
-  }, []);
+    };
+    
+    // Initial check
+    checkUserData();
+    
+    // Setup event listener for storage changes
+    window.addEventListener("storage", checkUserData);
+    
+    // Custom event for profile updates
+    const handleProfileUpdate = () => {
+      if (userId) {
+        const profileStr = localStorage.getItem(`profile-${userId}`);
+        if (profileStr) {
+          const profile = JSON.parse(profileStr);
+          if (profile.name) {
+            setUserName(profile.name);
+          }
+          if (profile.avatarUrl) {
+            setProfileImage(profile.avatarUrl);
+          }
+        }
+      }
+    };
+    
+    window.addEventListener("profileUpdated", handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener("storage", checkUserData);
+      window.removeEventListener("profileUpdated", handleProfileUpdate);
+    };
+  }, [userId]);
   
   const handleProfileClick = () => {
     navigate("/profile");

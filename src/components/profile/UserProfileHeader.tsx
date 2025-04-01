@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +38,9 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
   const handleSave = () => {
     onUpdateProfile(editedProfile);
     setIsEditing(false);
+    
+    // Dispatch a custom event to notify other components of the profile update
+    window.dispatchEvent(new Event("profileUpdated"));
   };
   
   const getInitials = (name: string) => {
