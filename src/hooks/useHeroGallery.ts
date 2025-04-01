@@ -4,6 +4,20 @@ import { useInView } from "react-intersection-observer";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 import { filterHeroes, sortHeroes } from "@/utils/galleryUtils";
 
+// Function to generate random avatars
+export const generateRandomAvatar = () => {
+  const avatarUrls = [
+    "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=150&h=150",
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=150&h=150",
+    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=150&h=150",
+    "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=150&h=150",
+    "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=150&h=150"
+  ];
+  
+  const randomIndex = Math.floor(Math.random() * avatarUrls.length);
+  return avatarUrls[randomIndex];
+};
+
 export const useHeroGallery = (
   initialHeroes: HeroCardProps[],
   activeFilters: string[],
@@ -34,6 +48,7 @@ export const useHeroGallery = (
           categories: item.categories || [],
           likes: item.likes || 0,
           saves: item.saves || 0,
+          isCurated: item.isCurated || false,
           status: (item.status === "approved" || item.status === "pending" || item.status === "rejected") 
             ? item.status as "approved" | "pending" | "rejected"
             : "approved" as "approved" | "pending" | "rejected",

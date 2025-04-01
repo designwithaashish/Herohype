@@ -1,10 +1,10 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { StarIcon, HeartIcon, BookmarkIcon, XCircleIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 export interface HeroCardProps {
   id: string;
@@ -43,6 +43,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   onToggleCurated
 }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [likeCount, setLikeCount] = useState(likes);
   const [saveCount, setSaveCount] = useState(saves);
   const [isLiked, setIsLiked] = useState(false);
@@ -53,6 +54,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   const [selectedMoodboard, setSelectedMoodboard] = useState("");
   const newMoodboardInputRef = useRef<HTMLInputElement>(null);
   const isAdmin = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "{}").role === "admin" : false;
+  const [isStarred, setIsStarred] = useState(isCurated || false);
   
   useEffect(() => {
     // Check if item is liked or saved
@@ -60,7 +62,10 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     
     // Load user moodboards
     loadUserMoodboards();
-  }, [id]);
+    
+    // Set initial starred state
+    setIsStarred(isCurated || false);
+  }, [id, isCurated]);
   
   const checkSavedStatus = () => {
     // Check if user has moodboards and if this item is in any of them
@@ -108,26 +113,45 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (isAdmin) {
-      setMoodboardDialogOpen(true);
-    } else {
-      handleSave(e);
+    if (!localStorage.getItem("user")) {
+      toast({
+        title: "Login required",
+        description: "Please log in to save items to moodboards",
+        variant: "destructive"
+      });
+      navigate("/login");
+      return;
     }
+    
+    setMoodboardDialogOpen(true);
   };
   
-  const handleSave = (e: React.MouseEvent) => {
+  const handleStar = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!isAdmin) return;
     
-    // For non-admin users or simple save
-    if (!isAdmin) {
-      setIsSaved(!isSaved);
-      setSaveCount(prev => isSaved ? prev - 1 : prev + 1);
+    const newStarredState = !isStarred;
+    setIsStarred(newStarredState);
+    
+    // Update approved submissions
+    const approvedSubmissions = localStorage.getItem("approvedSubmissions");
+    if (approvedSubmissions) {
+      const items = JSON.parse(approvedSubmissions);
+      const updatedItems = items.map((item: any) => {
+        if (item.id === id) {
+          return { ...item, isCurated: newStarredState };
+        }
+        return item;
+      });
+      
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedItems));
       
       toast({
-        title: isSaved ? "Removed from saved" : "Added to saved",
-        description: isSaved ? "Item removed from your saved items" : "Item added to your saved items",
+        title: newStarredState ? "Added to Curated Picks" : "Removed from Curated Picks",
+        description: newStarredState 
+          ? "This hero section has been added to Curated Picks" 
+          : "This hero section has been removed from Curated Picks",
       });
-      return;
     }
   };
 
@@ -281,6 +305,15 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
                     <BookmarkIcon className={`w-3.5 h-3.5 mr-1 ${isSaved ? "fill-yellow-500 text-yellow-500" : ""}`} />
                     <span>{saveCount}</span>
                   </button>
+                  
+                  {isAdmin && (
+                    <button 
+                      onClick={handleStar}
+                      className="flex items-center text-xs text-white hover:scale-110 transition-transform"
+                    >
+                      <StarIcon className={`w-3.5 h-3.5 ${isStarred ? "fill-yellow-500 text-yellow-500" : ""}`} />
+                    </button>
+                  )}
                   
                   {showCuratedControls && (
                     <button 

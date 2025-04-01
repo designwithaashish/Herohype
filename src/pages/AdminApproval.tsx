@@ -14,10 +14,12 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { PlusCircle, Image, Link2, Trash2, Edit, Eye, Star } from "lucide-react";
+import { PlusCircle, Image, Trash2, Edit, Eye, Star } from "lucide-react";
 
 const mockSubmissions: Submission[] = [
   {
@@ -54,19 +56,17 @@ const mockSubmissions: Submission[] = [
   },
 ];
 
-const allCategories = [
-  "Dark", "Light", "Gradient", "3D", "Bento", "Minimal", 
-  "Typography", "Animated", "Illustrated", "Crypto"
-];
-
 const formSchema = z.object({
-  imageSource: z.enum(["upload", "url"]),
-  imageFile: z.any().optional(),
-  imageUrl: z.string().url("Please enter a valid URL").optional(),
+  imageFile: z.any().refine((file) => file instanceof File, "Please upload an image"),
   twitterUsername: z.string().min(1, "Twitter username is required"),
   description: z.string().optional(),
   categories: z.array(z.string()).min(1, "Select at least one category")
 });
+
+const allCategories = [
+  "Dark", "Light", "Gradient", "3D", "Bento", "Minimal", 
+  "Typography", "Animated", "Illustrated", "Crypto"
+];
 
 const AdminApproval: React.FC = () => {
   const [pendingSubmissions, setPendingSubmissions] = useState<Submission[]>([]);
@@ -76,8 +76,8 @@ const AdminApproval: React.FC = () => {
   const [uploadImage, setUploadImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [imageSource, setImageSource] = useState<"upload" | "url">("upload");
   const [editingSubmission, setEditingSubmission] = useState<Submission | null>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -85,8 +85,6 @@ const AdminApproval: React.FC = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      imageSource: "upload",
-      imageUrl: "",
       twitterUsername: "",
       description: "",
       categories: []
@@ -196,16 +194,29 @@ const AdminApproval: React.FC = () => {
       reader.readAsDataURL(file);
     }
   };
+  
+  const generateRandomAvatar = () => {
+    // Generate a random avatar URL from Unsplash
+    const avatarUrls = [
+      "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=150&h=150",
+      "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=150&h=150",
+      "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=150&h=150",
+      "https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=150&h=150",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=150&h=150"
+    ];
+    
+    const randomIndex = Math.floor(Math.random() * avatarUrls.length);
+    return avatarUrls[randomIndex];
+  };
 
-  const handleSubmit = form.handleSubmit((data) => {
+  const handleFormSubmit = (data: z.infer<typeof formSchema>) => {
     const newSubmission: Submission = {
       id: `manual-${Date.now()}`,
-      imageUrl: data.imageSource === "upload" ? (imagePreview || '') : (data.imageUrl || ''),
+      imageUrl: imagePreview || "",
       twitterUsername: data.twitterUsername.startsWith('@') 
         ? data.twitterUsername.substring(1) 
         : data.twitterUsername,
-      submissionType: data.imageSource === "upload" ? "image" : "url",
-      sourceUrl: data.imageSource === "url" ? data.imageUrl : undefined,
+      submissionType: "image",
       description: data.description,
       categories: data.categories,
       createdAt: new Date().toISOString(),
@@ -252,11 +263,15 @@ const AdminApproval: React.FC = () => {
       });
     }
     
+    setConfirmDialogOpen(false);
     form.reset();
     setUploadImage(null);
     setImagePreview(null);
     setSelectedCategories([]);
-    setImageSource("upload");
+  };
+
+  const handleSubmit = form.handleSubmit((data) => {
+    setConfirmDialogOpen(true);
   });
 
   const handleDeleteApproved = (id: string) => {
@@ -275,14 +290,9 @@ const AdminApproval: React.FC = () => {
   const handleEditApproved = (submission: Submission) => {
     setEditingSubmission(submission);
     
-    const imageSourceValue = submission.submissionType === "url" ? "url" : "upload";
-    setImageSource(imageSourceValue);
-    
     setImagePreview(submission.imageUrl);
     
     form.reset({
-      imageSource: imageSourceValue,
-      imageUrl: submission.sourceUrl || "",
       twitterUsername: submission.twitterUsername,
       description: submission.description || "",
       categories: submission.categories
@@ -309,19 +319,25 @@ const AdminApproval: React.FC = () => {
   const handleCurate = (id: string) => {
     const submission = approvedSubmissions.find(s => s.id === id);
     if (submission) {
-      if (curatedSubmissions.some(s => s.id === id)) {
-        setCuratedSubmissions(prev => prev.filter(s => s.id !== id));
-        toast({
-          title: "Removed from curated",
-          description: `@${submission.twitterUsername}'s hero section removed from curated collection`,
-        });
-      } else {
-        setCuratedSubmissions(prev => [...prev, submission]);
-        toast({
-          title: "Added to curated",
-          description: `@${submission.twitterUsername}'s hero section added to curated collection`,
-        });
-      }
+      // Update curated status in approvedSubmissions
+      const updatedApprovedSubmissions = approvedSubmissions.map(item => {
+        if (item.id === id) {
+          return { ...item, isCurated: !item.isCurated };
+        }
+        return item;
+      });
+      
+      setApprovedSubmissions(updatedApprovedSubmissions);
+      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedApprovedSubmissions));
+      
+      const isCurated = submission.isCurated;
+      
+      toast({
+        title: isCurated ? "Removed from curated" : "Added to curated",
+        description: isCurated 
+          ? `@${submission.twitterUsername}'s hero section removed from curated collection`
+          : `@${submission.twitterUsername}'s hero section added to curated collection`,
+      });
     }
   };
 
@@ -366,7 +382,7 @@ const AdminApproval: React.FC = () => {
                 <CardDescription>
                   {editingSubmission 
                     ? "Edit the details of this hero section" 
-                    : "Upload an image or provide a URL to add a new hero section to your gallery"}
+                    : "Upload an image to add a new hero section to your gallery"}
                 </CardDescription>
               </CardHeader>
               
@@ -374,107 +390,41 @@ const AdminApproval: React.FC = () => {
                 <Form {...form}>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-4">
-                      <div className="flex flex-col gap-4 sm:flex-row">
-                        <div className="flex-1">
-                          <FormField
-                            control={form.control}
-                            name="imageSource"
-                            render={({ field }) => (
-                              <FormItem className="space-y-3">
-                                <FormLabel>Image Source</FormLabel>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      type="radio"
-                                      id="upload"
-                                      value="upload"
-                                      checked={field.value === "upload"}
-                                      onChange={() => {
-                                        field.onChange("upload");
-                                        setImageSource("upload");
-                                      }}
-                                      className="h-4 w-4"
-                                    />
-                                    <Label htmlFor="upload" className="cursor-pointer flex items-center gap-1">
-                                      <Image size={16} /> Upload Image
-                                    </Label>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <input
-                                      type="radio"
-                                      id="url"
-                                      value="url"
-                                      checked={field.value === "url"}
-                                      onChange={() => {
-                                        field.onChange("url");
-                                        setImageSource("url");
-                                      }}
-                                      className="h-4 w-4"
-                                    />
-                                    <Label htmlFor="url" className="cursor-pointer flex items-center gap-1">
-                                      <Link2 size={16} /> Website URL
-                                    </Label>
-                                  </div>
-                                </div>
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        
-                        <div className="flex-1">
-                          <FormField
-                            control={form.control}
-                            name="twitterUsername"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Twitter Username</FormLabel>
-                                <div className="flex">
-                                  <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
-                                    @
-                                  </span>
-                                  <FormControl>
-                                    <Input
-                                      placeholder="username"
-                                      className="rounded-l-none"
-                                      {...field}
-                                    />
-                                  </FormControl>
-                                </div>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                      </div>
-                      
-                      {imageSource === "upload" ? (
-                        <div className="space-y-2">
-                          <Label htmlFor="imageUpload">Upload Image</Label>
-                          <Input 
-                            id="imageUpload" 
-                            type="file" 
-                            accept="image/*" 
-                            onChange={handleImageChange}
-                          />
-                        </div>
-                      ) : (
+                      <div className="flex-1">
                         <FormField
                           control={form.control}
-                          name="imageUrl"
+                          name="twitterUsername"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Website URL</FormLabel>
-                              <FormControl>
-                                <Input placeholder="https://example.com" {...field} />
-                              </FormControl>
-                              <FormDescription>
-                                We'll capture the hero section from this website
-                              </FormDescription>
+                              <FormLabel>Twitter Username</FormLabel>
+                              <div className="flex">
+                                <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-md">
+                                  @
+                                </span>
+                                <FormControl>
+                                  <Input
+                                    placeholder="username"
+                                    className="rounded-l-none"
+                                    {...field}
+                                  />
+                                </FormControl>
+                              </div>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                      )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="imageUpload">Upload Image</Label>
+                        <Input 
+                          id="imageUpload" 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleImageChange}
+                        />
+                        <FormMessage>{form.formState.errors.imageFile?.message}</FormMessage>
+                      </div>
                       
                       {imagePreview && (
                         <div className="border rounded-md p-2">
@@ -666,11 +616,11 @@ const AdminApproval: React.FC = () => {
                               size="sm"
                               variant="ghost"
                               onClick={() => handleCurate(submission.id)}
-                              className={curatedSubmissions.some(s => s.id === submission.id) ? "text-yellow-500" : ""}
+                              className={submission.isCurated ? "text-yellow-500" : ""}
                             >
                               <Star 
                                 size={16} 
-                                className={curatedSubmissions.some(s => s.id === submission.id) ? "fill-yellow-400 text-yellow-500" : ""}
+                                className={submission.isCurated ? "fill-yellow-400 text-yellow-500" : ""}
                               />
                             </Button>
                             <Button
@@ -687,81 +637,6 @@ const AdminApproval: React.FC = () => {
                               className="text-red-500 hover:text-red-700"
                             >
                               <Trash2 size={16} />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="curated">
-            {curatedSubmissions.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-md shadow">
-                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Star size={32} className="text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-1">No curated content yet</h3>
-                <p className="text-gray-500 max-w-sm mx-auto">
-                  Use the star icon in the gallery tab to curate hero sections for featured display.
-                </p>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">Preview</TableHead>
-                      <TableHead>Username</TableHead>
-                      <TableHead>Categories</TableHead>
-                      <TableHead>Added On</TableHead>
-                      <TableHead className="text-center">Stats</TableHead>
-                      <TableHead className="w-24 text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {curatedSubmissions.map((submission) => (
-                      <TableRow key={submission.id}>
-                        <TableCell>
-                          <div className="w-12 h-12 rounded overflow-hidden">
-                            <img 
-                              src={submission.imageUrl} 
-                              alt={`Hero by @${submission.twitterUsername}`}
-                              className="w-full h-full object-cover" 
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell className="font-medium">@{submission.twitterUsername}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1">
-                            {submission.categories.map((category) => (
-                              <Badge key={category} variant="secondary" className="text-xs">
-                                {category}
-                              </Badge>
-                            ))}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(submission.submissionDate || submission.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex justify-center gap-4">
-                            <span className="text-sm">♥ {submission.likes || 0}</span>
-                            <span className="text-sm">⭐ {submission.saves || 0}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleCurate(submission.id)}
-                              className="text-yellow-500"
-                            >
-                              <Star size={16} className="fill-yellow-400" />
                             </Button>
                           </div>
                         </TableCell>
@@ -805,6 +680,24 @@ const AdminApproval: React.FC = () => {
             )}
           </TabsContent>
         </Tabs>
+        
+        {/* Confirmation Dialog */}
+        <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Upload</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to add this hero section to the gallery?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => form.getValues() && handleFormSubmit(form.getValues())}>
+                Confirm Upload
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

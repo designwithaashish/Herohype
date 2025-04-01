@@ -85,7 +85,7 @@ const Header: React.FC = () => {
       <nav className="hidden md:flex items-center gap-8 text-[15px] text-black font-medium justify-center my-auto">
         <Link to="/curated" className="flex items-center gap-1 hover:text-gray-600 transition-colors font-satoshi">
           <span>✨</span>
-          Curated
+          Curated Picks
         </Link>
         <Link to="/collections" className="hover:text-gray-600 transition-colors font-satoshi">
           Moodboards

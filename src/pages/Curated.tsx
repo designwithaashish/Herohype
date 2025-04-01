@@ -93,7 +93,7 @@ const Curated: React.FC = () => {
       <Header />
       <div className="container mx-auto py-12 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-playfair font-bold mb-2">Curated Collection</h1>
+          <h1 className="text-3xl font-playfair font-bold mb-2">Curated Picks</h1>
           <p className="text-gray-600">
             Hand-picked gallery of exceptional hero sections by our expert team
           </p>
