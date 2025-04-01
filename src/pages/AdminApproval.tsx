@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import PendingSubmissionCard, { Submission } from "@/components/admin/PendingSubmissionCard";
+import PendingSubmissionCard from "@/components/admin/PendingSubmissionCard";
+import { Submission as PendingSubmission } from "@/components/admin/PendingSubmissionCard";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/herohype/Header";
 import { Badge } from "@/components/ui/badge";
@@ -21,15 +22,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { PlusCircle, Image, Trash2, Edit, Eye, Star } from "lucide-react";
 
-interface Submission {
-  id: string;
-  imageUrl: string;
-  twitterUsername: string;
-  categories: string[];
-  status: "pending" | "approved" | "rejected";
-  submissionDate: string;
-  userId: string;
-  submittedBy: string;
+interface Submission extends PendingSubmission {
+  userId?: string;
+  submittedBy?: string;
   isCurated?: boolean;
 }
 
@@ -38,33 +33,33 @@ const mockSubmissions: Submission[] = [
     id: "1",
     imageUrl: "https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/1c9a27ca109627531b07f63bf67d7584e234fb6a",
     twitterUsername: "designermark",
-    submissionType: "url",
     sourceUrl: "https://example.com/hero-section",
     description: "A dark theme gradient hero section with animated elements",
     categories: ["Dark", "Gradient", "Animated"],
     createdAt: "2023-06-15T10:30:00Z",
-    status: "pending"
+    status: "pending",
+    submissionType: "url"
   },
   {
     id: "2",
     imageUrl: "https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/4dcc644b12d8b5262921e7c60355f5cb0e5c7a62",
     twitterUsername: "webdev_sarah",
-    submissionType: "image",
     description: "Minimal and clean hero section with typography focus",
     categories: ["Light", "Minimal", "Typography"],
     createdAt: "2023-06-14T14:45:00Z",
-    status: "pending"
+    status: "pending",
+    submissionType: "image"
   },
   {
     id: "3",
     imageUrl: "https://cdn.builder.io/api/v1/image/assets/8b29b4aea7404ee7976097919bff4a39/ca9cd70178b9ef63a5165be05724b3eb93b407cb",
     twitterUsername: "creative_jake",
-    submissionType: "url",
     sourceUrl: "https://another-example.com",
     description: "3D elements with a bento-style layout",
     categories: ["3D", "Bento"],
     createdAt: "2023-06-13T09:15:00Z",
-    status: "pending"
+    status: "pending",
+    submissionType: "url"
   },
 ];
 
@@ -208,7 +203,6 @@ const AdminApproval: React.FC = () => {
   };
   
   const generateRandomAvatar = () => {
-    // Generate a random avatar URL from Unsplash
     const avatarUrls = [
       "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?auto=format&fit=crop&w=150&h=150",
       "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=150&h=150",
@@ -331,7 +325,6 @@ const AdminApproval: React.FC = () => {
   const handleCurate = (id: string) => {
     const submission = approvedSubmissions.find(s => s.id === id);
     if (submission) {
-      // Update curated status in approvedSubmissions
       const updatedApprovedSubmissions = approvedSubmissions.map(item => {
         if (item.id === id) {
           return { ...item, isCurated: !item.isCurated };
@@ -693,7 +686,6 @@ const AdminApproval: React.FC = () => {
           </TabsContent>
         </Tabs>
         
-        {/* Confirmation Dialog */}
         <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
