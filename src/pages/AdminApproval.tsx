@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { PlusCircle, Image, Link2, Trash2, Edit, Eye } from "lucide-react";
+import { PlusCircle, Image, Link2, Trash2, Edit, Eye, Star, Bookmark } from "lucide-react";
 
 const mockSubmissions: Submission[] = [
   {
@@ -69,15 +69,18 @@ const formSchema = z.object({
 });
 
 const AdminApproval: React.FC = () => {
-  const [pendingSubmissions, setPendingSubmissions] = useState<Submission[]>(mockSubmissions);
+  const [pendingSubmissions, setPendingSubmissions] = useState<Submission[]>([]);
   const [approvedSubmissions, setApprovedSubmissions] = useState<Submission[]>([]);
   const [rejectedSubmissions, setRejectedSubmissions] = useState<Submission[]>([]);
   const [curatedSubmissions, setCuratedSubmissions] = useState<Submission[]>([]);
+  const [moodboards, setMoodboards] = useState<any[]>([]);
   const [uploadImage, setUploadImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [imageSource, setImageSource] = useState<"upload" | "url">("upload");
   const [editingSubmission, setEditingSubmission] = useState<Submission | null>(null);
+  const [moodboardName, setMoodboardName] = useState("");
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -119,11 +122,13 @@ const AdminApproval: React.FC = () => {
     const storedApproved = localStorage.getItem("approvedSubmissions");
     const storedRejected = localStorage.getItem("rejectedSubmissions");
     const storedCurated = localStorage.getItem("curatedSubmissions");
+    const storedMoodboards = localStorage.getItem("moodboards");
     
     if (storedPending) setPendingSubmissions(JSON.parse(storedPending));
     if (storedApproved) setApprovedSubmissions(JSON.parse(storedApproved));
     if (storedRejected) setRejectedSubmissions(JSON.parse(storedRejected));
     if (storedCurated) setCuratedSubmissions(JSON.parse(storedCurated));
+    if (storedMoodboards) setMoodboards(JSON.parse(storedMoodboards));
     else {
       if (storedApproved) {
         const approved = JSON.parse(storedApproved);
@@ -139,7 +144,8 @@ const AdminApproval: React.FC = () => {
     localStorage.setItem("approvedSubmissions", JSON.stringify(approvedSubmissions));
     localStorage.setItem("rejectedSubmissions", JSON.stringify(rejectedSubmissions));
     localStorage.setItem("curatedSubmissions", JSON.stringify(curatedSubmissions));
-  }, [pendingSubmissions, approvedSubmissions, rejectedSubmissions, curatedSubmissions]);
+    localStorage.setItem("moodboards", JSON.stringify(moodboards));
+  }, [pendingSubmissions, approvedSubmissions, rejectedSubmissions, curatedSubmissions, moodboards]);
   
   const handleApprove = (id: string, categories: string[]) => {
     const submission = pendingSubmissions.find(s => s.id === id);
@@ -305,7 +311,80 @@ const AdminApproval: React.FC = () => {
       });
     }
   };
-  
+
+  const handleCurate = (id: string) => {
+    const submission = approvedSubmissions.find(s => s.id === id);
+    if (submission) {
+      if (curatedSubmissions.some(s => s.id === id)) {
+        setCuratedSubmissions(prev => prev.filter(s => s.id !== id));
+        toast({
+          title: "Removed from curated",
+          description: `@${submission.twitterUsername}'s hero section removed from curated collection`,
+        });
+      } else {
+        setCuratedSubmissions(prev => [...prev, submission]);
+        toast({
+          title: "Added to curated",
+          description: `@${submission.twitterUsername}'s hero section added to curated collection`,
+        });
+      }
+    }
+  };
+
+  const handleCreateMoodboard = () => {
+    if (!moodboardName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for your moodboard",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (selectedItems.length === 0) {
+      toast({
+        title: "No items selected",
+        description: "Please select at least one hero section for your moodboard",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const newMoodboard = {
+      id: `moodboard-${Date.now()}`,
+      name: moodboardName,
+      items: selectedItems,
+      createdAt: new Date().toISOString()
+    };
+    
+    setMoodboards(prev => [...prev, newMoodboard]);
+    setMoodboardName("");
+    setSelectedItems([]);
+    
+    toast({
+      title: "Moodboard created",
+      description: `"${moodboardName}" moodboard has been created with ${selectedItems.length} items`,
+    });
+  };
+
+  const handleDeleteMoodboard = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this moodboard?")) {
+      setMoodboards(prev => prev.filter(m => m.id !== id));
+      toast({
+        title: "Moodboard deleted",
+        description: "The moodboard has been removed",
+      });
+    }
+  };
+
+  const toggleItemSelection = (id: string) => {
+    if (selectedItems.includes(id)) {
+      setSelectedItems(prev => prev.filter(itemId => itemId !== id));
+    } else {
+      setSelectedItems(prev => [...prev, id]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -334,6 +413,10 @@ const AdminApproval: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger value="curated" className="flex items-center gap-1">
               Curated ({curatedSubmissions.length})
+            </TabsTrigger>
+            <TabsTrigger value="moodboards" className="flex items-center gap-1">
+              <Bookmark size={16} className="mr-1" />
+              Moodboards ({moodboards.length})
             </TabsTrigger>
             <TabsTrigger value="rejected" className="flex items-center gap-1">
               Rejected ({rejectedSubmissions.length})
@@ -607,7 +690,7 @@ const AdminApproval: React.FC = () => {
                       <TableHead>Categories</TableHead>
                       <TableHead>Added On</TableHead>
                       <TableHead className="text-center">Stats</TableHead>
-                      <TableHead className="w-24 text-right">Actions</TableHead>
+                      <TableHead className="w-36 text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -646,6 +729,25 @@ const AdminApproval: React.FC = () => {
                             <Button
                               size="sm"
                               variant="ghost"
+                              onClick={() => toggleItemSelection(submission.id)}
+                              className={selectedItems.includes(submission.id) ? "bg-gray-100" : ""}
+                            >
+                              <Bookmark size={16} className={selectedItems.includes(submission.id) ? "text-blue-500 fill-blue-500" : ""} />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleCurate(submission.id)}
+                              className={curatedSubmissions.some(s => s.id === submission.id) ? "text-yellow-500" : ""}
+                            >
+                              <Star 
+                                size={16} 
+                                className={curatedSubmissions.some(s => s.id === submission.id) ? "fill-yellow-400 text-yellow-500" : ""}
+                              />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
                               onClick={() => handleEditApproved(submission)}
                             >
                               <Edit size={16} />
@@ -672,11 +774,11 @@ const AdminApproval: React.FC = () => {
             {curatedSubmissions.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-md shadow">
                 <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Image size={32} className="text-gray-400" />
+                  <Star size={32} className="text-gray-400" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-1">No curated content yet</h3>
                 <p className="text-gray-500 max-w-sm mx-auto">
-                  Items that you upload directly as an admin will appear here for easy management.
+                  Use the star icon in the gallery tab to curate hero sections for featured display.
                 </p>
               </div>
             ) : (
@@ -728,17 +830,10 @@ const AdminApproval: React.FC = () => {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleEditApproved(submission)}
+                              onClick={() => handleCurate(submission.id)}
+                              className="text-yellow-500"
                             >
-                              <Edit size={16} />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleDeleteApproved(submission.id)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 size={16} />
+                              <Star size={16} className="fill-yellow-400" />
                             </Button>
                           </div>
                         </TableCell>
@@ -748,6 +843,122 @@ const AdminApproval: React.FC = () => {
                 </Table>
               </div>
             )}
+          </TabsContent>
+          
+          <TabsContent value="moodboards">
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create New Moodboard</CardTitle>
+                  <CardDescription>
+                    Select hero sections from the gallery tab and create a moodboard collection
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="moodboardName">Moodboard Name</Label>
+                      <Input 
+                        id="moodboardName" 
+                        value={moodboardName} 
+                        onChange={(e) => setMoodboardName(e.target.value)}
+                        placeholder="e.g., Minimalist Designs, Dark Themes"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label className="mb-2 block">Selected Items ({selectedItems.length})</Label>
+                      {selectedItems.length === 0 ? (
+                        <div className="text-sm text-gray-500 border rounded-md p-3 bg-gray-50">
+                          No items selected yet. Use the bookmark icon in the Gallery tab to select items.
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                          {selectedItems.map(id => {
+                            const item = approvedSubmissions.find(s => s.id === id);
+                            return item ? (
+                              <div key={id} className="relative group">
+                                <img 
+                                  src={item.imageUrl} 
+                                  alt={`Hero by @${item.twitterUsername}`}
+                                  className="w-full aspect-video object-cover rounded-md"
+                                />
+                                <button 
+                                  onClick={() => toggleItemSelection(id)}
+                                  className="absolute top-1 right-1 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <Trash2 size={14} className="text-red-500" />
+                                </button>
+                              </div>
+                            ) : null;
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button 
+                    disabled={!moodboardName || selectedItems.length === 0}
+                    onClick={handleCreateMoodboard}
+                  >
+                    Create Moodboard
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              {moodboards.length > 0 ? (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">Your Moodboards</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {moodboards.map(moodboard => {
+                      const moodboardItems = moodboard.items.map(id => 
+                        approvedSubmissions.find(s => s.id === id)
+                      ).filter(Boolean);
+                      
+                      return (
+                        <Card key={moodboard.id}>
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between items-start">
+                              <CardTitle>{moodboard.name}</CardTitle>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-red-500 h-8 w-8 p-0"
+                                onClick={() => handleDeleteMoodboard(moodboard.id)}
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
+                            <CardDescription>
+                              {moodboardItems.length} items • Created {new Date(moodboard.createdAt).toLocaleDateString()}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="grid grid-cols-3 gap-1 mb-2">
+                              {moodboardItems.slice(0, 6).map((item, idx) => (
+                                <div key={idx} className={idx >= 3 ? "hidden sm:block" : ""}>
+                                  <img 
+                                    src={item.imageUrl} 
+                                    alt={`Hero preview`}
+                                    className="w-full aspect-video object-cover rounded-sm"
+                                  />
+                                </div>
+                              ))}
+                              {moodboardItems.length > 6 && (
+                                <div className="hidden sm:flex items-center justify-center bg-gray-100 rounded-sm aspect-video">
+                                  <span className="text-sm text-gray-500">+{moodboardItems.length - 6} more</span>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </TabsContent>
           
           <TabsContent value="rejected">

@@ -24,7 +24,7 @@ const HerohypeLandingPage: React.FC = () => {
             setSortOption={setSortOption}
           />
         </div>
-        <div className={`w-full mt-6 ${isMobile ? '' : ''}`}>
+        <div className="w-full mt-6">
           <HeroGallery 
             activeFilters={activeFilters}
             sortOption={sortOption}
