@@ -15,12 +15,14 @@ const HerohypeLandingPage: React.FC = () => {
       <HeroSection />
       <div className="w-full mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex justify-center w-full">
-          <Filters 
-            activeFilters={activeFilters}
-            setActiveFilters={setActiveFilters}
-            sortOption={sortOption}
-            setSortOption={setSortOption}
-          />
+          <div className="w-full max-w-4xl mx-auto">
+            <Filters 
+              activeFilters={activeFilters}
+              setActiveFilters={setActiveFilters}
+              sortOption={sortOption}
+              setSortOption={setSortOption}
+            />
+          </div>
         </div>
         <div className="w-full mt-6">
           <HeroGallery 

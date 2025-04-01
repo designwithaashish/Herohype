@@ -26,9 +26,22 @@ export const useHeroGallery = (
       if (Array.isArray(cmsItems) && cmsItems.length > 0) {
         console.log("Syncing gallery with CMS items:", cmsItems.length);
         
-        // Set heroes to ONLY include items from the CMS (approved submissions)
-        // This removes any gallery items that aren't in the CMS
-        setHeroes(cmsItems);
+        // Process CMS items to ensure proper typing
+        const processedItems: HeroCardProps[] = cmsItems.map((item: any) => ({
+          id: item.id,
+          imageUrl: item.imageUrl,
+          twitterUsername: item.twitterUsername,
+          categories: item.categories || [],
+          likes: item.likes || 0,
+          saves: item.saves || 0,
+          status: (item.status === "approved" || item.status === "pending" || item.status === "rejected") 
+            ? item.status 
+            : "approved" as "approved" | "pending" | "rejected",
+          submissionDate: item.submissionDate || new Date().toISOString()
+        }));
+        
+        // Set heroes with properly typed items
+        setHeroes(processedItems);
       } else {
         // If no CMS items, display nothing
         setHeroes([]);

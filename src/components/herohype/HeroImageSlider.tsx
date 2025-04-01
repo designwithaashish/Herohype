@@ -14,7 +14,7 @@ const HeroImageSlider: React.FC = () => {
     if (approvedItems.length > 0) {
       // Get image URLs from the approved items
       const imageUrls = approvedItems
-        .filter((item: any) => item.imageUrl) // Ensure there's an image URL
+        .filter((item: any) => item.imageUrl && item.status === "approved") // Ensure there's an image URL and item is approved
         .map((item: any) => item.imageUrl);
       
       // If we have at least one image, set it. Otherwise use a placeholder

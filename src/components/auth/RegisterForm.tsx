@@ -32,7 +32,7 @@ const RegisterForm: React.FC = () => {
       // Generate a unique ID for the user
       const userId = `user_${Date.now()}`;
       
-      // Create a minimal user object without auto-generated names or avatars
+      // Create a minimal user object with blank profile fields
       const user = {
         id: userId,
         email: email,
