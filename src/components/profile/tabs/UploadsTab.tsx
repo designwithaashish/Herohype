@@ -30,7 +30,7 @@ const UploadsTab: React.FC<UploadsTabProps> = ({ approvedSubmissions }) => {
     categories: hero.categories || [],
     likes: hero.likes || 0,
     saves: hero.saves || 0,
-    status: "approved"
+    status: "approved" as "approved" | "pending" | "rejected"
   }));
 
   return (

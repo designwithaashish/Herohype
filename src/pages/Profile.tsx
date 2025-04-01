@@ -1,11 +1,19 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "@/components/herohype/Header";
-import ProfileTabs from "@/components/profile/ProfileTabs";
-import UserProfileHeader from "@/components/profile/UserProfileHeader";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/herohype/Header";
+import UserProfileHeader from "@/components/profile/UserProfileHeader";
+import ProfileTabs from "@/components/profile/ProfileTabs";
 
+// Define user type
+interface User {
+  id: string;
+  email: string;
+  role?: string;
+}
+
+// Define user profile type
 interface UserProfile {
   name: string;
   description: string;
@@ -14,17 +22,16 @@ interface UserProfile {
 }
 
 const Profile: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile>({
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile>({
     name: "",
     description: "",
     avatarUrl: "",
     hireLink: ""
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
+  
   useEffect(() => {
     // Check if user is logged in
     const userStr = localStorage.getItem("user");
@@ -37,65 +44,68 @@ const Profile: React.FC = () => {
       navigate("/login");
       return;
     }
-
+    
+    // Set user
     const userData = JSON.parse(userStr);
     setUser(userData);
-
-    // Get user profile if exists or set default values
-    const profileStr = localStorage.getItem(`profile-${userData.id}`);
+    
+    // Load profile data if it exists
+    const profileKey = `profile-${userData.id}`;
+    const profileStr = localStorage.getItem(profileKey);
+    
     if (profileStr) {
-      setUserProfile(JSON.parse(profileStr));
+      const profileData = JSON.parse(profileStr);
+      setProfile(profileData);
     } else {
-      // Set default profile values
-      const defaultProfile = {
+      // Create empty profile with defaults
+      const newProfile = {
         name: "",
-        description: "Edit your profile to add a description",
+        description: "",
         avatarUrl: "",
         hireLink: ""
       };
-      setUserProfile(defaultProfile);
-      localStorage.setItem(`profile-${userData.id}`, JSON.stringify(defaultProfile));
+      
+      // Save the profile and set it
+      localStorage.setItem(profileKey, JSON.stringify(newProfile));
+      setProfile(newProfile);
     }
-    
-    setIsLoading(false);
   }, [navigate, toast]);
-
-  const updateProfile = (updatedProfile: UserProfile) => {
+  
+  const handleUpdateProfile = (updatedProfile: UserProfile) => {
     if (!user) return;
     
-    setUserProfile(updatedProfile);
-    localStorage.setItem(`profile-${user.id}`, JSON.stringify(updatedProfile));
+    // Save profile to localStorage
+    const profileKey = `profile-${user.id}`;
+    localStorage.setItem(profileKey, JSON.stringify(updatedProfile));
     
+    // Update state
+    setProfile(updatedProfile);
+    
+    // Show notification
     toast({
       title: "Profile updated",
-      description: "Your profile has been updated successfully",
+      description: "Your profile changes have been saved"
     });
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto py-16 px-4">
-          <div className="animate-pulse text-center">Loading profile...</div>
-        </div>
-      </div>
-    );
+  
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
-
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="container mx-auto py-8 px-4">
-        <div className="w-full">
-          {/* @ts-ignore - We know these props exist but TypeScript is complaining */}
+      <div className="container mx-auto py-12 px-4">
+        <div className="max-w-4xl mx-auto">
           <UserProfileHeader 
-            profile={userProfile} 
-            onUpdateProfile={updateProfile}
+            profile={profile} 
+            onUpdateProfile={handleUpdateProfile} 
+          />
+          
+          <ProfileTabs 
+            user={user} 
           />
         </div>
-        {/* @ts-ignore - We know these props exist but TypeScript is complaining */}
-        <ProfileTabs user={user} />
       </div>
     </div>
   );

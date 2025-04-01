@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
 interface CollectionsTabProps {
-  savedHeroes: string[];
+  savedHeroes: any[];
 }
 
 const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
@@ -19,18 +19,16 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
     
     // Filter and map the saved heroes
     if (savedHeroes && savedHeroes.length > 0) {
-      const savedHeroCards = approvedSubmissions
-        .filter((hero: any) => savedHeroes.includes(hero.id))
-        .map((hero: any) => ({
-          id: hero.id,
-          imageUrl: hero.imageUrl,
-          twitterUsername: hero.twitterUsername,
-          categories: hero.categories || [],
-          likes: hero.likes || 0,
-          saves: hero.saves || 0,
-          status: "approved",
-          submissionDate: hero.submissionDate || hero.createdAt
-        }));
+      const savedHeroCards = savedHeroes.map((hero: any) => ({
+        id: hero.id,
+        imageUrl: hero.imageUrl,
+        twitterUsername: hero.twitterUsername,
+        categories: hero.categories || [],
+        likes: hero.likes || 0,
+        saves: hero.saves || 0,
+        status: "approved" as "approved" | "pending" | "rejected",
+        submissionDate: hero.submissionDate || hero.createdAt
+      }));
       
       setHeroCards(savedHeroCards);
     }

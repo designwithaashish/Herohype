@@ -35,7 +35,7 @@ export const useHeroGallery = (
           likes: item.likes || 0,
           saves: item.saves || 0,
           status: (item.status === "approved" || item.status === "pending" || item.status === "rejected") 
-            ? item.status 
+            ? item.status as "approved" | "pending" | "rejected"
             : "approved" as "approved" | "pending" | "rejected",
           submissionDate: item.submissionDate || new Date().toISOString()
         }));

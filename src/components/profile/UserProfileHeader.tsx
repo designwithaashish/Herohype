@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -100,6 +99,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
     navigate("/");
   };
 
+  
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm mb-8">
       <div className="flex flex-col md:flex-row items-center gap-6">

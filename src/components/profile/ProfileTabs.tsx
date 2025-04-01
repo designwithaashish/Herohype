@@ -5,8 +5,14 @@ import SubmissionsTab from "./tabs/SubmissionsTab";
 import CollectionsTab from "./tabs/CollectionsTab";
 import UploadsTab from "./tabs/UploadsTab";
 
+interface User {
+  id: string;
+  email: string;
+  role?: string;
+}
+
 interface ProfileTabsProps {
-  user: any;
+  user: User;
 }
 
 const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
