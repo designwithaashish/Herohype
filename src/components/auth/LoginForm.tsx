@@ -1,10 +1,30 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { icons } from "lucide-react";
+import { LucideProps } from "lucide-react";
+
+// Create a Google icon component
+const GoogleIcon = (props: LucideProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+    <path d="M15.5 8.5L19 12l-3.5 3.5M4 12h15" />
+  </svg>
+);
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -12,8 +32,6 @@ const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  const GoogleIcon = icons['brands/google'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
