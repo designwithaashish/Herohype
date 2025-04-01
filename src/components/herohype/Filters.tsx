@@ -17,7 +17,7 @@ const categoryOptions = [
   "Bento", "Crypto"
 ];
 
-const sortOptions = ["Popular", "Latest", "Oldest"];
+const sortOptions = ["Popular", "Trending", "Recent"];
 
 interface FiltersProps {
   activeFilters: string[];
@@ -89,15 +89,33 @@ const Filters: React.FC<FiltersProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {activeFilters.length > 0 && (
-          <Button 
-            variant="ghost" 
-            className="h-9 px-3 text-sm text-gray-600 hover:text-gray-900"
-            onClick={() => setActiveFilters([])}
-          >
-            Clear all
-          </Button>
-        )}
+        {/* Display active filters as tags */}
+        <div className="flex flex-wrap gap-2">
+          {activeFilters.map((filter) => (
+            <div 
+              key={filter}
+              className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm flex items-center gap-1"
+            >
+              {filter}
+              <button 
+                onClick={() => toggleFilter(filter)}
+                className="ml-1 text-gray-500 hover:text-gray-800"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          
+          {activeFilters.length > 0 && (
+            <Button 
+              variant="ghost" 
+              className="h-8 px-2 text-sm text-gray-600 hover:text-gray-900"
+              onClick={() => setActiveFilters([])}
+            >
+              Clear all
+            </Button>
+          )}
+        </div>
       </div>
 
       <DropdownMenu open={isSortOpen} onOpenChange={setIsSortOpen}>

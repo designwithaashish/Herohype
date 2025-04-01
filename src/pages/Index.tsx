@@ -8,23 +8,74 @@ const Index: React.FC = () => {
     const approvedSubmissions = localStorage.getItem("approvedSubmissions");
     const items = approvedSubmissions ? JSON.parse(approvedSubmissions) : [];
     
-    // If no items exist, create a demo item for testing
+    // If no items exist, create 5 demo items for testing
     if (!items || items.length === 0) {
-      console.log("Adding demo hero section for testing");
-      const demoItem = {
-        id: "demo-hero-123",
-        imageUrl: "/placeholder.svg",
-        twitterUsername: "herohype",
-        categories: ["Minimal", "Dark"],
-        likes: 12,
-        saves: 5,
-        status: "approved" as "approved" | "pending" | "rejected",
-        submissionDate: new Date().toISOString(),
-        userId: "demo-user-id",  // Add userId to the demo item
-        submittedBy: "demo-user-id"  // Add submittedBy to the demo item
-      };
+      console.log("Adding demo hero sections for testing");
       
-      localStorage.setItem("approvedSubmissions", JSON.stringify([demoItem]));
+      const demoItems = [
+        {
+          id: "demo-hero-123",
+          imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
+          twitterUsername: "herohype",
+          categories: ["Minimal", "Dark"],
+          likes: 24,
+          saves: 12,
+          status: "approved" as "approved" | "pending" | "rejected",
+          submissionDate: new Date().toISOString(),
+          userId: "demo-user-id",
+          submittedBy: "demo-user-id"
+        },
+        {
+          id: "demo-hero-124",
+          imageUrl: "/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png",
+          twitterUsername: "webdesigner",
+          categories: ["Light", "Gradient"],
+          likes: 18,
+          saves: 9,
+          status: "approved" as "approved" | "pending" | "rejected",
+          submissionDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          userId: "demo-user-id",
+          submittedBy: "demo-user-id"
+        },
+        {
+          id: "demo-hero-125",
+          imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
+          twitterUsername: "uiuxmaster",
+          categories: ["Illustrated", "Bento"],
+          likes: 35,
+          saves: 22,
+          status: "approved" as "approved" | "pending" | "rejected",
+          submissionDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          userId: "demo-user-id",
+          submittedBy: "demo-user-id"
+        },
+        {
+          id: "demo-hero-126",
+          imageUrl: "/placeholder.svg",
+          twitterUsername: "creativepro",
+          categories: ["3D", "Animated"],
+          likes: 42,
+          saves: 18,
+          status: "approved" as "approved" | "pending" | "rejected",
+          submissionDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          userId: "demo-user-id",
+          submittedBy: "demo-user-id"
+        },
+        {
+          id: "demo-hero-127",
+          imageUrl: "/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png",
+          twitterUsername: "designsystem",
+          categories: ["Typography", "Minimal"],
+          likes: 29,
+          saves: 15,
+          status: "approved" as "approved" | "pending" | "rejected",
+          submissionDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+          userId: "demo-user-id",
+          submittedBy: "demo-user-id"
+        }
+      ];
+      
+      localStorage.setItem("approvedSubmissions", JSON.stringify(demoItems));
     }
   }, []);
   

@@ -36,8 +36,12 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white flex h-[80px] w-full items-center gap-[40px] text-black font-normal justify-between flex-wrap px-6 md:px-10 lg:px-20 py-5 max-md:max-w-full border-b border-gray-100">
       <Link to="/" className="flex items-center text-black whitespace-nowrap text-center justify-center my-auto">
-        <div className="bg-[#DAFF00] border-2 border-black border-dashed p-1 flex items-center">
-          <span className="font-playfair text-xl font-medium">herohype</span>
+        <div className="bg-[#DAFF00] p-2 flex items-center rounded-md">
+          <img 
+            src="/lovable-uploads/ba7b2db6-c008-44dc-86ca-5066aaa75abe.png" 
+            alt="herohype" 
+            className="h-7"
+          />
         </div>
       </Link>
 
