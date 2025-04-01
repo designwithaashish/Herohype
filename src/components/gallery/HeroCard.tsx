@@ -27,7 +27,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
   isFeatured
 }) => {
   return (
-    <div className="overflow-hidden rounded-lg shadow-sm transition-all duration-200 border border-gray-100 hover:shadow-md">
+    <div className="overflow-hidden rounded-lg transition-all duration-200 border border-gray-100 hover:shadow-md group">
       <div className="relative">
         {/* Featured badge */}
         {isFeatured && (
@@ -50,41 +50,24 @@ const HeroCard: React.FC<HeroCardProps> = ({
             alt={`Hero design by ${twitterUsername}`}
             className="w-full object-cover transition-transform duration-300"
           />
-        </div>
-      </div>
-      
-      <div className="p-3 bg-white">
-        <div className="flex justify-between items-center mb-2">
-          <div className="text-sm font-medium">@{twitterUsername}</div>
-          <div className="flex space-x-3">
-            <div className="flex items-center text-xs text-gray-500">
-              <HeartIcon className="w-3.5 h-3.5 mr-1" />
-              <span>{likes}</span>
-            </div>
-            <div className="flex items-center text-xs text-gray-500">
-              <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
-              <span>{saves}</span>
+          
+          {/* Hover overlay with details */}
+          <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+            <div className="text-white text-sm font-medium mb-2">@{twitterUsername}</div>
+            <div className="flex justify-between items-center">
+              <div className="flex space-x-3">
+                <div className="flex items-center text-xs text-white">
+                  <HeartIcon className="w-3.5 h-3.5 mr-1" />
+                  <span>{likes}</span>
+                </div>
+                <div className="flex items-center text-xs text-white">
+                  <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
+                  <span>{saves}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        
-        {categories && categories.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {categories.slice(0, 3).map((category, index) => (
-              <span
-                key={index}
-                className="inline-block bg-gray-100 rounded-full px-2 py-1 text-xs text-gray-800"
-              >
-                {category}
-              </span>
-            ))}
-            {categories.length > 3 && (
-              <span className="inline-block bg-gray-100 rounded-full px-2 py-1 text-xs text-gray-800">
-                +{categories.length - 3}
-              </span>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

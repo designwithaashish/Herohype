@@ -23,7 +23,8 @@ const Index: React.FC = () => {
           status: "approved" as "approved" | "pending" | "rejected",
           submissionDate: new Date().toISOString(),
           userId: "demo-user-id",
-          submittedBy: "demo-user-id"
+          submittedBy: "demo-user-id",
+          isCurated: true
         },
         {
           id: "demo-hero-124",
@@ -47,7 +48,8 @@ const Index: React.FC = () => {
           status: "approved" as "approved" | "pending" | "rejected",
           submissionDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
           userId: "demo-user-id",
-          submittedBy: "demo-user-id"
+          submittedBy: "demo-user-id",
+          isCurated: true
         },
         {
           id: "demo-hero-126",

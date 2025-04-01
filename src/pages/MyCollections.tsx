@@ -23,7 +23,7 @@ const MyCollections: React.FC = () => {
       setIsLoggedIn(true);
       setIsAdmin(user.role === "admin");
       
-      // If admin, load sample moodboard items
+      // If admin, load moodboard items
       if (user.role === "admin") {
         loadMoodboardItems();
       } else {
@@ -50,35 +50,58 @@ const MyCollections: React.FC = () => {
   }, [navigate, toast]);
   
   const loadMoodboardItems = () => {
-    // For now, load sample items for the admin moodboard
-    const sampleItems: HeroCardProps[] = [
-      {
-        id: "mood-item-1",
-        imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
-        twitterUsername: "mood_curator",
-        categories: ["Minimal", "Dark"],
-        likes: 45,
-        saves: 30,
-      },
-      {
-        id: "mood-item-2",
-        imageUrl: "/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png",
-        twitterUsername: "designinspo",
-        categories: ["Light", "Gradient"],
-        likes: 32,
-        saves: 21,
-      },
-      {
-        id: "mood-item-3",
-        imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
-        twitterUsername: "heromaker",
-        categories: ["Typography", "Bento"],
-        likes: 56,
-        saves: 38,
-      }
-    ];
+    // Check if there are moodboard items in localStorage
+    const moodboardDataStr = localStorage.getItem("adminMoodboard");
+    if (moodboardDataStr) {
+      const moodboardData = JSON.parse(moodboardDataStr);
+      setMoodboardItems(moodboardData);
+    } else {
+      // For now, load sample items for the admin moodboard
+      const sampleItems: HeroCardProps[] = [
+        {
+          id: "mood-item-1",
+          imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
+          twitterUsername: "mood_curator",
+          categories: ["Minimal", "Dark"],
+          likes: 45,
+          saves: 30,
+        },
+        {
+          id: "mood-item-2",
+          imageUrl: "/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png",
+          twitterUsername: "designinspo",
+          categories: ["Light", "Gradient"],
+          likes: 32,
+          saves: 21,
+        },
+        {
+          id: "mood-item-3",
+          imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
+          twitterUsername: "heromaker",
+          categories: ["Typography", "Bento"],
+          likes: 56,
+          saves: 38,
+        }
+      ];
+      
+      // Save to localStorage for future use
+      localStorage.setItem("adminMoodboard", JSON.stringify(sampleItems));
+      setMoodboardItems(sampleItems);
+    }
+  };
+  
+  // Function to add an item to the moodboard (would be used from admin panel)
+  const addToMoodboard = (item: HeroCardProps) => {
+    setMoodboardItems(prev => {
+      const newItems = [...prev, item];
+      localStorage.setItem("adminMoodboard", JSON.stringify(newItems));
+      return newItems;
+    });
     
-    setMoodboardItems(sampleItems);
+    toast({
+      title: "Added to Moodboard",
+      description: "Item has been added to your moodboard.",
+    });
   };
   
   if (loading) {

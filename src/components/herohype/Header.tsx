@@ -2,10 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [username, setUsername] = useState("");
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -16,9 +19,11 @@ const Header: React.FC = () => {
         const user = JSON.parse(userStr);
         setIsLoggedIn(true);
         setIsAdmin(user.role === "admin");
+        setUsername(user.username || user.email?.split('@')[0] || "user");
       } else {
         setIsLoggedIn(false);
         setIsAdmin(false);
+        setUsername("");
       }
     };
     
@@ -46,7 +51,7 @@ const Header: React.FC = () => {
       </Link>
 
       <nav className="hidden md:flex items-center gap-8 text-[15px] text-black font-medium justify-center my-auto">
-        <Link to="/" className="flex items-center gap-1 hover:text-gray-600 transition-colors font-satoshi">
+        <Link to="/curated" className="flex items-center gap-1 hover:text-gray-600 transition-colors font-satoshi">
           <span>✨</span>
           Curated
         </Link>
@@ -68,9 +73,27 @@ const Header: React.FC = () => {
 
       <div className="flex items-center justify-center">
         {isLoggedIn ? (
-          <Link to="/profile" className="flex items-center gap-3">
-            <div className="text-sm font-medium">My Profile</div>
-          </Link>
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <Link to="/profile" className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback className="bg-gray-200 text-gray-700">
+                    {username.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{username}</span>
+              </Link>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-64">
+              <div className="flex flex-col space-y-3">
+                <p className="text-sm text-gray-500">Manage your profile, submissions, and moodboards</p>
+                <Link to="/profile" className="text-sm text-blue-600 hover:underline">
+                  View Profile
+                </Link>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
         ) : (
           <Button 
             onClick={() => navigate("/login")}

@@ -9,30 +9,68 @@ const Curated: React.FC = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // For now, load sample curated items (these would typically be marked as curated by admin)
-    const sampleCuratedItems: HeroCardProps[] = [
-      {
-        id: "curated-item-1",
-        imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
-        twitterUsername: "curateddesign",
-        categories: ["Minimal", "Dark"],
-        likes: 78,
-        saves: 42,
-        isCurated: true,
-      },
-      {
-        id: "curated-item-2",
-        imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
-        twitterUsername: "heroinspire",
-        categories: ["Typography", "Gradient"],
-        likes: 65,
-        saves: 37,
-        isCurated: true,
+    // Load curated items from localStorage (marked with isCurated: true by admin)
+    const loadCuratedItems = () => {
+      const approvedSubmissions = localStorage.getItem("approvedSubmissions");
+      if (approvedSubmissions) {
+        const items = JSON.parse(approvedSubmissions);
+        // Filter for curated items only
+        const curatedHeroes = items.filter((item: any) => item.isCurated === true);
+        
+        if (curatedHeroes.length > 0) {
+          setCuratedItems(curatedHeroes);
+        } else {
+          // If no curated items found, load sample curated items
+          const sampleCuratedItems: HeroCardProps[] = [
+            {
+              id: "curated-item-1",
+              imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
+              twitterUsername: "curateddesign",
+              categories: ["Minimal", "Dark"],
+              likes: 78,
+              saves: 42,
+              isCurated: true,
+            },
+            {
+              id: "curated-item-2",
+              imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
+              twitterUsername: "heroinspire",
+              categories: ["Typography", "Gradient"],
+              likes: 65,
+              saves: 37,
+              isCurated: true,
+            }
+          ];
+          setCuratedItems(sampleCuratedItems);
+        }
+      } else {
+        // No approved submissions, load sample data
+        const sampleCuratedItems: HeroCardProps[] = [
+          {
+            id: "curated-item-1",
+            imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
+            twitterUsername: "curateddesign",
+            categories: ["Minimal", "Dark"],
+            likes: 78,
+            saves: 42,
+            isCurated: true,
+          },
+          {
+            id: "curated-item-2",
+            imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
+            twitterUsername: "heroinspire",
+            categories: ["Typography", "Gradient"],
+            likes: 65,
+            saves: 37,
+            isCurated: true,
+          }
+        ];
+        setCuratedItems(sampleCuratedItems);
       }
-    ];
+      setLoading(false);
+    };
     
-    setCuratedItems(sampleCuratedItems);
-    setLoading(false);
+    loadCuratedItems();
   }, []);
   
   return (

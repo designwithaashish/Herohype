@@ -54,10 +54,10 @@ const HeroSection: React.FC = () => {
 
   return (
     <section className="relative flex min-h-[620px] w-full flex-col text-center justify-center bg-[#F9FAEB] pt-16 pb-16 px-5 md:px-10 lg:px-20">
-      <div className="flex flex-col md:flex-row w-full max-w-6xl items-center justify-between mx-auto">
+      <div className="flex flex-col md:flex-row w-full max-w-7xl items-center justify-between mx-auto gap-16">
         <div className="text-left max-w-3xl">
           {/* Top stat banner - left aligned with heading */}
-          <div className="bg-white border inline-flex items-center gap-2 text-xs text-black font-medium uppercase tracking-[0.5px] leading-[1.2] justify-center px-6 py-2 rounded-[60px] border-[rgba(0,0,0,0.15)] border-solid shadow-sm animate-fade-in self-start mb-12">
+          <div className="bg-white border inline-flex items-center gap-2 text-xs text-black font-medium uppercase tracking-[0.5px] leading-[1.2] justify-center px-6 py-2 rounded-[60px] border-[rgba(0,0,0,0.15)] border-solid shadow-sm animate-fade-in self-start mb-12 w-fit">
             <span className="text-black">*</span>
             <div className="self-stretch my-auto font-satoshi">{itemCount}+ HERO SECTIONS CURATED</div>
             <span className="text-black">*</span>
@@ -66,10 +66,10 @@ const HeroSection: React.FC = () => {
           {/* Main headline */}
           <h1 className="font-playfair text-black leading-[1.1] animate-[fade-in_0.5s_ease_0.2s_both]">
             <div className="text-[46px] md:text-[72px] max-md:text-[36px]">
-              Discover <span className="text-[#FF6C44] text-[36px] md:text-[56px]">Trendy</span> &
+              Discover <span className="text-[#FF6C44]">Trendy</span> &
             </div>
-            <div className="text-[46px] md:text-[72px] max-md:text-[36px] italic mt-2">
-              Perfect <span className="text-[#FF6C44] not-italic">Hero Sections</span>
+            <div className="text-[46px] md:text-[72px] max-md:text-[36px] mt-2">
+              Perfect <span className="text-[#FF6C44]">Hero Sections</span>
             </div>
           </h1>
 
@@ -100,8 +100,8 @@ const HeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero image with featured tag and creator info */}
-        <div className="mt-10 md:mt-0 max-w-sm md:min-h-[400px] relative">
+        {/* Hero image with featured tag and creator info - increased size */}
+        <div className="mt-10 md:mt-0 max-w-[440px] md:min-h-[440px] relative">
           {featuredHero ? (
             <>
               <div className="absolute top-4 left-0 right-0 flex justify-between items-center px-4 z-10">
@@ -120,14 +120,14 @@ const HeroSection: React.FC = () => {
               <img
                 src={featuredHero.imageUrl}
                 alt="Featured hero section"
-                className="rounded-[40px] border-6 border-white w-full h-full object-cover md:min-h-[400px]"
+                className="rounded-[40px] border-6 border-white w-full h-full object-cover md:min-h-[440px]"
               />
             </>
           ) : (
             <img
               src="/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png"
               alt="Hero section example"
-              className="rounded-[40px] border-6 border-white w-full h-full object-cover md:min-h-[400px]"
+              className="rounded-[40px] border-6 border-white w-full h-full object-cover md:min-h-[440px]"
             />
           )}
         </div>
