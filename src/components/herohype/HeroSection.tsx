@@ -1,14 +1,13 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import HeroImageSlider from "./HeroImageSlider";
 
 const HeroSection: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [itemCount, setItemCount] = useState<number>(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Get the count of approved submissions in CMS
     const approvedSubmissions = localStorage.getItem("approvedSubmissions");
     if (approvedSubmissions) {
@@ -23,15 +22,16 @@ const HeroSection: React.FC = () => {
     }
   }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const handleExploreClick = () => {
+    // Scroll down to the gallery section
+    const gallerySection = document.getElementById("gallery-section");
+    if (gallerySection) {
+      gallerySection.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
+  const handleSubmitClick = () => {
+    navigate("/submit");
   };
 
   return (
@@ -43,9 +43,9 @@ const HeroSection: React.FC = () => {
         <span className="text-black">*</span>
       </div>
 
-      {/* Main headline with serif font */}
+      {/* Main headline with Playfair Display font */}
       <div className="flex w-full max-w-5xl flex-col items-center mt-[30px]">
-        <h1 className="w-full text-black leading-[1.2] font-instrument-serif">
+        <h1 className="w-full text-black leading-[1.2] font-playfair">
           {/* First line */}
           <div className="text-[44px] md:text-[60px] max-md:text-[28px] animate-[fade-in_0.5s_ease_0.2s_both]">
             Discover Trendy &
@@ -53,17 +53,17 @@ const HeroSection: React.FC = () => {
           
           {/* Second line with image and text */}
           <div className="flex items-center justify-center gap-4 mt-5 animate-[fade-in_0.5s_ease_0.4s_both]">
-            {/* Perfect text without border */}
+            {/* Perfect text */}
             <div className="p-3">
-              <span className="text-[44px] md:text-[60px] max-md:text-[28px]">Perfect</span>
+              <span className="text-[44px] md:text-[60px] max-md:text-[28px] italic">Perfect</span>
             </div>
             
             {/* Image slider */}
             <HeroImageSlider />
             
-            {/* Hero Section with dashed border */}
-            <div className="border-2 border-dashed border-black p-3 rounded-md">
-              <span className="text-[44px] md:text-[60px] max-md:text-[28px]">Hero Section</span>
+            {/* Hero Section text */}
+            <div className="p-3">
+              <span className="text-[44px] md:text-[60px] max-md:text-[28px] text-[#FF6C44]">Hero Section</span>
             </div>
           </div>
         </h1>
@@ -77,26 +77,23 @@ const HeroSection: React.FC = () => {
         </p>
       </div>
 
-      {/* Search bar - smaller size */}
-      <div className="self-stretch w-full max-w-xl mx-auto leading-[1.2] mt-[40px] animate-[fade-in_0.5s_ease_0.8s_both]">
-        <form
-          onSubmit={handleSearch}
-          className="bg-[rgba(239,239,239,1)] flex w-full items-center justify-between pr-3 pl-8 py-2 rounded-[60px] max-md:pl-4"
+      {/* Buttons */}
+      <div className="flex flex-wrap justify-center gap-4 mt-10 animate-[fade-in_0.5s_ease_0.8s_both]">
+        <button
+          onClick={handleExploreClick}
+          className="bg-white border border-gray-300 text-black rounded-full px-8 py-3 shadow-md hover:shadow-lg transition-shadow"
         >
-          <input
-            type="text"
-            placeholder="hero section with purple gradient..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="bg-transparent text-[rgba(93,93,93,1)] text-base font-medium outline-none w-full font-satoshi"
-          />
-          <button
-            type="submit"
-            className="flex items-center justify-center bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-6 py-2 rounded-[38px] max-md:px-4 hover:bg-[rgba(40,40,40,1)] transition-colors font-satoshi text-[18px]"
-          >
-            Search
-          </button>
-        </form>
+          Explore
+        </button>
+        <button
+          onClick={handleSubmitClick}
+          className="bg-[#3A5A40] text-white rounded-full px-6 py-3 shadow-md hover:shadow-lg transition-shadow flex items-center gap-2"
+        >
+          Submit Your Design
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 0L6.59 1.41L12.17 7H0V9H12.17L6.59 14.59L8 16L16 8L8 0Z" fill="white"/>
+          </svg>
+        </button>
       </div>
     </section>
   );

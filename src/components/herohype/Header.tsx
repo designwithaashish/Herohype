@@ -104,8 +104,8 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-[rgba(15,16,20,1)] flex h-[80px] w-full items-center gap-[40px_100px] text-black font-normal justify-between flex-wrap px-6 md:px-10 lg:px-20 py-5 max-md:max-w-full">
-      <Link to="/" className="bg-[rgba(183,255,29,1)] flex items-center text-black whitespace-nowrap text-center tracking-[-0.5px] leading-[1.1] justify-center my-auto h-[32px]">
+    <header className="bg-white flex h-[80px] w-full items-center gap-[40px_100px] text-black font-normal justify-between flex-wrap px-6 md:px-10 lg:px-20 py-5 max-md:max-w-full border-b border-gray-100">
+      <Link to="/" className="flex items-center text-black whitespace-nowrap text-center tracking-[-0.5px] leading-[1.1] justify-center my-auto">
         <img
           src="/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png"
           className="h-[32px]"
@@ -113,11 +113,11 @@ const Header: React.FC = () => {
         />
       </Link>
 
-      <nav className="flex items-center gap-10 text-[15px] text-white font-medium justify-center my-auto">
+      <nav className="flex items-center gap-10 text-[15px] text-black font-medium justify-center my-auto">
         {isAdmin && (
           <Link
             to="/admin"
-            className="hover:text-gray-300 transition-colors font-satoshi"
+            className="hover:text-gray-600 transition-colors font-satoshi"
           >
             Admin
           </Link>
@@ -127,21 +127,21 @@ const Header: React.FC = () => {
       <div className="flex gap-3 items-center text-[22px] text-center leading-[1.2] justify-center my-auto">
         {isLoggedIn ? (
           <div className="flex items-center gap-3 cursor-pointer" onClick={handleProfileClick}>
-            <Avatar className="h-9 w-9 border border-gray-700">
+            <Avatar className="h-9 w-9 border border-gray-200">
               {profileImage ? (
                 <AvatarImage src={profileImage} alt={userName || "User"} />
               ) : (
-                <AvatarFallback className="bg-gray-700 text-white">
+                <AvatarFallback className="bg-gray-100 text-gray-800">
                   {getInitials(userName)}
                 </AvatarFallback>
               )}
             </Avatar>
-            <span className="text-white text-sm">{userName || "User"}</span>
+            <span className="text-black text-sm">{userName || "User"}</span>
           </div>
         ) : (
           <Button 
             onClick={() => navigate("/login")}
-            className="bg-white text-black shadow-[6px_6px_8px_rgba(0,0,0,0.2)] gap-2.5 px-5 py-3 rounded-lg hover:bg-gray-100 transition-colors font-satoshi"
+            className="bg-[#3A5A40] text-white px-5 py-2 rounded-full hover:bg-[#2d4631] transition-colors font-satoshi"
           >
             Login / Sign up
           </Button>

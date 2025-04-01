@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from "react";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 const HeroImageSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [sliderImages, setSliderImages] = useState<string[]>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   useEffect(() => {
     // Get images from the approvedSubmissions in localStorage
@@ -29,50 +29,62 @@ const HeroImageSlider: React.FC = () => {
           setSliderImages(imageUrls.slice(0, 5));
         }
       } else {
-        // Use default images if no approved submissions
-        setSliderImages(Array(5).fill("/placeholder.svg"));
+        // Use sample image if no approved submissions
+        setSliderImages(Array(5).fill("/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png"));
       }
     } else {
-      // Use default images if no approved submissions
-      setSliderImages(Array(5).fill("/placeholder.svg"));
+      // Use sample image if no approved submissions
+      setSliderImages(Array(5).fill("/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png"));
     }
   }, []);
   
   useEffect(() => {
     if (sliderImages.length <= 1) return;
     
+    const transitionTime = 600; // ms for transition animation
+    const displayTime = 3000; // ms for displaying each image
+    
     const interval = setInterval(() => {
-      setCurrentIndex(prevIndex => 
-        prevIndex === sliderImages.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 3000); // 3 seconds delay for a bit faster rotation
+      // Start transition
+      setIsTransitioning(true);
+      
+      // Wait for fade out to complete before changing the index
+      setTimeout(() => {
+        setCurrentIndex(prevIndex => 
+          prevIndex === sliderImages.length - 1 ? 0 : prevIndex + 1
+        );
+        
+        // Wait a bit then remove the transition state
+        setTimeout(() => {
+          setIsTransitioning(false);
+        }, 50);
+      }, transitionTime);
+      
+    }, displayTime);
     
     return () => clearInterval(interval);
   }, [sliderImages.length]);
   
   return (
-    <div className="w-[150px] h-[100px] overflow-hidden rounded-[30px] border-4 border-gray-200">
-      <Carousel>
-        <CarouselContent>
-          {sliderImages.map((image, index) => (
-            <CarouselItem 
-              key={index} 
-              className="w-full h-full"
-            >
-              <div className="relative w-full h-full">
-                <img 
-                  src={image} 
-                  alt={`Hero image ${index + 1}`} 
-                  className={`w-full h-full object-cover transition-all duration-1000
-                    ${currentIndex === index ? 
-                      'opacity-100 scale-100' : 
-                      'opacity-0 scale-[0.8] absolute inset-0'}`}
-                />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <div className="w-[150px] h-[100px] overflow-hidden rounded-[20px] bg-white relative">
+      {sliderImages.map((image, index) => (
+        <div 
+          key={index} 
+          className={`absolute inset-0 w-full h-full transition-all duration-600
+            ${currentIndex === index ? 
+              'opacity-100 z-10' : 
+              'opacity-0 z-0'}`}
+        >
+          <img 
+            src={image} 
+            alt={`Hero image ${index + 1}`} 
+            className={`w-full h-full object-cover transition-all duration-600
+              ${currentIndex === index ? 
+                (isTransitioning ? 'scale-100 opacity-100' : 'scale-100 opacity-100') : 
+                'scale-80 opacity-0'}`}
+          />
+        </div>
+      ))}
     </div>
   );
 };
