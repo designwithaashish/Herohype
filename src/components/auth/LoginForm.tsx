@@ -1,11 +1,10 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Google } from "lucide-react";
+import { icons } from "lucide-react";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -14,15 +13,15 @@ const LoginForm: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const GoogleIcon = icons['brands/google'];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
     try {
-      // Mock login functionality - would connect to backend
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Store some user info in localStorage for demo purposes
       localStorage.setItem("user", JSON.stringify({ email, role: email.includes("admin") ? "admin" : "user" }));
       
       toast({
@@ -46,7 +45,6 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Mock Google login
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       localStorage.setItem("user", JSON.stringify({ 
@@ -98,7 +96,7 @@ const LoginForm: React.FC = () => {
         className="w-full border border-gray-300 py-6" 
         disabled={isLoading}
       >
-        <Google className="mr-2 h-5 w-5" />
+        <GoogleIcon className="mr-2 h-5 w-5" />
         Sign up with Google
       </Button>
       
