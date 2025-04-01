@@ -6,17 +6,30 @@ import { Button } from "@/components/ui/button";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { useToast } from "@/hooks/use-toast";
-import { Grid, PlusCircle } from "lucide-react";
+import { Grid, PlusCircle, Edit, Trash, X, Check, Pencil } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+
+interface Moodboard {
+  id: string;
+  name: string;
+  items: HeroCardProps[];
+}
 
 const MyCollections: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [moodboardItems, setMoodboardItems] = useState<HeroCardProps[]>([]);
+  const [moodboards, setMoodboards] = useState<Moodboard[]>([]);
   const [availableItems, setAvailableItems] = useState<HeroCardProps[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showSelectionGrid, setShowSelectionGrid] = useState(false);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [currentMoodboard, setCurrentMoodboard] = useState<Moodboard | null>(null);
+  const [editingMoodboard, setEditingMoodboard] = useState<Moodboard | null>(null);
+  const [newMoodboardName, setNewMoodboardName] = useState("");
+  const [selectedItems, setSelectedItems] = useState<HeroCardProps[]>([]);
   
   useEffect(() => {
     // Check if user is logged in and if they are an admin
@@ -28,7 +41,7 @@ const MyCollections: React.FC = () => {
         setIsAdmin(user.role === "admin");
         
         // Load moodboard items
-        loadMoodboardItems();
+        loadMoodboards();
         loadAvailableItems();
       } catch (error) {
         console.error("Error parsing user data:", error);
@@ -38,30 +51,35 @@ const MyCollections: React.FC = () => {
       // Not logged in, show public moodboards with empty state
       setIsLoggedIn(false);
       setIsAdmin(false);
-      loadMoodboardItems();
+      loadMoodboards();
     }
     
     setLoading(false);
   }, [navigate]);
   
-  const loadMoodboardItems = () => {
-    // Check if there are moodboard items in localStorage
+  const loadMoodboards = () => {
     try {
-      const moodboardDataStr = localStorage.getItem("adminMoodboard");
-      if (moodboardDataStr) {
-        const moodboardData = JSON.parse(moodboardDataStr);
-        console.log("Loaded moodboard items:", moodboardData.length, moodboardData);
-        setMoodboardItems(moodboardData);
+      const moodboardsData = localStorage.getItem("userMoodboards");
+      if (moodboardsData) {
+        const parsedMoodboards = JSON.parse(moodboardsData);
+        setMoodboards(parsedMoodboards);
       } else {
-        // Initialize empty moodboard
-        setMoodboardItems([]);
+        // Initialize with a default moodboard for admins
         if (isAdmin) {
-          localStorage.setItem("adminMoodboard", JSON.stringify([]));
+          const defaultMoodboard = {
+            id: `moodboard-${Date.now()}`,
+            name: "My Moodboard",
+            items: []
+          };
+          setMoodboards([defaultMoodboard]);
+          localStorage.setItem("userMoodboards", JSON.stringify([defaultMoodboard]));
+        } else {
+          setMoodboards([]);
         }
       }
     } catch (error) {
-      console.error("Error loading moodboard items:", error);
-      setMoodboardItems([]);
+      console.error("Error loading moodboards:", error);
+      setMoodboards([]);
     }
   };
   
@@ -81,14 +99,102 @@ const MyCollections: React.FC = () => {
     }
   };
   
-  // Function to add an item to the moodboard
-  const addToMoodboard = (item: HeroCardProps) => {
-    if (!isAdmin) return;
+  const handleCreateMoodboard = () => {
+    if (!newMoodboardName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for your moodboard",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    const currentMoodboard = JSON.parse(localStorage.getItem("adminMoodboard") || "[]");
+    const newMoodboard: Moodboard = {
+      id: `moodboard-${Date.now()}`,
+      name: newMoodboardName,
+      items: []
+    };
+    
+    const updatedMoodboards = [...moodboards, newMoodboard];
+    setMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
+    
+    setNewMoodboardName("");
+    setShowAddDialog(false);
+    
+    toast({
+      title: "Moodboard created",
+      description: `"${newMoodboardName}" moodboard has been created`,
+    });
+  };
+  
+  const handleEditMoodboard = () => {
+    if (!editingMoodboard) return;
+    
+    if (!newMoodboardName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for your moodboard",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const updatedMoodboards = moodboards.map(mb => 
+      mb.id === editingMoodboard.id 
+        ? { ...mb, name: newMoodboardName }
+        : mb
+    );
+    
+    setMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
+    setEditingMoodboard(null);
+    
+    toast({
+      title: "Moodboard updated",
+      description: `Moodboard name changed to "${newMoodboardName}"`,
+    });
+  };
+  
+  const startEditMoodboard = (moodboard: Moodboard) => {
+    setEditingMoodboard(moodboard);
+    setNewMoodboardName(moodboard.name);
+  };
+  
+  const handleDeleteMoodboard = (id: string) => {
+    const updatedMoodboards = moodboards.filter(mb => mb.id !== id);
+    setMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
+    
+    toast({
+      title: "Moodboard deleted",
+      description: "Moodboard has been deleted",
+    });
+  };
+  
+  const handleOpenMoodboard = (moodboard: Moodboard) => {
+    setCurrentMoodboard(moodboard);
+  };
+  
+  const handleBackToList = () => {
+    setCurrentMoodboard(null);
+  };
+  
+  const handleAddToMoodboard = (item: HeroCardProps) => {
+    if (!currentMoodboard) return;
+    
+    // Check if the moodboard already contains 10 items
+    if (currentMoodboard.items.length >= 10) {
+      toast({
+        title: "Moodboard full",
+        description: "A moodboard can contain a maximum of 10 items",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Check if item is already in the moodboard
-    if (currentMoodboard.some((existingItem: any) => existingItem.id === item.id)) {
+    if (currentMoodboard.items.some(existingItem => existingItem.id === item.id)) {
       toast({
         title: "Already in moodboard",
         description: "This item is already in your moodboard",
@@ -96,9 +202,20 @@ const MyCollections: React.FC = () => {
       return;
     }
     
-    const updatedMoodboard = [...currentMoodboard, item];
-    localStorage.setItem("adminMoodboard", JSON.stringify(updatedMoodboard));
-    setMoodboardItems(updatedMoodboard);
+    const updatedMoodboards = moodboards.map(mb => 
+      mb.id === currentMoodboard.id 
+        ? { ...mb, items: [...mb.items, item] }
+        : mb
+    );
+    
+    setMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
+    
+    // Update current moodboard
+    setCurrentMoodboard({
+      ...currentMoodboard,
+      items: [...currentMoodboard.items, item]
+    });
     
     toast({
       title: "Added to moodboard",
@@ -106,20 +223,27 @@ const MyCollections: React.FC = () => {
     });
   };
   
-  // Function to remove an item from the moodboard
-  const removeFromMoodboard = (id: string) => {
-    if (!isAdmin) return;
+  const handleRemoveFromMoodboard = (id: string) => {
+    if (!currentMoodboard) return;
     
-    setMoodboardItems(prev => {
-      const newItems = prev.filter(item => item.id !== id);
-      localStorage.setItem("adminMoodboard", JSON.stringify(newItems));
-      
-      toast({
-        title: "Removed from Moodboard",
-        description: "Item has been removed from your moodboard.",
-      });
-      
-      return newItems;
+    const updatedMoodboards = moodboards.map(mb => 
+      mb.id === currentMoodboard.id 
+        ? { ...mb, items: mb.items.filter(item => item.id !== id) }
+        : mb
+    );
+    
+    setMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
+    
+    // Update current moodboard
+    setCurrentMoodboard({
+      ...currentMoodboard,
+      items: currentMoodboard.items.filter(item => item.id !== id)
+    });
+    
+    toast({
+      title: "Removed from moodboard",
+      description: "Item has been removed from your moodboard",
     });
   };
   
@@ -140,80 +264,213 @@ const MyCollections: React.FC = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <div className="container mx-auto py-12 px-4">
-        <div className="mb-8 flex justify-between items-center">
+        {currentMoodboard ? (
+          // Single moodboard view
           <div>
-            <h1 className="text-3xl font-playfair font-bold mb-2">Moodboards</h1>
-            <p className="text-gray-600">
-              Collections of inspiring hero sections
-            </p>
-          </div>
-          {isAdmin && (
-            <Button 
-              onClick={() => setShowSelectionGrid(!showSelectionGrid)}
-              className="flex items-center gap-2"
-              variant={showSelectionGrid ? "destructive" : "default"}
-            >
-              {showSelectionGrid ? "Close" : (
-                <>
-                  <PlusCircle size={16} />
-                  Add Items
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-        
-        {showSelectionGrid && isAdmin && (
-          <div className="mb-10">
-            <h2 className="text-xl font-medium mb-4">Available Items</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {availableItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className="relative cursor-pointer hover:scale-105 transition-transform border rounded-lg overflow-hidden"
-                  onClick={() => addToMoodboard(item)}
-                >
-                  <img 
-                    src={item.imageUrl} 
-                    alt={`Design by ${item.twitterUsername}`} 
-                    className="w-full h-24 object-cover"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/40 transition-opacity">
-                    <PlusCircle className="text-white" size={24} />
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleBackToList}>
+                  <X className="h-4 w-4 mr-1" /> Back to moodboards
+                </Button>
+                <h1 className="text-3xl font-playfair font-bold">{currentMoodboard.name}</h1>
+                {isAdmin && (
+                  <Button variant="ghost" size="sm" onClick={() => startEditMoodboard(currentMoodboard)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {isAdmin && (
+                  <div className="text-sm text-gray-500 flex items-center">
+                    {currentMoodboard.items.length}/10 items
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
+            
+            {currentMoodboard.items.length > 0 ? (
+              <GalleryGrid 
+                heroes={currentMoodboard.items.map(item => ({
+                  ...item,
+                  showRemoveOption: isAdmin,
+                  onRemove: handleRemoveFromMoodboard
+                }))}
+                columns={4}
+              />
+            ) : (
+              <div className="text-center py-16 bg-gray-50 rounded-lg">
+                <h2 className="text-2xl font-bold mb-2">No items in this moodboard</h2>
+                <p className="text-gray-600 mb-6">
+                  {isAdmin 
+                    ? "Add items to your moodboard from the gallery or from available items below."
+                    : "This moodboard is currently empty."}
+                </p>
+              </div>
+            )}
+            
+            {isAdmin && (
+              <div className="mt-12">
+                <h2 className="text-xl font-medium mb-4">Add items to moodboard</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  {availableItems.slice(0, 24).map((item) => (
+                    <div 
+                      key={item.id} 
+                      className="relative cursor-pointer hover:scale-105 transition-transform border rounded-lg overflow-hidden"
+                      onClick={() => handleAddToMoodboard(item)}
+                    >
+                      <img 
+                        src={item.imageUrl} 
+                        alt={`Design by ${item.twitterUsername}`} 
+                        className="w-full h-24 object-cover"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black/40 transition-opacity">
+                        <PlusCircle className="text-white" size={24} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-        
-        <>
-          {moodboardItems.length > 0 ? (
-            <>
-              <h2 className="text-xl font-medium mb-4">My Moodboard</h2>
-              <GalleryGrid heroes={moodboardItems.map(item => ({
-                ...item,
-                showRemoveOption: isAdmin,
-                onRemove: removeFromMoodboard
-              }))} />
-            </>
-          ) : (
-            <div className="text-center py-16">
-              <h2 className="text-2xl font-bold mb-2">No moodboard items yet</h2>
-              <p className="text-gray-600 mb-6">
-                {isAdmin 
-                  ? "Start saving hero sections from the gallery to create your moodboard."
-                  : "Check back soon for curated moodboards."}
-              </p>
+        ) : (
+          // Moodboards list view
+          <div>
+            <div className="mb-8 flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-playfair font-bold mb-2">Moodboards</h1>
+                <p className="text-gray-600">
+                  Collections of inspiring hero sections
+                </p>
+              </div>
               {isAdmin && (
-                <Button onClick={() => navigate("/")} variant="default">
-                  Explore Gallery
+                <Button onClick={() => setShowAddDialog(true)} className="flex items-center gap-2">
+                  <PlusCircle size={16} /> New Moodboard
                 </Button>
               )}
             </div>
-          )}
-        </>
+            
+            {moodboards.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {moodboards.map((moodboard) => (
+                  <div 
+                    key={moodboard.id} 
+                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <div className="p-4 border-b flex justify-between items-center">
+                      {editingMoodboard?.id === moodboard.id ? (
+                        <div className="flex-1 flex gap-2">
+                          <Input
+                            value={newMoodboardName}
+                            onChange={e => setNewMoodboardName(e.target.value)}
+                            autoFocus
+                            className="flex-1"
+                          />
+                          <Button size="sm" onClick={handleEditMoodboard}>
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingMoodboard(null)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <h2 className="text-xl font-medium">{moodboard.name}</h2>
+                      )}
+                      {isAdmin && editingMoodboard?.id !== moodboard.id && (
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => startEditMoodboard(moodboard)}>
+                            <Pencil size={16} className="text-gray-500" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDeleteMoodboard(moodboard.id)}
+                          >
+                            <Trash size={16} className="text-gray-500" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => handleOpenMoodboard(moodboard)}
+                    >
+                      {moodboard.items.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-1 p-1">
+                          {moodboard.items.slice(0, 4).map((item, i) => (
+                            <div key={`${moodboard.id}-item-${i}`} className="aspect-[16/9]">
+                              <img 
+                                src={item.imageUrl} 
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="h-40 flex items-center justify-center bg-gray-50">
+                          <p className="text-gray-400">No items</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="p-4 flex justify-between">
+                      <span className="text-sm text-gray-500">
+                        {moodboard.items.length} item{moodboard.items.length !== 1 ? 's' : ''}
+                      </span>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleOpenMoodboard(moodboard)}
+                      >
+                        View moodboard
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-gray-50 rounded-lg">
+                <h2 className="text-2xl font-bold mb-2">No moodboards yet</h2>
+                <p className="text-gray-600 mb-6">
+                  {isAdmin 
+                    ? "Start creating moodboards to organize your inspirations."
+                    : "Check back soon for curated moodboards."}
+                </p>
+                {isAdmin && (
+                  <Button onClick={() => setShowAddDialog(true)} variant="default">
+                    Create New Moodboard
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
+      
+      {/* Create Moodboard Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Moodboard</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="moodboard-name">Moodboard Name</Label>
+            <Input 
+              id="moodboard-name"
+              value={newMoodboardName}
+              onChange={e => setNewMoodboardName(e.target.value)}
+              placeholder="Enter a name for your moodboard"
+              className="mt-2"
+              autoFocus
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
+            <Button onClick={handleCreateMoodboard}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

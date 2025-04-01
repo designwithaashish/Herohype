@@ -66,6 +66,10 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes, columns = 4 }) => {
     <div 
       ref={gridRef} 
       className={`${getColumnClasses()} w-full opacity-0 transition-opacity duration-500`}
+      style={{
+        display: 'grid',
+        gridAutoRows: '1fr'
+      }}
     >
       {heroes.map(hero => (
         <div 

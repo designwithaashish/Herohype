@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import { StarIcon, HeartIcon, BookmarkIcon, XCircleIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -47,40 +48,51 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [moodboardDialogOpen, setMoodboardDialogOpen] = useState(false);
-  const [moodboardName, setMoodboardName] = useState("");
-  const [moodboards, setMoodboards] = useState<string[]>([]);
+  const [newMoodboardName, setNewMoodboardName] = useState("");
+  const [userMoodboards, setUserMoodboards] = useState<any[]>([]);
   const [selectedMoodboard, setSelectedMoodboard] = useState("");
   const newMoodboardInputRef = useRef<HTMLInputElement>(null);
   const isAdmin = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "{}").role === "admin" : false;
   
-  React.useEffect(() => {
-    if (!isAdmin) return;
+  useEffect(() => {
+    // Check if item is liked or saved
+    checkSavedStatus();
     
-    const moodboardsData = localStorage.getItem("moodboards");
-    if (moodboardsData) {
+    // Load user moodboards
+    loadUserMoodboards();
+  }, [id]);
+  
+  const checkSavedStatus = () => {
+    // Check if user has moodboards and if this item is in any of them
+    const userMoodboardsStr = localStorage.getItem("userMoodboards");
+    if (userMoodboardsStr) {
       try {
-        const parsedMoodboards = JSON.parse(moodboardsData);
-        if (Array.isArray(parsedMoodboards)) {
-          setMoodboards(parsedMoodboards);
+        const moodboards = JSON.parse(userMoodboardsStr);
+        for (const moodboard of moodboards) {
+          if (moodboard.items && moodboard.items.some((item: any) => item.id === id)) {
+            setIsSaved(true);
+            break;
+          }
         }
       } catch (error) {
-        console.error("Error parsing moodboards:", error);
+        console.error("Error checking saved status:", error);
       }
     }
-    
-    const checkIfSaved = () => {
-      const allMoodboardItems = JSON.parse(localStorage.getItem("allMoodboardItems") || "{}");
-      for (const moodboardKey in allMoodboardItems) {
-        const items = allMoodboardItems[moodboardKey];
-        if (items.some((item: any) => item.id === id)) {
-          setIsSaved(true);
-          break;
-        }
+  };
+  
+  const loadUserMoodboards = () => {
+    const userMoodboardsStr = localStorage.getItem("userMoodboards");
+    if (userMoodboardsStr) {
+      try {
+        const moodboards = JSON.parse(userMoodboardsStr);
+        setUserMoodboards(moodboards);
+      } catch (error) {
+        console.error("Error loading user moodboards:", error);
       }
-    };
-    
-    checkIfSaved();
-  }, [id, isAdmin]);
+    } else {
+      setUserMoodboards([]);
+    }
+  };
   
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -105,35 +117,17 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSaved(!isSaved);
-    setSaveCount(prev => isSaved ? prev - 1 : prev + 1);
     
-    const adminMoodboard = JSON.parse(localStorage.getItem("adminMoodboard") || "[]");
-    
-    if (!isSaved) {
-      const isAlreadyInMoodboard = adminMoodboard.some((item: any) => item.id === id);
-      if (!isAlreadyInMoodboard) {
-        const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-        const itemDetails = approvedSubmissions.find((item: any) => item.id === id);
-        
-        if (itemDetails) {
-          adminMoodboard.push(itemDetails);
-          localStorage.setItem("adminMoodboard", JSON.stringify(adminMoodboard));
-        }
-      }
+    // For non-admin users or simple save
+    if (!isAdmin) {
+      setIsSaved(!isSaved);
+      setSaveCount(prev => isSaved ? prev - 1 : prev + 1);
       
       toast({
-        title: "Saved to moodboard",
-        description: "This hero section has been saved to your moodboard",
+        title: isSaved ? "Removed from saved" : "Added to saved",
+        description: isSaved ? "Item removed from your saved items" : "Item added to your saved items",
       });
-    } else {
-      const updatedMoodboard = adminMoodboard.filter((item: any) => item.id !== id);
-      localStorage.setItem("adminMoodboard", JSON.stringify(updatedMoodboard));
-      
-      toast({
-        title: "Removed from moodboard",
-        description: "This hero section has been removed from your moodboard",
-      });
+      return;
     }
   };
 
@@ -152,53 +146,95 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   };
   
   const handleCreateNewMoodboard = () => {
-    if (!moodboardName.trim()) return;
+    if (!newMoodboardName.trim()) return;
     
-    const updatedMoodboards = [...moodboards, moodboardName];
-    setMoodboards(updatedMoodboards);
-    localStorage.setItem("moodboards", JSON.stringify(updatedMoodboards));
+    // Create new moodboard
+    const newMoodboard = {
+      id: `moodboard-${Date.now()}`,
+      name: newMoodboardName,
+      items: []
+    };
     
-    setSelectedMoodboard(moodboardName);
-    setMoodboardName("");
+    const updatedMoodboards = [...userMoodboards, newMoodboard];
+    setUserMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
     
-    if (newMoodboardInputRef.current) {
-      newMoodboardInputRef.current.focus();
-    }
+    // Select the newly created moodboard
+    setSelectedMoodboard(newMoodboard.id);
+    setNewMoodboardName("");
+    
+    toast({
+      title: "Moodboard created",
+      description: `New moodboard "${newMoodboardName}" created`,
+    });
   };
   
   const handleSaveToMoodboard = () => {
-    const moodboardKey = selectedMoodboard || "Default Moodboard";
+    if (!selectedMoodboard) {
+      toast({
+        title: "No moodboard selected",
+        description: "Please select or create a moodboard first",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    const allMoodboardItems = JSON.parse(localStorage.getItem("allMoodboardItems") || "{}");
-    const currentMoodboardItems = allMoodboardItems[moodboardKey] || [];
+    // Find the selected moodboard
+    const moodboard = userMoodboards.find(mb => mb.id === selectedMoodboard);
+    if (!moodboard) return;
     
-    const isAlreadyInMoodboard = currentMoodboardItems.some((item: any) => item.id === id);
+    // Check if moodboard already has 10 items
+    if (moodboard.items && moodboard.items.length >= 10) {
+      toast({
+        title: "Moodboard full",
+        description: "A moodboard can contain a maximum of 10 items",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    if (!isAlreadyInMoodboard) {
-      const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-      const itemDetails = approvedSubmissions.find((item: any) => item.id === id);
-      
-      if (itemDetails) {
-        const updatedMoodboardItems = [...currentMoodboardItems, itemDetails];
-        allMoodboardItems[moodboardKey] = updatedMoodboardItems;
-        localStorage.setItem("allMoodboardItems", JSON.stringify(allMoodboardItems));
-        
-        setIsSaved(true);
-        setSaveCount(prev => prev + 1);
-        
-        toast({
-          title: `Saved to "${moodboardKey}"`,
-          description: "This hero section has been added to your moodboard",
-        });
+    // Check if item is already in moodboard
+    if (moodboard.items && moodboard.items.some((item: any) => item.id === id)) {
+      toast({
+        title: "Already in moodboard",
+        description: `This item is already in "${moodboard.name}"`,
+      });
+      return;
+    }
+    
+    // Get the item data from approved submissions
+    const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+    const itemData = approvedSubmissions.find((item: any) => item.id === id);
+    
+    if (!itemData) {
+      console.error("Item not found in approved submissions");
+      return;
+    }
+    
+    // Add item to moodboard
+    const updatedMoodboards = userMoodboards.map(mb => {
+      if (mb.id === selectedMoodboard) {
+        return {
+          ...mb,
+          items: [...(mb.items || []), itemData]
+        };
       }
-    }
+      return mb;
+    });
     
-    if (!moodboards.includes(moodboardKey)) {
-      const updatedMoodboards = [...moodboards, moodboardKey];
-      setMoodboards(updatedMoodboards);
-      localStorage.setItem("moodboards", JSON.stringify(updatedMoodboards));
-    }
+    setUserMoodboards(updatedMoodboards);
+    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
     
+    // Update saved state
+    setIsSaved(true);
+    setSaveCount(prev => prev + 1);
+    
+    toast({
+      title: "Added to moodboard",
+      description: `Item added to "${moodboard.name}"`,
+    });
+    
+    // Close dialog
     setMoodboardDialogOpen(false);
   };
 
@@ -270,6 +306,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         </div>
       </div>
       
+      {/* Save to Moodboard Dialog */}
       <Dialog open={moodboardDialogOpen} onOpenChange={setMoodboardDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -280,19 +317,19 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
           </DialogHeader>
           
           <div className="space-y-4 py-4">
-            {moodboards.length > 0 && (
+            {userMoodboards.length > 0 && (
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Your Moodboards</h4>
                 <div className="flex flex-wrap gap-2">
-                  {moodboards.map((name) => (
+                  {userMoodboards.map((mb) => (
                     <Button
-                      key={name}
-                      variant={selectedMoodboard === name ? "default" : "outline"}
+                      key={mb.id}
+                      variant={selectedMoodboard === mb.id ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedMoodboard(name)}
+                      onClick={() => setSelectedMoodboard(mb.id)}
                       className="text-xs"
                     >
-                      {name}
+                      {mb.name} ({mb.items?.length || 0}/10)
                     </Button>
                   ))}
                 </div>
@@ -305,8 +342,8 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
                 <Input
                   ref={newMoodboardInputRef}
                   placeholder="Moodboard name"
-                  value={moodboardName}
-                  onChange={(e) => setMoodboardName(e.target.value)}
+                  value={newMoodboardName}
+                  onChange={(e) => setNewMoodboardName(e.target.value)}
                   className="flex-1"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -325,7 +362,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
             <Button variant="outline" onClick={() => setMoodboardDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveToMoodboard}>
+            <Button onClick={handleSaveToMoodboard} disabled={!selectedMoodboard}>
               Save
             </Button>
           </DialogFooter>
