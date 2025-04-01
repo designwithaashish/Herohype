@@ -29,6 +29,7 @@ const HerohypeLandingPage: React.FC = () => {
             activeFilters={activeFilters}
             sortOption={sortOption}
             columns={4}
+            fullWidth={true}
           />
         </div>
       </div>

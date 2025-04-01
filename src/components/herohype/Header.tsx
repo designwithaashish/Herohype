@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { generateRandomAvatarColor } from "@/hooks/useHeroGallery";
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -11,6 +12,7 @@ const Header: React.FC = () => {
   const [username, setUsername] = useState("");
   const [userInitials, setUserInitials] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [avatarColor, setAvatarColor] = useState<string>("bg-gray-200");
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -41,7 +43,12 @@ const Header: React.FC = () => {
           }
           
           setAvatarUrl(avatarImage);
-          console.log("User avatar URL:", avatarImage);
+          
+          // Only set a random color if we don't have one already
+          if (avatarColor === "bg-gray-200") {
+            setAvatarColor(generateRandomAvatarColor());
+          }
+          
         } catch (error) {
           console.error("Error parsing user data:", error);
           setIsLoggedIn(false);
@@ -52,6 +59,7 @@ const Header: React.FC = () => {
         setUsername("");
         setUserInitials("");
         setAvatarUrl("");
+        setAvatarColor("bg-gray-200");
       }
     };
     
@@ -109,7 +117,7 @@ const Header: React.FC = () => {
                   {avatarUrl && avatarUrl !== "" ? (
                     <AvatarImage src={avatarUrl} alt={username} />
                   ) : null}
-                  <AvatarFallback className="bg-gray-200 text-gray-700">
+                  <AvatarFallback className={`text-white ${avatarColor}`}>
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>

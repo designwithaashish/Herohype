@@ -91,7 +91,7 @@ const Curated: React.FC = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <div className="container mx-auto py-12 px-4">
+      <div className="container-fluid mx-auto py-12 px-4">
         <div className="mb-8">
           <h1 className="text-3xl font-playfair font-bold mb-2">Curated Picks</h1>
           <p className="text-gray-600">
@@ -113,6 +113,7 @@ const Curated: React.FC = () => {
                   onToggleCurated: handleToggleCurated
                 }))}
                 columns={5}
+                fullWidth={true}
               />
             ) : (
               <div className="text-center py-16">

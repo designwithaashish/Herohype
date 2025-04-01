@@ -6,9 +6,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface GalleryGridProps {
   heroes: HeroCardProps[];
   columns?: number;
+  fullWidth?: boolean;
 }
 
-const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes, columns = 4 }) => {
+const GalleryGrid: React.FC<GalleryGridProps> = ({ 
+  heroes, 
+  columns = 4,
+  fullWidth = false 
+}) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   
@@ -51,30 +56,26 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes, columns = 4 }) => {
   
   // Generate column classes based on the columns prop
   const getColumnClasses = () => {
-    if (isMobile) return 'grid grid-cols-1 gap-2';
+    if (isMobile) return 'columns-1 gap-2';
     
     switch (columns) {
-      case 2: return 'grid grid-cols-1 sm:grid-cols-2 gap-2';
-      case 3: return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2';
-      case 5: return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2';
+      case 2: return 'columns-1 sm:columns-2 gap-2';
+      case 3: return 'columns-1 sm:columns-2 md:columns-3 gap-2';
+      case 5: return 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-2';
       case 4:
-      default: return 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2';
+      default: return 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-2';
     }
   };
   
   return (
     <div 
       ref={gridRef} 
-      className={`${getColumnClasses()} w-full opacity-0 transition-opacity duration-500`}
-      style={{
-        display: 'grid',
-        gridAutoRows: '1fr'
-      }}
+      className={`${getColumnClasses()} ${fullWidth ? 'w-full' : 'w-full'} opacity-0 transition-opacity duration-500 space-y-2`}
     >
       {heroes.map(hero => (
         <div 
           key={`hero-${hero.id}`} 
-          className="mb-2"
+          className="mb-2 break-inside-avoid-column"
         >
           <HeroCard {...hero} />
         </div>

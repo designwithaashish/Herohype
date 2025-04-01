@@ -296,6 +296,7 @@ const MyCollections: React.FC = () => {
                   onRemove: handleRemoveFromMoodboard
                 }))}
                 columns={4}
+                fullWidth={true}
               />
             ) : (
               <div className="text-center py-16 bg-gray-50 rounded-lg">
@@ -311,11 +312,11 @@ const MyCollections: React.FC = () => {
             {isAdmin && (
               <div className="mt-12">
                 <h2 className="text-xl font-medium mb-4">Add items to moodboard</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="columns-2 md:columns-4 lg:columns-6 gap-4 space-y-2">
                   {availableItems.slice(0, 24).map((item) => (
                     <div 
                       key={item.id} 
-                      className="relative cursor-pointer hover:scale-105 transition-transform border rounded-lg overflow-hidden"
+                      className="relative cursor-pointer hover:scale-105 transition-transform border rounded-lg overflow-hidden mb-2 break-inside-avoid-column"
                       onClick={() => handleAddToMoodboard(item)}
                     >
                       <img 
@@ -350,11 +351,11 @@ const MyCollections: React.FC = () => {
             </div>
             
             {moodboards.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
                 {moodboards.map((moodboard) => (
                   <div 
                     key={moodboard.id} 
-                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                    className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow mb-6 break-inside-avoid-column"
                   >
                     <div className="p-4 border-b flex justify-between items-center">
                       {editingMoodboard?.id === moodboard.id ? (
