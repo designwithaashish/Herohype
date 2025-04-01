@@ -41,8 +41,8 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = ({ pendingSubmissions, app
           .sort((a, b) => new Date(b.createdAt || b.submissionDate).getTime() - new Date(a.createdAt || a.submissionDate).getTime())
           .map((submission) => (
             <Card key={submission.id} className="overflow-hidden">
-              <div className="flex flex-col sm:flex-row">
-                <div className="w-full sm:w-48 h-40 sm:h-auto bg-gray-100 relative flex-shrink-0">
+              <div className="flex flex-row">
+                <div className="w-48 h-40 bg-gray-100 relative flex-shrink-0">
                   <img 
                     src={submission.imageUrl} 
                     alt={`Submission by ${submission.twitterUsername}`}

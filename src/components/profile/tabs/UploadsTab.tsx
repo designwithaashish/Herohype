@@ -1,7 +1,6 @@
 
 import React from "react";
-import GalleryGrid from "@/components/gallery/GalleryGrid";
-import { HeroCardProps } from "@/components/gallery/HeroCard";
+import HeroCard, { HeroCardProps } from "@/components/gallery/HeroCard";
 
 interface UploadsTabProps {
   approvedSubmissions: any[];
@@ -30,6 +29,7 @@ const UploadsTab: React.FC<UploadsTabProps> = ({ approvedSubmissions }) => {
     categories: hero.categories || [],
     likes: hero.likes || 0,
     saves: hero.saves || 0,
+    isCurated: hero.isCurated || false,
     status: "approved" as "approved" | "pending" | "rejected",
     submissionDate: hero.submissionDate || hero.createdAt
   }));
@@ -37,7 +37,11 @@ const UploadsTab: React.FC<UploadsTabProps> = ({ approvedSubmissions }) => {
   return (
     <div>
       <h2 className="text-lg font-medium mb-6">Your Approved Uploads</h2>
-      <GalleryGrid heroes={heroCards} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {heroCards.map(hero => (
+          <HeroCard key={hero.id} {...hero} />
+        ))}
+      </div>
     </div>
   );
 };

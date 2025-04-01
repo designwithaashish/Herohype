@@ -57,20 +57,16 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   const [isStarred, setIsStarred] = useState(isCurated || false);
   
   useEffect(() => {
-    // Check if item is liked or saved
     checkSavedStatus();
     
-    // Load user moodboards
     if (isAdmin) {
       loadUserMoodboards();
     }
     
-    // Set initial starred state
     setIsStarred(isCurated || false);
   }, [id, isCurated]);
   
   const checkSavedStatus = () => {
-    // Check if user has collections and if this item is in any of them
     const userCollectionsStr = localStorage.getItem("userCollections");
     if (userCollectionsStr) {
       try {
@@ -126,11 +122,13 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     }
     
     if (isAdmin) {
-      // Admins can add to moodboards
       setMoodboardDialogOpen(true);
     } else {
-      // Regular users can only add to their collection
-      addToUserCollection();
+      if (isSaved) {
+        removeFromUserCollection();
+      } else {
+        addToUserCollection();
+      }
     }
   };
 
@@ -146,7 +144,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       }
     }
 
-    // Get the item data from approved submissions
     const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
     const itemData = approvedSubmissions.find((item: any) => item.id === id);
     
@@ -155,10 +152,8 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
 
-    // Check if user has a default collection
     let defaultCollection = collections.find((c: any) => c.name === "My Collection");
     
-    // If no default collection, create one
     if (!defaultCollection) {
       defaultCollection = {
         id: `collection-${Date.now()}`,
@@ -168,7 +163,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       collections.push(defaultCollection);
     }
 
-    // Check if item is already in the collection
     if (defaultCollection.items.some((item: any) => item.id === id)) {
       toast({
         title: "Already saved",
@@ -177,11 +171,9 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
 
-    // Add item to collection
     defaultCollection.items.push(itemData);
     localStorage.setItem("userCollections", JSON.stringify(collections));
     
-    // Update saved state
     setIsSaved(true);
     setSaveCount(prev => prev + 1);
     
@@ -189,6 +181,41 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       title: "Added to collection",
       description: "Item added to your collection",
     });
+  };
+
+  const removeFromUserCollection = () => {
+    const userCollectionsStr = localStorage.getItem("userCollections");
+    if (!userCollectionsStr) return;
+    
+    try {
+      const collections = JSON.parse(userCollectionsStr);
+      let itemRemoved = false;
+      
+      const updatedCollections = collections.map((collection: any) => {
+        if (collection.items) {
+          const updatedItems = collection.items.filter((item: any) => item.id !== id);
+          if (updatedItems.length !== collection.items.length) {
+            itemRemoved = true;
+          }
+          return { ...collection, items: updatedItems };
+        }
+        return collection;
+      });
+      
+      localStorage.setItem("userCollections", JSON.stringify(updatedCollections));
+      
+      if (itemRemoved) {
+        setIsSaved(false);
+        setSaveCount(prev => Math.max(0, prev - 1));
+        
+        toast({
+          title: "Removed from collection",
+          description: "Item removed from your collection",
+        });
+      }
+    } catch (error) {
+      console.error("Error removing item from collection:", error);
+    }
   };
   
   const handleStar = (e: React.MouseEvent) => {
@@ -198,7 +225,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     const newStarredState = !isStarred;
     setIsStarred(newStarredState);
     
-    // Update approved submissions
     const approvedSubmissions = localStorage.getItem("approvedSubmissions");
     if (approvedSubmissions) {
       const items = JSON.parse(approvedSubmissions);
@@ -237,7 +263,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   const handleCreateNewMoodboard = () => {
     if (!newMoodboardName.trim()) return;
     
-    // Create new moodboard
     const newMoodboard = {
       id: `moodboard-${Date.now()}`,
       name: newMoodboardName,
@@ -248,7 +273,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     setUserMoodboards(updatedMoodboards);
     localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
     
-    // Select the newly created moodboard
     setSelectedMoodboard(newMoodboard.id);
     setNewMoodboardName("");
     
@@ -268,11 +292,9 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
     
-    // Find the selected moodboard
     const moodboard = userMoodboards.find(mb => mb.id === selectedMoodboard);
     if (!moodboard) return;
     
-    // Check if moodboard already has 10 items
     if (moodboard.items && moodboard.items.length >= 10) {
       toast({
         title: "Moodboard full",
@@ -282,7 +304,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
     
-    // Check if item is already in moodboard
     if (moodboard.items && moodboard.items.some((item: any) => item.id === id)) {
       toast({
         title: "Already in moodboard",
@@ -291,7 +312,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
     
-    // Get the item data from approved submissions
     const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
     const itemData = approvedSubmissions.find((item: any) => item.id === id);
     
@@ -300,7 +320,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
     
-    // Add item to moodboard
     const updatedMoodboards = userMoodboards.map(mb => {
       if (mb.id === selectedMoodboard) {
         return {
@@ -314,7 +333,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     setUserMoodboards(updatedMoodboards);
     localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
     
-    // Update saved state
     setIsSaved(true);
     setSaveCount(prev => prev + 1);
     
@@ -323,7 +341,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       description: `Item added to "${moodboard.name}"`,
     });
     
-    // Close dialog
     setMoodboardDialogOpen(false);
   };
 
@@ -404,7 +421,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         </div>
       </div>
       
-      {/* Admin Only: Save to Moodboard Dialog */}
       <Dialog open={moodboardDialogOpen} onOpenChange={setMoodboardDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

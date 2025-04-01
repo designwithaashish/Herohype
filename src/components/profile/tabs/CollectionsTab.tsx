@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from "react";
-import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -60,17 +59,9 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
             <div className="overflow-hidden">
               <img
                 src={hero.imageUrl}
-                alt={`Hero design by ${hero.twitterUsername}`}
+                alt="Saved hero section"
                 className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-110"
               />
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between items-center">
-                <h3 className="font-medium">@{hero.twitterUsername}</h3>
-                <div className="text-sm text-gray-500">
-                  {hero.categories?.slice(0, 2).join(", ")}
-                </div>
-              </div>
             </div>
           </div>
         ))}
