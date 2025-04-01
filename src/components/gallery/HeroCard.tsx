@@ -1,6 +1,7 @@
 
 import React from "react";
-import { StarIcon, HeartIcon, BookmarkIcon } from "lucide-react";
+import { StarIcon, HeartIcon, BookmarkIcon, XCircleIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export interface HeroCardProps {
   id: string;
@@ -17,15 +18,53 @@ export interface HeroCardProps {
   isFeatured?: boolean;
 }
 
-const HeroCard: React.FC<HeroCardProps> = ({
+interface HeroCardComponentProps extends HeroCardProps {
+  showRemoveOption?: boolean;
+  showCuratedControls?: boolean;
+  onRemove?: (id: string) => void;
+  onToggleCurated?: (id: string, isCurated: boolean) => void;
+}
+
+const HeroCard: React.FC<HeroCardComponentProps> = ({
+  id,
   imageUrl,
   twitterUsername,
   categories = [],
   likes = 0,
   saves = 0,
   isCurated,
-  isFeatured
+  isFeatured,
+  showRemoveOption = false,
+  showCuratedControls = false,
+  onRemove,
+  onToggleCurated
 }) => {
+  const { toast } = useToast();
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove) {
+      onRemove(id);
+      toast({
+        title: "Item removed",
+        description: "The item has been removed successfully.",
+      });
+    }
+  };
+
+  const handleToggleCurated = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleCurated) {
+      onToggleCurated(id, !isCurated);
+      toast({
+        title: isCurated ? "Removed from curated" : "Added to curated",
+        description: isCurated 
+          ? "The item has been removed from curated collection." 
+          : "The item has been added to curated collection.",
+      });
+    }
+  };
+
   return (
     <div className="overflow-hidden rounded-lg transition-all duration-200 border border-gray-100 hover:shadow-md group">
       <div className="relative">
@@ -65,6 +104,25 @@ const HeroCard: React.FC<HeroCardProps> = ({
                   <span>{saves}</span>
                 </div>
               </div>
+              
+              {/* Admin controls */}
+              {showCuratedControls && (
+                <button 
+                  onClick={handleToggleCurated}
+                  className={`p-1 rounded-full ${isCurated ? 'bg-yellow-400 text-black' : 'bg-gray-200 text-gray-700'}`}
+                >
+                  <StarIcon className="w-4 h-4" />
+                </button>
+              )}
+              
+              {showRemoveOption && (
+                <button 
+                  onClick={handleRemove}
+                  className="p-1 rounded-full bg-red-500 text-white"
+                >
+                  <XCircleIcon className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

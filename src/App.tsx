@@ -15,6 +15,7 @@ import MyCollections from "./pages/MyCollections";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Curated from "./pages/Curated";
+import About from "./pages/About";
 
 // Create a new QueryClient instance
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App: React.FC = () => {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/collections" element={<MyCollections />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/about" element={<About />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

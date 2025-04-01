@@ -23,18 +23,8 @@ const MyCollections: React.FC = () => {
       setIsLoggedIn(true);
       setIsAdmin(user.role === "admin");
       
-      // If admin, load moodboard items
-      if (user.role === "admin") {
-        loadMoodboardItems();
-      } else {
-        // Non-admin users don't have access to moodboards yet
-        toast({
-          title: "Access restricted",
-          description: "Moodboards are currently only available to admin users.",
-        });
-        
-        setTimeout(() => navigate("/"), 2000);
-      }
+      // Load moodboard items
+      loadMoodboardItems();
     } else {
       // Not logged in, redirect to login
       toast({
@@ -56,51 +46,44 @@ const MyCollections: React.FC = () => {
       const moodboardData = JSON.parse(moodboardDataStr);
       setMoodboardItems(moodboardData);
     } else {
-      // For now, load sample items for the admin moodboard
-      const sampleItems: HeroCardProps[] = [
-        {
-          id: "mood-item-1",
-          imageUrl: "/lovable-uploads/6c06586e-9322-42a0-8039-6d24db85109f.png",
-          twitterUsername: "mood_curator",
-          categories: ["Minimal", "Dark"],
-          likes: 45,
-          saves: 30,
-        },
-        {
-          id: "mood-item-2",
-          imageUrl: "/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png",
-          twitterUsername: "designinspo",
-          categories: ["Light", "Gradient"],
-          likes: 32,
-          saves: 21,
-        },
-        {
-          id: "mood-item-3",
-          imageUrl: "/lovable-uploads/22e3d4c1-cb57-47eb-a8b8-fb1a672b939f.png",
-          twitterUsername: "heromaker",
-          categories: ["Typography", "Bento"],
-          likes: 56,
-          saves: 38,
-        }
-      ];
-      
-      // Save to localStorage for future use
-      localStorage.setItem("adminMoodboard", JSON.stringify(sampleItems));
-      setMoodboardItems(sampleItems);
+      // Initialize empty moodboard
+      setMoodboardItems([]);
+      localStorage.setItem("adminMoodboard", JSON.stringify([]));
     }
   };
   
-  // Function to add an item to the moodboard (would be used from admin panel)
+  // Function to add an item to the moodboard
   const addToMoodboard = (item: HeroCardProps) => {
     setMoodboardItems(prev => {
+      // Check if item already exists
+      if (prev.some(existing => existing.id === item.id)) {
+        toast({
+          title: "Already in Moodboard",
+          description: "This item is already in your moodboard.",
+        });
+        return prev;
+      }
+      
       const newItems = [...prev, item];
       localStorage.setItem("adminMoodboard", JSON.stringify(newItems));
+      
+      toast({
+        title: "Added to Moodboard",
+        description: "Item has been added to your moodboard.",
+      });
+      
       return newItems;
     });
+  };
+  
+  // Function to remove an item from the moodboard
+  const removeFromMoodboard = (id: string) => {
+    if (!isAdmin) return;
     
-    toast({
-      title: "Added to Moodboard",
-      description: "Item has been added to your moodboard.",
+    setMoodboardItems(prev => {
+      const newItems = prev.filter(item => item.id !== id);
+      localStorage.setItem("adminMoodboard", JSON.stringify(newItems));
+      return newItems;
     });
   };
   
@@ -122,25 +105,33 @@ const MyCollections: React.FC = () => {
       <Header />
       <div className="container mx-auto py-12 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-playfair font-bold mb-2">Admin Moodboards</h1>
+          <h1 className="text-3xl font-playfair font-bold mb-2">Moodboards</h1>
           <p className="text-gray-600">
-            Curated collections of inspiring hero sections by our team
+            Collections of inspiring hero sections
           </p>
         </div>
         
-        {isAdmin && (
+        {isLoggedIn && (
           <>
             {moodboardItems.length > 0 ? (
-              <GalleryGrid heroes={moodboardItems} />
+              <GalleryGrid heroes={moodboardItems.map(item => ({
+                ...item,
+                showRemoveOption: isAdmin,
+                onRemove: removeFromMoodboard
+              }))} />
             ) : (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-bold mb-2">No moodboard items yet</h2>
                 <p className="text-gray-600 mb-6">
-                  Start saving hero sections from the gallery to create your moodboard.
+                  {isAdmin 
+                    ? "Start saving hero sections from the gallery to create your moodboard."
+                    : "Check back soon for curated moodboards."}
                 </p>
-                <Button onClick={() => navigate("/")} variant="default">
-                  Explore Gallery
-                </Button>
+                {isAdmin && (
+                  <Button onClick={() => navigate("/")} variant="default">
+                    Explore Gallery
+                  </Button>
+                )}
               </div>
             )}
           </>

@@ -9,6 +9,7 @@ const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [username, setUsername] = useState("");
+  const [userInitials, setUserInitials] = useState("");
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -19,11 +20,14 @@ const Header: React.FC = () => {
         const user = JSON.parse(userStr);
         setIsLoggedIn(true);
         setIsAdmin(user.role === "admin");
-        setUsername(user.username || user.email?.split('@')[0] || "user");
+        const displayName = user.username || user.email?.split('@')[0] || "user";
+        setUsername(displayName);
+        setUserInitials(displayName.slice(0, 2).toUpperCase());
       } else {
         setIsLoggedIn(false);
         setIsAdmin(false);
         setUsername("");
+        setUserInitials("");
       }
     };
     
@@ -41,7 +45,7 @@ const Header: React.FC = () => {
   return (
     <header className="bg-white flex h-[80px] w-full items-center gap-[40px] text-black font-normal justify-between flex-wrap px-6 md:px-10 lg:px-20 py-5 max-md:max-w-full border-b border-gray-100">
       <Link to="/" className="flex items-center text-black whitespace-nowrap text-center justify-center my-auto">
-        <div className="p-2 flex items-center rounded-md">
+        <div className="p-2 flex items-center">
           <img 
             src="/lovable-uploads/ba7b2db6-c008-44dc-86ca-5066aaa75abe.png" 
             alt="herohype" 
@@ -58,7 +62,7 @@ const Header: React.FC = () => {
         <Link to="/collections" className="hover:text-gray-600 transition-colors font-satoshi">
           Moodboards
         </Link>
-        <Link to="#" className="hover:text-gray-600 transition-colors font-satoshi">
+        <Link to="/about" className="hover:text-gray-600 transition-colors font-satoshi">
           About
         </Link>
         {isAdmin && (
@@ -79,7 +83,7 @@ const Header: React.FC = () => {
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg" />
                   <AvatarFallback className="bg-gray-200 text-gray-700">
-                    {username.slice(0, 2).toUpperCase()}
+                    {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-sm font-medium">{username}</span>
