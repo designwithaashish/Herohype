@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef } from "react";
 import HeroCard, { HeroCardProps } from "@/components/gallery/HeroCard";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GalleryGridProps {
   heroes: HeroCardProps[];
@@ -8,6 +9,7 @@ interface GalleryGridProps {
 
 const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
   const gridRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     const grid = gridRef.current;
@@ -49,7 +51,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
   return (
     <div 
       ref={gridRef} 
-      className="masonry-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 w-full opacity-0 transition-opacity duration-500"
+      className={`masonry-grid ${isMobile ? 'columns-1 gap-2' : 'columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3'} w-full opacity-0 transition-opacity duration-500`}
     >
       {heroes.map(hero => (
         <div 

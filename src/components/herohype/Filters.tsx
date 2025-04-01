@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Select, 
@@ -9,6 +9,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Filter categories
 const categories = [
@@ -29,6 +30,7 @@ const Filters: React.FC<FiltersProps> = ({
   setSortOption 
 }) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const toggleFilter = (category: string) => {
     if (category === "All") {
@@ -49,11 +51,11 @@ const Filters: React.FC<FiltersProps> = ({
   };
 
   return (
-    <div className="w-full px-6 lg:px-20 py-5">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
+    <div className="w-full max-w-7xl mx-auto px-4 py-5">
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-center items-center gap-4`}>
+        <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} items-center justify-center gap-4`}>
           <Select value={sortOption} onValueChange={setSortOption}>
-            <SelectTrigger className="w-[180px] bg-[rgba(239,239,239,1)] rounded-[32px]">
+            <SelectTrigger className={`${isMobile ? 'w-full' : 'w-[180px]'} bg-[rgba(239,239,239,1)] rounded-[32px]`}>
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -63,7 +65,7 @@ const Filters: React.FC<FiltersProps> = ({
             </SelectContent>
           </Select>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
             <Button
               onClick={() => setActiveFilters([])}
               variant={activeFilters.length === 0 ? "default" : "outline"}
@@ -87,7 +89,7 @@ const Filters: React.FC<FiltersProps> = ({
         
         <Button 
           onClick={handleSubmitClick}
-          className="self-stretch bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-5 py-3 rounded-lg hover:bg-[rgba(40,40,40,1)] transition-colors"
+          className={`${isMobile ? 'w-full mt-4' : ''} bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-5 py-3 rounded-lg hover:bg-[rgba(40,40,40,1)] transition-colors`}
         >
           Submit Yours
         </Button>

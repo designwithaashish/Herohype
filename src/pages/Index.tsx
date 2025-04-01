@@ -18,8 +18,10 @@ const Index: React.FC = () => {
         categories: ["Minimal", "Dark"],
         likes: 12,
         saves: 5,
-        status: "approved",
-        submissionDate: new Date().toISOString()
+        status: "approved" as "approved" | "pending" | "rejected",
+        submissionDate: new Date().toISOString(),
+        userId: "demo-user-id",  // Add userId to the demo item
+        submittedBy: "demo-user-id"  // Add submittedBy to the demo item
       };
       
       localStorage.setItem("approvedSubmissions", JSON.stringify([demoItem]));

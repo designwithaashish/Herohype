@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Heart, Bookmark } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 export interface HeroCardProps {
@@ -40,18 +39,28 @@ const HeroCard: React.FC<HeroCardProps> = ({
   }, [id]);
 
   useEffect(() => {
-    const likedHeroes = JSON.parse(localStorage.getItem("likedHeroes") || "[]");
-    const savedHeroes = JSON.parse(localStorage.getItem("savedHeroes") || "[]");
+    const userStr = localStorage.getItem("user");
+    if (!userStr) return;
+    
+    const user = JSON.parse(userStr);
+    const userId = user.id;
+    
+    // Use user-specific keys for likes and saves
+    const likedHeroesKey = `likedHeroes-${userId}`;
+    const savedHeroesKey = `savedHeroes-${userId}`;
+    
+    const likedHeroes = JSON.parse(localStorage.getItem(likedHeroesKey) || "[]");
+    const savedHeroes = JSON.parse(localStorage.getItem(savedHeroesKey) || "[]");
     
     setIsLiked(likedHeroes.includes(id));
-    setIsSaved(savedHeroes.some((heroId: string) => heroId === id));
+    setIsSaved(savedHeroes.includes(id));
   }, [id]);
 
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    const user = localStorage.getItem("user");
-    if (!user) {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
       toast({
         title: "Authentication required",
         description: "Please log in to like hero sections",
@@ -60,11 +69,15 @@ const HeroCard: React.FC<HeroCardProps> = ({
       return;
     }
     
-    const likedHeroes = JSON.parse(localStorage.getItem("likedHeroes") || "[]");
+    const user = JSON.parse(userStr);
+    const userId = user.id;
+    const likedHeroesKey = `likedHeroes-${userId}`;
+    
+    const likedHeroes = JSON.parse(localStorage.getItem(likedHeroesKey) || "[]");
     
     if (isLiked) {
       const updatedLikes = likedHeroes.filter((heroId: string) => heroId !== id);
-      localStorage.setItem("likedHeroes", JSON.stringify(updatedLikes));
+      localStorage.setItem(likedHeroesKey, JSON.stringify(updatedLikes));
       setIsLiked(false);
       setLikeCount(prev => prev - 1);
       
@@ -80,7 +93,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
       
     } else {
       likedHeroes.push(id);
-      localStorage.setItem("likedHeroes", JSON.stringify(likedHeroes));
+      localStorage.setItem(likedHeroesKey, JSON.stringify(likedHeroes));
       setIsLiked(true);
       setLikeCount(prev => prev + 1);
       
@@ -104,8 +117,8 @@ const HeroCard: React.FC<HeroCardProps> = ({
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    const user = localStorage.getItem("user");
-    if (!user) {
+    const userStr = localStorage.getItem("user");
+    if (!userStr) {
       toast({
         title: "Authentication required",
         description: "Please log in to save hero sections to your collection",
@@ -114,11 +127,15 @@ const HeroCard: React.FC<HeroCardProps> = ({
       return;
     }
     
-    const savedHeroes = JSON.parse(localStorage.getItem("savedHeroes") || "[]");
+    const user = JSON.parse(userStr);
+    const userId = user.id;
+    const savedHeroesKey = `savedHeroes-${userId}`;
+    
+    const savedHeroes = JSON.parse(localStorage.getItem(savedHeroesKey) || "[]");
     
     if (isSaved) {
       const updatedSaves = savedHeroes.filter((heroId: string) => heroId !== id);
-      localStorage.setItem("savedHeroes", JSON.stringify(updatedSaves));
+      localStorage.setItem(savedHeroesKey, JSON.stringify(updatedSaves));
       setIsSaved(false);
       setSaveCount(prev => prev - 1);
       
@@ -134,7 +151,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
       
     } else {
       savedHeroes.push(id);
-      localStorage.setItem("savedHeroes", JSON.stringify(savedHeroes));
+      localStorage.setItem(savedHeroesKey, JSON.stringify(savedHeroes));
       setIsSaved(true);
       setSaveCount(prev => prev + 1);
       

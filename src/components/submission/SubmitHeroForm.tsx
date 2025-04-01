@@ -97,7 +97,7 @@ const SubmitHeroForm: React.FC = () => {
         description,
         categories: selectedCategories,
         createdAt: new Date().toISOString(),
-        status: "pending",
+        status: "pending" as "pending" | "approved" | "rejected", // Type casting to avoid TypeScript errors
         // Add user information
         userId: user.id,
         userEmail: user.email,
@@ -134,6 +134,7 @@ const SubmitHeroForm: React.FC = () => {
         description: "Please try again later",
         variant: "destructive",
       });
+      console.error("Submission error:", error);
     } finally {
       setIsLoading(false);
     }

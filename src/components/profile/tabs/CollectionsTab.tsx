@@ -14,10 +14,7 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
   const [heroCards, setHeroCards] = useState<HeroCardProps[]>([]);
   
   useEffect(() => {
-    // Get the approved submissions to find saved hero data
-    const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-    
-    // Filter and map the saved heroes
+    // Map the saved heroes
     if (savedHeroes && savedHeroes.length > 0) {
       const savedHeroCards = savedHeroes.map((hero: any) => ({
         id: hero.id,
