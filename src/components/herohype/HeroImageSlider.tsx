@@ -4,7 +4,6 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 
 const HeroImageSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [prevIndex, setPrevIndex] = useState(0);
   const [sliderImages, setSliderImages] = useState<string[]>([]);
   
   useEffect(() => {
@@ -19,14 +18,23 @@ const HeroImageSlider: React.FC = () => {
       
       // If we have at least one image, set it. Otherwise use a placeholder
       if (imageUrls.length > 0) {
-        setSliderImages(imageUrls);
+        // If we have less than 5 images, duplicate them to have at least 5
+        if (imageUrls.length < 5) {
+          const repeatedImages = [...imageUrls];
+          while (repeatedImages.length < 5) {
+            repeatedImages.push(...imageUrls);
+          }
+          setSliderImages(repeatedImages.slice(0, 5));
+        } else {
+          setSliderImages(imageUrls.slice(0, 5));
+        }
       } else {
         // Use default images if no approved submissions
-        setSliderImages(["/placeholder.svg"]);
+        setSliderImages(Array(5).fill("/placeholder.svg"));
       }
     } else {
       // Use default images if no approved submissions
-      setSliderImages(["/placeholder.svg"]);
+      setSliderImages(Array(5).fill("/placeholder.svg"));
     }
   }, []);
   
@@ -34,14 +42,13 @@ const HeroImageSlider: React.FC = () => {
     if (sliderImages.length <= 1) return;
     
     const interval = setInterval(() => {
-      setPrevIndex(currentIndex);
       setCurrentIndex(prevIndex => 
         prevIndex === sliderImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 5000); // 5 seconds delay
+    }, 3000); // 3 seconds delay for a bit faster rotation
     
     return () => clearInterval(interval);
-  }, [sliderImages.length, currentIndex]);
+  }, [sliderImages.length]);
   
   return (
     <div className="w-[150px] h-[100px] overflow-hidden rounded-[30px] border-4 border-gray-200">
@@ -50,16 +57,18 @@ const HeroImageSlider: React.FC = () => {
           {sliderImages.map((image, index) => (
             <CarouselItem 
               key={index} 
-              className={`transform transition-transform duration-1000 ${
-                index === currentIndex ? "opacity-100 translate-x-0" : 
-                index === prevIndex ? "opacity-0 -translate-x-full" : "opacity-0 translate-x-full"
-              }`}
+              className="w-full h-full"
             >
-              <img 
-                src={image} 
-                alt={`Hero image ${index + 1}`} 
-                className="w-full h-full object-cover"
-              />
+              <div className="relative w-full h-full">
+                <img 
+                  src={image} 
+                  alt={`Hero image ${index + 1}`} 
+                  className={`w-full h-full object-cover transition-all duration-1000
+                    ${currentIndex === index ? 
+                      'opacity-100 scale-100' : 
+                      'opacity-0 scale-[0.8] absolute inset-0'}`}
+                />
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>

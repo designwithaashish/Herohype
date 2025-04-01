@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface Submission {
   id: string;
@@ -37,6 +37,19 @@ const PendingSubmissionCard: React.FC<PendingSubmissionCardProps> = ({
 }) => {
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>(submission.categories || []);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  useEffect(() => {
+    // Check if the image URL is valid when the component mounts
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.onerror = () => setImageError(true);
+    img.src = submission.imageUrl;
+    
+    // Log for debugging
+    console.log("Rendering pending submission:", submission.id, submission.imageUrl);
+  }, [submission.imageUrl, submission.id]);
   
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev => 
@@ -56,11 +69,27 @@ const PendingSubmissionCard: React.FC<PendingSubmissionCardProps> = ({
       <Card className="h-full flex flex-col">
         <CardContent className="p-4 flex-grow">
           <div className="relative aspect-video w-full mb-4 bg-gray-100 rounded-md overflow-hidden">
-            <img
-              src={submission.imageUrl}
-              alt="Hero section submission"
-              className="w-full h-full object-cover"
-            />
+            {!imageLoaded && !imageError && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            )}
+            
+            {imageError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <p className="text-sm text-gray-500">Image failed to load</p>
+              </div>
+            )}
+            
+            {(imageLoaded || !imageError) && (
+              <img
+                src={submission.imageUrl}
+                alt="Hero section submission"
+                className="w-full h-full object-cover"
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+              />
+            )}
           </div>
           
           <div className="space-y-2">

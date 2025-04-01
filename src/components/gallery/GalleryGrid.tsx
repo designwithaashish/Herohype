@@ -56,7 +56,7 @@ const GalleryGrid: React.FC<GalleryGridProps> = ({ heroes }) => {
       {heroes.map(hero => (
         <div 
           key={`hero-${hero.id}`} 
-          className="masonry-item break-inside-avoid mb-2 transform transition-all duration-300 hover:scale-105 hover:shadow-lg rounded-md overflow-hidden"
+          className="masonry-item break-inside-avoid mb-2"
         >
           <HeroCard {...hero} />
         </div>

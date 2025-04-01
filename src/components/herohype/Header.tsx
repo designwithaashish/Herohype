@@ -34,10 +34,14 @@ const Header: React.FC = () => {
           }
           if (profile.avatarUrl) {
             setProfileImage(profile.avatarUrl);
+            console.log("Profile image URL:", profile.avatarUrl);
+          } else {
+            setProfileImage("");
           }
         } else {
           // Fall back to email if no profile exists
           setUserName(user.email ? user.email.split("@")[0] : "");
+          setProfileImage("");
         }
       } else {
         setIsLoggedIn(false);
@@ -59,18 +63,30 @@ const Header: React.FC = () => {
       if (userId) {
         const profileStr = localStorage.getItem(`profile-${userId}`);
         if (profileStr) {
-          const profile = JSON.parse(profileStr);
-          if (profile.name) {
-            setUserName(profile.name);
-          }
-          if (profile.avatarUrl) {
-            setProfileImage(profile.avatarUrl);
+          try {
+            const profile = JSON.parse(profileStr);
+            if (profile.name) {
+              setUserName(profile.name);
+            }
+            if (profile.avatarUrl) {
+              setProfileImage(profile.avatarUrl);
+              console.log("Profile updated with image:", profile.avatarUrl);
+            } else {
+              setProfileImage("");
+            }
+          } catch (error) {
+            console.error("Error parsing profile data:", error);
           }
         }
       }
     };
     
     window.addEventListener("profileUpdated", handleProfileUpdate);
+    
+    // Do an immediate check for profile updates
+    if (userId) {
+      handleProfileUpdate();
+    }
     
     return () => {
       window.removeEventListener("storage", checkUserData);

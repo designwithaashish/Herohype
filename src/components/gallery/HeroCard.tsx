@@ -190,7 +190,7 @@ const HeroCard: React.FC<HeroCardProps> = ({
               <img
                 src={imageUrl}
                 alt={`Hero section by @${twitterUsername}`}
-                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${
+                className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03] ${
                   isLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
                 loading="lazy"
