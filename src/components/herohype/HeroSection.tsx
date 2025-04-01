@@ -123,12 +123,12 @@ const HeroSection: React.FC = () => {
             <span className="text-black">*</span>
           </div>
 
-          {/* Main headline */}
+          {/* Main headline - with reduced font size by 10px */}
           <h1 className="font-playfair text-black leading-[1.1] animate-[fade-in_0.5s_ease_0.2s_both]">
-            <div className="text-[46px] md:text-[72px] max-md:text-[36px]">
+            <div className="text-[36px] md:text-[62px] max-md:text-[26px]">
               Discover <span className="text-[#FF6C44]">Trendy</span> &
             </div>
-            <div className="text-[46px] md:text-[72px] max-md:text-[36px] mt-2">
+            <div className="text-[36px] md:text-[62px] max-md:text-[26px] mt-2">
               Perfect <span className="text-[#FF6C44]">Hero Sections</span>
             </div>
           </h1>
@@ -160,7 +160,7 @@ const HeroSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Hero image slider with featured tag and creator info - with increased size */}
+        {/* Hero image slider with featured tag and creator info */}
         <div className="mt-10 md:mt-0 w-full max-w-[520px] md:min-h-[440px] relative">
           {featuredImages.length > 0 && featuredImages.map((image, index) => (
             <div 

@@ -71,9 +71,6 @@ const Header: React.FC = () => {
         <Link to="/collections" className="hover:text-gray-600 transition-colors font-satoshi">
           Moodboards
         </Link>
-        <Link to="/about" className="hover:text-gray-600 transition-colors font-satoshi">
-          About
-        </Link>
         {isAdmin && (
           <Link
             to="/admin"
@@ -88,7 +85,7 @@ const Header: React.FC = () => {
         {isLoggedIn ? (
           <HoverCard>
             <HoverCardTrigger asChild>
-              <Link to="/profile" className="flex items-center gap-2">
+              <Link to="/profile" className="flex items-center">
                 <Avatar className="h-8 w-8">
                   {avatarUrl ? (
                     <AvatarImage src={avatarUrl} alt={username} />
@@ -97,11 +94,11 @@ const Header: React.FC = () => {
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium">{username}</span>
               </Link>
             </HoverCardTrigger>
             <HoverCardContent className="w-64">
               <div className="flex flex-col space-y-3">
+                <p className="text-sm">{username}</p>
                 <p className="text-sm text-gray-500">Manage your profile, submissions, and moodboards</p>
                 <Link to="/profile" className="text-sm text-blue-600 hover:underline">
                   View Profile

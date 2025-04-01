@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { StarIcon, HeartIcon, BookmarkIcon, XCircleIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,15 +40,64 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   onToggleCurated
 }) => {
   const { toast } = useToast();
+  const [likeCount, setLikeCount] = useState(likes);
+  const [saveCount, setSaveCount] = useState(saves);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsLiked(!isLiked);
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+    
+    toast({
+      title: isLiked ? "Removed like" : "Added like",
+      description: isLiked ? "You've removed your like" : "You've liked this hero section",
+    });
+  };
+  
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsSaved(!isSaved);
+    setSaveCount(prev => isSaved ? prev - 1 : prev + 1);
+    
+    // Add/remove from moodboard in localStorage
+    const adminMoodboard = JSON.parse(localStorage.getItem("adminMoodboard") || "[]");
+    
+    if (!isSaved) {
+      // Check if item is already in the moodboard
+      const isAlreadyInMoodboard = adminMoodboard.some((item: any) => item.id === id);
+      if (!isAlreadyInMoodboard) {
+        // Get full item details from approvedSubmissions
+        const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+        const itemDetails = approvedSubmissions.find((item: any) => item.id === id);
+        
+        if (itemDetails) {
+          adminMoodboard.push(itemDetails);
+          localStorage.setItem("adminMoodboard", JSON.stringify(adminMoodboard));
+        }
+      }
+      
+      toast({
+        title: "Saved to moodboard",
+        description: "This hero section has been saved to your moodboard",
+      });
+    } else {
+      // Remove from moodboard
+      const updatedMoodboard = adminMoodboard.filter((item: any) => item.id !== id);
+      localStorage.setItem("adminMoodboard", JSON.stringify(updatedMoodboard));
+      
+      toast({
+        title: "Removed from moodboard",
+        description: "This hero section has been removed from your moodboard",
+      });
+    }
+  };
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onRemove) {
       onRemove(id);
-      toast({
-        title: "Item removed",
-        description: "The item has been removed successfully.",
-      });
     }
   };
 
@@ -56,12 +105,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     e.stopPropagation();
     if (onToggleCurated) {
       onToggleCurated(id, !isCurated);
-      toast({
-        title: isCurated ? "Removed from curated" : "Added to curated",
-        description: isCurated 
-          ? "The item has been removed from curated collection." 
-          : "The item has been added to curated collection.",
-      });
     }
   };
 
@@ -95,14 +138,21 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
             <div className="w-full flex justify-between items-center">
               <div className="text-white text-sm font-medium">@{twitterUsername}</div>
               <div className="flex space-x-3">
-                <div className="flex items-center text-xs text-white">
-                  <HeartIcon className="w-3.5 h-3.5 mr-1" />
-                  <span>{likes}</span>
-                </div>
-                <div className="flex items-center text-xs text-white">
-                  <BookmarkIcon className="w-3.5 h-3.5 mr-1" />
-                  <span>{saves}</span>
-                </div>
+                <button 
+                  onClick={handleLike}
+                  className="flex items-center text-xs text-white hover:scale-110 transition-transform"
+                >
+                  <HeartIcon className={`w-3.5 h-3.5 mr-1 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                  <span>{likeCount}</span>
+                </button>
+                
+                <button
+                  onClick={handleSave}
+                  className="flex items-center text-xs text-white hover:scale-110 transition-transform"
+                >
+                  <BookmarkIcon className={`w-3.5 h-3.5 mr-1 ${isSaved ? "fill-yellow-500 text-yellow-500" : ""}`} />
+                  <span>{saveCount}</span>
+                </button>
                 
                 {/* Admin controls */}
                 {showCuratedControls && (

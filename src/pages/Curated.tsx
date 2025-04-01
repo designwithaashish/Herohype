@@ -26,11 +26,25 @@ const Curated: React.FC = () => {
     // Load curated items from localStorage (marked with isCurated: true)
     const loadCuratedItems = () => {
       try {
+        console.log("Loading curated items");
         const approvedSubmissions = localStorage.getItem("approvedSubmissions");
         if (approvedSubmissions) {
           const items = JSON.parse(approvedSubmissions);
-          // Filter for curated items only
-          const curatedHeroes = items.filter((item: any) => item.isCurated === true);
+          // If no items are marked as curated, mark the first 3 as curated
+          let curatedHeroes = items.filter((item: any) => item.isCurated === true);
+          
+          if (curatedHeroes.length === 0 && items.length > 0) {
+            // Mark the first 3 items as curated
+            const updatedItems = items.map((item: any, index: number) => {
+              if (index < 3) {
+                return { ...item, isCurated: true };
+              }
+              return item;
+            });
+            localStorage.setItem("approvedSubmissions", JSON.stringify(updatedItems));
+            curatedHeroes = updatedItems.filter((item: any) => item.isCurated === true);
+          }
+          
           console.log("Found curated heroes:", curatedHeroes.length, curatedHeroes);
           setCuratedItems(curatedHeroes);
         } else {

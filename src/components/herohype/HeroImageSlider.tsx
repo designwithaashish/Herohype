@@ -8,34 +8,41 @@ const HeroImageSlider: React.FC = () => {
   
   useEffect(() => {
     // Get images from the approvedSubmissions in localStorage
-    const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-    
-    if (approvedItems.length > 0) {
-      // Get image URLs from the approved items only
-      const imageUrls = approvedItems
-        .filter((item: any) => item.imageUrl && item.status === "approved") // Ensure there's an image URL and item is approved
-        .map((item: any) => item.imageUrl);
+    const loadImages = () => {
+      const approvedItems = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
+      console.log("Loading slider images from approvedSubmissions:", approvedItems.length);
       
-      // If we have at least one image, set it. Otherwise use a placeholder
-      if (imageUrls.length > 0) {
-        // If we have less than 3 images, duplicate them to have at least 3
-        if (imageUrls.length < 3) {
-          const repeatedImages = [...imageUrls];
-          while (repeatedImages.length < 3) {
-            repeatedImages.push(...imageUrls);
+      if (approvedItems.length > 0) {
+        // Get image URLs from the approved items only
+        const imageUrls = approvedItems
+          .filter((item: any) => item.imageUrl && item.status === "approved") // Ensure there's an image URL and item is approved
+          .map((item: any) => item.imageUrl);
+        
+        console.log("Filtered image URLs:", imageUrls.length);
+        
+        // If we have at least one image, set it. Otherwise use a placeholder
+        if (imageUrls.length > 0) {
+          // If we have less than 3 images, duplicate them to have at least 3
+          if (imageUrls.length < 3) {
+            const repeatedImages = [...imageUrls];
+            while (repeatedImages.length < 3) {
+              repeatedImages.push(...imageUrls);
+            }
+            setSliderImages(repeatedImages.slice(0, 3));
+          } else {
+            setSliderImages(imageUrls.slice(0, 3));
           }
-          setSliderImages(repeatedImages.slice(0, 3));
         } else {
-          setSliderImages(imageUrls.slice(0, 3));
+          // Use sample image if no approved submissions
+          setSliderImages(Array(3).fill("/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png"));
         }
       } else {
         // Use sample image if no approved submissions
         setSliderImages(Array(3).fill("/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png"));
       }
-    } else {
-      // Use sample image if no approved submissions
-      setSliderImages(Array(3).fill("/lovable-uploads/8223dd0c-163d-4254-96ae-d65a4cf40baf.png"));
-    }
+    };
+    
+    loadImages();
   }, []);
   
   useEffect(() => {
