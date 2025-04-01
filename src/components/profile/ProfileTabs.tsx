@@ -43,13 +43,30 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
     
     setApprovedSubmissions(userApprovedSubmissions);
     
-    // Load saved heroes
-    const savedStr = localStorage.getItem(`savedHeroes-${user.id}`) || "[]";
-    const savedIds = JSON.parse(savedStr);
-    
-    if (savedIds.length > 0 && approved.length > 0) {
-      const savedItems = approved.filter((hero: any) => savedIds.includes(hero.id));
-      setSavedHeroes(savedItems);
+    // Load saved heroes from user collections
+    const userCollectionsStr = localStorage.getItem("userCollections");
+    if (userCollectionsStr) {
+      try {
+        const collections = JSON.parse(userCollectionsStr);
+        let allSavedItems: any[] = [];
+        
+        // Extract all items from all collections
+        collections.forEach((collection: any) => {
+          if (collection.items && Array.isArray(collection.items)) {
+            allSavedItems = [...allSavedItems, ...collection.items];
+          }
+        });
+        
+        // Remove duplicates by ID
+        const uniqueSavedItems = allSavedItems.filter((item, index, self) =>
+          index === self.findIndex((t) => t.id === item.id)
+        );
+        
+        setSavedHeroes(uniqueSavedItems);
+      } catch (error) {
+        console.error("Error loading collections:", error);
+        setSavedHeroes([]);
+      }
     }
   }, [user]);
 

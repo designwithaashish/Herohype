@@ -28,6 +28,8 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
       }));
       
       setHeroCards(savedHeroCards);
+    } else {
+      setHeroCards([]);
     }
   }, [savedHeroes]);
   
@@ -52,7 +54,27 @@ const CollectionsTab: React.FC<CollectionsTabProps> = ({ savedHeroes }) => {
   return (
     <div>
       <h2 className="text-lg font-medium mb-6">Saved to Collection</h2>
-      <GalleryGrid heroes={heroCards} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {heroCards.map((hero) => (
+          <div key={hero.id} className="overflow-hidden rounded-[30px] border border-gray-200 hover:shadow-md group">
+            <div className="overflow-hidden">
+              <img
+                src={hero.imageUrl}
+                alt={`Hero design by ${hero.twitterUsername}`}
+                className="w-full aspect-video object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+            <div className="p-4">
+              <div className="flex justify-between items-center">
+                <h3 className="font-medium">@{hero.twitterUsername}</h3>
+                <div className="text-sm text-gray-500">
+                  {hero.categories?.slice(0, 2).join(", ")}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

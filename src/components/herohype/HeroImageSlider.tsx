@@ -56,7 +56,7 @@ const HeroImageSlider: React.FC = () => {
   useEffect(() => {
     if (sliderImages.length <= 1) return;
     
-    const transitionTime = 500; // ms for transition animation
+    const transitionTime = 700; // ms for transition animation
     const displayTime = 10000; // 10 seconds per image
     
     const interval = setInterval(() => {
@@ -85,7 +85,7 @@ const HeroImageSlider: React.FC = () => {
       {sliderImages.map((image, index) => (
         <div 
           key={index} 
-          className={`absolute inset-0 w-full h-full transition-opacity duration-500 ease-in-out
+          className={`absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out
             ${currentIndex === index ? 
               'opacity-100 z-10' : 
               'opacity-0 z-0'}`}
@@ -97,7 +97,7 @@ const HeroImageSlider: React.FC = () => {
           />
           
           <div className="absolute bottom-0 left-0 w-full p-3 bg-gradient-to-t from-black/60 to-transparent">
-            <p className="text-white text-xs md:text-sm font-medium">
+            <p className="text-white text-sm font-medium text-[14px]">
               @{twitterUsernames[index]}
             </p>
           </div>

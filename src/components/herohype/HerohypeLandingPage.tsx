@@ -5,7 +5,7 @@ import HeroSection from "./HeroSection";
 import HeroGallery from "../gallery/HeroGallery";
 import Filters from "./Filters";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 
 const HerohypeLandingPage: React.FC = () => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);

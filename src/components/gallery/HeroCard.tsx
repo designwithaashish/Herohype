@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { StarIcon, HeartIcon, BookmarkIcon, XCircleIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -110,7 +109,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: isLiked ? "Removed like" : "Added like",
       description: isLiked ? "You've removed your like" : "You've liked this hero section",
-      className: "bg-[#3F521F] text-white border-0",
     });
   };
   
@@ -122,7 +120,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         title: "Login required",
         description: "Please log in to save items",
         variant: "destructive",
-        className: "bg-red-700 text-white border-0",
       });
       navigate("/login");
       return;
@@ -176,7 +173,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       toast({
         title: "Already saved",
         description: "This item is already in your collection",
-        className: "bg-[#3F521F] text-white border-0",
       });
       return;
     }
@@ -192,7 +188,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: "Added to collection",
       description: "Item added to your collection",
-      className: "bg-[#3F521F] text-white border-0",
     });
   };
   
@@ -221,7 +216,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         description: newStarredState 
           ? "This hero section has been added to Curated Picks" 
           : "This hero section has been removed from Curated Picks",
-        className: "bg-[#3F521F] text-white border-0",
       });
     }
   };
@@ -261,7 +255,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: "Moodboard created",
       description: `New moodboard "${newMoodboardName}" created`,
-      className: "bg-[#3F521F] text-white border-0",
     });
   };
   
@@ -271,7 +264,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         title: "No moodboard selected",
         description: "Please select or create a moodboard first",
         variant: "destructive",
-        className: "bg-red-700 text-white border-0",
       });
       return;
     }
@@ -286,7 +278,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
         title: "Moodboard full",
         description: "A moodboard can contain a maximum of 10 items",
         variant: "destructive",
-        className: "bg-red-700 text-white border-0",
       });
       return;
     }
@@ -296,7 +287,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       toast({
         title: "Already in moodboard",
         description: `This item is already in "${moodboard.name}"`,
-        className: "bg-[#3F521F] text-white border-0",
       });
       return;
     }
@@ -331,7 +321,6 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     toast({
       title: "Added to moodboard",
       description: `Item added to "${moodboard.name}"`,
-      className: "bg-[#3F521F] text-white border-0",
     });
     
     // Close dialog

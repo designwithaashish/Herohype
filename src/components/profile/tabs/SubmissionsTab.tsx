@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface SubmissionsTabProps {
@@ -36,45 +36,73 @@ const SubmissionsTab: React.FC<SubmissionsTabProps> = ({ pendingSubmissions, app
     <div className="space-y-6">
       <h2 className="text-lg font-medium mb-4">Submission History</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="flex flex-col gap-4">
         {[...pendingSubmissions, ...approvedSubmissions]
           .sort((a, b) => new Date(b.createdAt || b.submissionDate).getTime() - new Date(a.createdAt || a.submissionDate).getTime())
           .map((submission) => (
             <Card key={submission.id} className="overflow-hidden">
-              <div className="aspect-video bg-gray-100 relative">
-                <img 
-                  src={submission.imageUrl} 
-                  alt={`Submission by ${submission.twitterUsername}`}
-                  className="w-full h-full object-cover"
-                />
-                <Badge 
-                  className={`absolute top-2 right-2 ${
-                    submission.status === 'approved' ? 'bg-green-500' : 
-                    submission.status === 'rejected' ? 'bg-red-500' : 'bg-yellow-500'
-                  }`}
-                >
-                  {submission.status === 'approved' ? 'Approved' : 
-                   submission.status === 'rejected' ? 'Rejected' : 'Pending'}
-                </Badge>
+              <div className="flex flex-col sm:flex-row">
+                <div className="w-full sm:w-48 h-40 sm:h-auto bg-gray-100 relative flex-shrink-0">
+                  <img 
+                    src={submission.imageUrl} 
+                    alt={`Submission by ${submission.twitterUsername}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="p-4 flex flex-col justify-between flex-grow">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-medium">@{submission.twitterUsername}</h3>
+                        <Badge 
+                          className={`${
+                            submission.status === 'approved' ? 'bg-green-500' : 
+                            submission.status === 'rejected' ? 'bg-red-500' : 'bg-yellow-500'
+                          }`}
+                        >
+                          {submission.status === 'approved' ? 'Approved' : 
+                          submission.status === 'rejected' ? 'Rejected' : 'Pending'}
+                        </Badge>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {formatDate(submission.createdAt || submission.submissionDate)}
+                      </span>
+                    </div>
+                    
+                    <div className="mb-2">
+                      <span className="text-sm text-gray-600">
+                        {submission.categories?.join(", ") || "No categories"}
+                      </span>
+                    </div>
+                    
+                    {submission.description && (
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">{submission.description}</p>
+                    )}
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex items-center gap-2">
+                      {submission.likes && (
+                        <span className="text-xs text-gray-500">
+                          {submission.likes} likes
+                        </span>
+                      )}
+                      {submission.saves && (
+                        <span className="text-xs text-gray-500">
+                          {submission.saves} saves
+                        </span>
+                      )}
+                    </div>
+                    
+                    {submission.status === 'approved' && (
+                      <span className="text-xs text-green-600 font-medium">
+                        Live in Gallery
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
-              
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base flex justify-between">
-                  <span>@{submission.twitterUsername}</span>
-                  <span className="text-sm text-gray-500">
-                    {formatDate(submission.createdAt || submission.submissionDate)}
-                  </span>
-                </CardTitle>
-                <CardDescription>
-                  {submission.categories?.join(", ") || "No categories"}
-                </CardDescription>
-              </CardHeader>
-              
-              {submission.description && (
-                <CardContent className="pt-0">
-                  <p className="text-sm text-gray-600 line-clamp-2">{submission.description}</p>
-                </CardContent>
-              )}
             </Card>
           ))}
       </div>
