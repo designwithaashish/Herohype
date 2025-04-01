@@ -15,7 +15,7 @@ const HerohypeLandingPage: React.FC = () => {
     <div className="bg-white">
       <Header />
       <HeroSection />
-      <div id="gallery-section" className="w-full mx-auto px-3 sm:px-4 lg:px-6">
+      <div id="gallery-section" className="w-full mx-auto px-3 sm:px-4 lg:px-6 pt-8">
         <div className="w-full">
           <Filters 
             activeFilters={activeFilters}
@@ -24,7 +24,7 @@ const HerohypeLandingPage: React.FC = () => {
             setSortOption={setSortOption}
           />
         </div>
-        <div className={`w-full mt-6 ${isMobile ? 'px-2' : 'px-4'}`}>
+        <div className={`w-full mt-6 ${isMobile ? '' : ''}`}>
           <HeroGallery 
             activeFilters={activeFilters}
             sortOption={sortOption}

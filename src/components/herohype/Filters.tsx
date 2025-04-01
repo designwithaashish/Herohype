@@ -8,7 +8,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Filter categories
@@ -29,7 +28,6 @@ const Filters: React.FC<FiltersProps> = ({
   sortOption, 
   setSortOption 
 }) => {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   
   const toggleFilter = (category: string) => {
@@ -45,15 +43,11 @@ const Filters: React.FC<FiltersProps> = ({
     
     setActiveFilters(newFilters);
   };
-  
-  const handleSubmitClick = () => {
-    navigate("/submit");
-  };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 py-5">
       <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-center items-center gap-4`}>
-        <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} items-center justify-center gap-4`}>
+        <div className={`flex ${isMobile ? 'flex-col w-full' : 'flex-row'} items-center justify-center gap-4 w-full`}>
           <Select value={sortOption} onValueChange={setSortOption}>
             <SelectTrigger className={`${isMobile ? 'w-full' : 'w-[180px]'} bg-[rgba(239,239,239,1)] rounded-[32px]`}>
               <SelectValue placeholder="Sort by" />
@@ -65,7 +59,7 @@ const Filters: React.FC<FiltersProps> = ({
             </SelectContent>
           </Select>
           
-          <div className="flex flex-wrap justify-center gap-2 mt-2">
+          <div className="flex flex-wrap justify-center gap-2 mt-2 flex-1">
             <Button
               onClick={() => setActiveFilters([])}
               variant={activeFilters.length === 0 ? "default" : "outline"}
@@ -86,13 +80,6 @@ const Filters: React.FC<FiltersProps> = ({
             ))}
           </div>
         </div>
-        
-        <Button 
-          onClick={handleSubmitClick}
-          className={`${isMobile ? 'w-full mt-4' : ''} bg-[rgba(27,27,27,1)] text-white shadow-[6px_6px_8px_rgba(0,0,0,0.2)] px-5 py-3 rounded-lg hover:bg-[rgba(40,40,40,1)] transition-colors`}
-        >
-          Submit Yours
-        </Button>
       </div>
     </div>
   );
