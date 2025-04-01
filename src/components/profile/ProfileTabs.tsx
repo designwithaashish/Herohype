@@ -44,7 +44,7 @@ const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
     setApprovedSubmissions(userApprovedSubmissions);
     
     // Load saved heroes
-    const savedStr = localStorage.getItem("savedHeroes") || "[]";
+    const savedStr = localStorage.getItem(`savedHeroes-${user.id}`) || "[]";
     const savedIds = JSON.parse(savedStr);
     
     if (savedIds.length > 0 && approved.length > 0) {

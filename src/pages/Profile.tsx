@@ -31,8 +31,6 @@ const Profile: React.FC = () => {
     avatarUrl: "",
     hireLink: ""
   });
-  const [approvedSubmissions, setApprovedSubmissions] = useState<any[]>([]);
-  const [savedHeroes, setSavedHeroes] = useState<any[]>([]);
   
   useEffect(() => {
     // Check if user is logged in
@@ -71,38 +69,7 @@ const Profile: React.FC = () => {
       localStorage.setItem(profileKey, JSON.stringify(newProfile));
       setProfile(newProfile);
     }
-    
-    // Load approved submissions
-    loadUserContent(userData.id);
   }, [navigate, toast]);
-  
-  // Function to load user-specific content
-  const loadUserContent = (userId: string) => {
-    // Get all approved submissions
-    const allApprovedStr = localStorage.getItem("approvedSubmissions");
-    const allApproved = allApprovedStr ? JSON.parse(allApprovedStr) : [];
-    
-    // Filter for this user's submissions only
-    const userApproved = allApproved.filter((submission: any) => 
-      submission.userId === userId || submission.submittedBy === userId
-    );
-    setApprovedSubmissions(userApproved);
-    
-    // Get saved heroes for this user
-    const savedHeroesKey = `savedHeroes-${userId}`;
-    const savedHeroesStr = localStorage.getItem(savedHeroesKey);
-    const savedHeroIds = savedHeroesStr ? JSON.parse(savedHeroesStr) : [];
-    
-    // Get the actual hero data for these IDs
-    const heroesDataStr = localStorage.getItem("approvedSubmissions");
-    const heroesData = heroesDataStr ? JSON.parse(heroesDataStr) : [];
-    
-    const userSavedHeroes = heroesData.filter((hero: any) => 
-      savedHeroIds.includes(hero.id)
-    );
-    
-    setSavedHeroes(userSavedHeroes);
-  };
   
   const handleUpdateProfile = (updatedProfile: UserProfile) => {
     if (!user) return;
@@ -135,11 +102,7 @@ const Profile: React.FC = () => {
             onUpdateProfile={handleUpdateProfile} 
           />
           
-          <ProfileTabs 
-            user={user}
-            approvedSubmissions={approvedSubmissions}
-            savedHeroes={savedHeroes}
-          />
+          <ProfileTabs user={user} />
         </div>
       </div>
     </div>
