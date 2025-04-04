@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { LucideProps } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,6 +33,7 @@ const LoginForm: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,10 +68,15 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // Get the current site URL for proper redirects
+      const currentURL = window.location.origin;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: `${currentURL}/auth/callback`,
+          // Limit scopes to avoid potential firewall issues
+          scopes: 'email'
         }
       });
       

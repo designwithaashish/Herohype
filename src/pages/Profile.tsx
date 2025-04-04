@@ -35,7 +35,7 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Set up auth state change listener
+    // Set up auth state change listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session) {
@@ -167,7 +167,7 @@ const Profile: React.FC = () => {
             onUpdateProfile={handleUpdateProfile} 
           />
           
-          <ProfileTabs user={user as any} />
+          <ProfileTabs user={user} />
         </div>
       </div>
     </div>

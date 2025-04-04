@@ -27,9 +27,9 @@ const Header: React.FC = () => {
           // Check if user is admin based on email
           setIsAdmin(session.user.email?.includes("admin") || false);
           
-          const displayName = session.user.user_metadata.name || 
-                            session.user.email?.split('@')[0] || 
-                            "user";
+          const displayName = session.user.user_metadata?.name || 
+                           session.user.email?.split('@')[0] || 
+                           "user";
           setUsername(displayName);
           setUserInitials(displayName.slice(0, 2).toUpperCase());
           
@@ -50,23 +50,27 @@ const Header: React.FC = () => {
     
     // Load current session on component mount
     const loadCurrentSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (session) {
-        setIsLoggedIn(true);
-        setUserId(session.user.id);
-        setIsAdmin(session.user.email?.includes("admin") || false);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
         
-        const displayName = session.user.user_metadata.name || 
-                          session.user.email?.split('@')[0] || 
-                          "user";
-        setUsername(displayName);
-        setUserInitials(displayName.slice(0, 2).toUpperCase());
-        
-        // Load profile for avatar
-        if (session.user.id) {
-          loadUserProfile(session.user.id);
+        if (session) {
+          setIsLoggedIn(true);
+          setUserId(session.user.id);
+          setIsAdmin(session.user.email?.includes("admin") || false);
+          
+          const displayName = session.user.user_metadata?.name || 
+                            session.user.email?.split('@')[0] || 
+                            "user";
+          setUsername(displayName);
+          setUserInitials(displayName.slice(0, 2).toUpperCase());
+          
+          // Load profile for avatar
+          if (session.user.id) {
+            loadUserProfile(session.user.id);
+          }
         }
+      } catch (error) {
+        console.error("Error loading session:", error);
       }
     };
     

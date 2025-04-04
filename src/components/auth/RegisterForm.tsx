@@ -78,10 +78,15 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // Get the current site URL for proper redirects
+      const currentURL = window.location.origin;
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: `${currentURL}/auth/callback`,
+          // Limit scopes to avoid potential firewall issues
+          scopes: 'email'
         }
       });
       
