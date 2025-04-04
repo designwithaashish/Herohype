@@ -167,7 +167,7 @@ const Profile: React.FC = () => {
             onUpdateProfile={handleUpdateProfile} 
           />
           
-          <ProfileTabs user={user} />
+          <ProfileTabs user={user as any} />
         </div>
       </div>
     </div>
