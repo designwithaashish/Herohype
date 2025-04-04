@@ -41,7 +41,7 @@ const SubmitHero: React.FC = () => {
           <p className="text-center text-gray-600 mb-8">
             Share your design with the community and inspire others
           </p>
-          <SubmitHeroForm userId={userId} />
+          {userId && <SubmitHeroForm userId={userId} />}
         </div>
       </div>
     </div>

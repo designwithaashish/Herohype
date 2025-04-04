@@ -8,7 +8,7 @@ import ProfileTabs from "@/components/profile/ProfileTabs";
 import { supabase } from "@/integrations/supabase/client";
 
 // Define user type based on Supabase auth user
-interface User {
+interface AppUser {
   id: string;
   email?: string;
   role?: string;
@@ -25,7 +25,7 @@ interface UserProfile {
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [profile, setProfile] = useState<UserProfile>({
     name: "",
     description: "",

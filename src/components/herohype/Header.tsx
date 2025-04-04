@@ -28,8 +28,8 @@ const Header: React.FC = () => {
           setIsAdmin(session.user.email?.includes("admin") || false);
           
           const displayName = session.user.user_metadata.name || 
-                             session.user.email?.split('@')[0] || 
-                             "user";
+                            session.user.email?.split('@')[0] || 
+                            "user";
           setUsername(displayName);
           setUserInitials(displayName.slice(0, 2).toUpperCase());
           
@@ -58,8 +58,8 @@ const Header: React.FC = () => {
         setIsAdmin(session.user.email?.includes("admin") || false);
         
         const displayName = session.user.user_metadata.name || 
-                           session.user.email?.split('@')[0] || 
-                           "user";
+                          session.user.email?.split('@')[0] || 
+                          "user";
         setUsername(displayName);
         setUserInitials(displayName.slice(0, 2).toUpperCase());
         
