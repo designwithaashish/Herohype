@@ -7,7 +7,7 @@ import UploadsTab from "./tabs/UploadsTab";
 
 interface User {
   id: string;
-  email: string;
+  email?: string; // Make email optional to match AppUser type
   role?: string;
 }
 
