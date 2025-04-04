@@ -85,8 +85,8 @@ const RegisterForm: React.FC = () => {
         provider: 'google',
         options: {
           redirectTo: `${currentURL}/auth/callback`,
-          // Limit scopes to avoid potential firewall issues
-          scopes: 'email'
+          // Use scopes that don't include 'profile' to avoid potential firewall issues
+          scopes: 'email openid',
         }
       });
       

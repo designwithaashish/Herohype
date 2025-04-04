@@ -31,7 +31,7 @@ const App: React.FC = () => {
             <Route path="/curated" element={<Curated />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            {/* Add an explicit redirect for /register to ensure it works on deployed sites */}
+            {/* Make sure we have a proper auth callback route for Google authentication */}
             <Route path="/auth/callback" element={<Login />} />
             <Route path="/submit" element={<SubmitHero />} />
             <Route path="/admin" element={<AdminApproval />} />
