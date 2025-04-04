@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 import { filterHeroes, sortHeroes } from "@/utils/galleryUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 // Function to generate random avatars
 export const generateRandomAvatar = () => {
@@ -37,47 +38,54 @@ export const useHeroGallery = (
 ) => {
   const [heroes, setHeroes] = useState<HeroCardProps[]>([]);
   const [visibleHeroes, setVisibleHeroes] = useState<HeroCardProps[]>([]);
+  const [loading, setLoading] = useState(true);
   const { ref: loadMoreRef, inView } = useInView({
     threshold: 0.1,
     triggerOnce: false,
   });
   
-  // Load heroes from CMS (approved submissions) and sync with initialHeroes
+  // Load heroes from Supabase
   useEffect(() => {
-    const syncWithCMS = () => {
-      // Get approved submissions from CMS
-      const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-      const cmsItems = approvedSubmissions ? JSON.parse(approvedSubmissions) : [];
+    const fetchHeroes = async () => {
+      setLoading(true);
       
-      if (Array.isArray(cmsItems) && cmsItems.length > 0) {
-        console.log("Syncing gallery with CMS items:", cmsItems.length);
+      try {
+        // Get all approved submissions from Supabase
+        const { data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('status', 'approved');
         
-        // Process CMS items to ensure proper typing
-        const processedItems: HeroCardProps[] = cmsItems.map((item: any) => ({
-          id: item.id,
-          imageUrl: item.imageUrl,
-          twitterUsername: item.twitterUsername,
-          categories: item.categories || [],
-          likes: item.likes || 0,
-          saves: item.saves || 0,
-          isCurated: item.isCurated || false,
-          status: (item.status === "approved" || item.status === "pending" || item.status === "rejected") 
-            ? item.status as "approved" | "pending" | "rejected"
-            : "approved" as "approved" | "pending" | "rejected",
-          submissionDate: item.submissionDate || new Date().toISOString()
-        }));
+        if (error) {
+          throw error;
+        }
         
-        // Set heroes with properly typed items
-        setHeroes(processedItems);
-      } else {
-        // If no CMS items, display nothing
+        if (data) {
+          // Process submissions to match HeroCardProps structure
+          const heroItems: HeroCardProps[] = data.map(item => ({
+            id: item.id,
+            imageUrl: item.image_url,
+            twitterUsername: item.twitter_username,
+            categories: item.categories || [],
+            likes: 0, // We'll fetch actual likes separately
+            saves: 0, // We'll fetch actual saves separately
+            isCurated: item.is_curated || false,
+            status: item.status as "approved" | "pending" | "rejected",
+            submissionDate: item.created_at || new Date().toISOString()
+          }));
+          
+          setHeroes(heroItems);
+        }
+      } catch (error) {
+        console.error("Error fetching hero submissions:", error);
         setHeroes([]);
-        console.log("No CMS items found, gallery will be empty");
+      } finally {
+        setLoading(false);
       }
     };
     
-    syncWithCMS();
-  }, [initialHeroes]); // Keep the dependency on initialHeroes to trigger on component mount
+    fetchHeroes();
+  }, []);
   
   // Apply filters to heroes
   const filteredHeroes = filterHeroes(heroes, activeFilters);
@@ -108,7 +116,8 @@ export const useHeroGallery = (
     filteredHeroes,
     visibleHeroes,
     loadMoreRef,
-    hasMore: visibleHeroes.length < filteredHeroes.length
+    hasMore: visibleHeroes.length < filteredHeroes.length,
+    loading
   };
 };
 

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { generateRandomAvatarColor } from "@/hooks/useHeroGallery";
+import { supabase } from "@/integrations/supabase/client";
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,70 +14,110 @@ const Header: React.FC = () => {
   const [userInitials, setUserInitials] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarColor, setAvatarColor] = useState<string>("bg-gray-200");
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Check for user data whenever localStorage changes
-    const checkUserData = () => {
-      const userStr = localStorage.getItem("user");
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session) {
           setIsLoggedIn(true);
-          setIsAdmin(user.role === "admin");
-          const displayName = user.username || user.email?.split('@')[0] || "user";
+          setUserId(session.user.id);
+          // Check if user is admin based on email
+          setIsAdmin(session.user.email?.includes("admin") || false);
+          
+          const displayName = session.user.user_metadata.name || 
+                             session.user.email?.split('@')[0] || 
+                             "user";
           setUsername(displayName);
           setUserInitials(displayName.slice(0, 2).toUpperCase());
           
-          // Set avatar URL if available - check both user.avatarUrl and profile data
-          let avatarImage = user.avatarUrl || "";
-          
-          // Check for profile data which might have the avatar URL
-          if (user.id) {
-            const profileStr = localStorage.getItem(`profile-${user.id}`);
-            if (profileStr) {
-              const profile = JSON.parse(profileStr);
-              if (profile.avatarUrl) {
-                avatarImage = profile.avatarUrl;
-              }
-            }
+          // If we have a user ID, try to load their profile data
+          if (session.user.id) {
+            loadUserProfile(session.user.id);
           }
-          
-          setAvatarUrl(avatarImage);
-          
-          // Only set a random color if we don't have one already
-          if (avatarColor === "bg-gray-200") {
-            setAvatarColor(generateRandomAvatarColor());
-          }
-          
-        } catch (error) {
-          console.error("Error parsing user data:", error);
+        } else {
           setIsLoggedIn(false);
+          setIsAdmin(false);
+          setUsername("");
+          setUserInitials("");
+          setAvatarUrl("");
+          setUserId(null);
         }
-      } else {
-        setIsLoggedIn(false);
-        setIsAdmin(false);
-        setUsername("");
-        setUserInitials("");
-        setAvatarUrl("");
-        setAvatarColor("bg-gray-200");
+      }
+    );
+    
+    // Load current session on component mount
+    const loadCurrentSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        setIsLoggedIn(true);
+        setUserId(session.user.id);
+        setIsAdmin(session.user.email?.includes("admin") || false);
+        
+        const displayName = session.user.user_metadata.name || 
+                           session.user.email?.split('@')[0] || 
+                           "user";
+        setUsername(displayName);
+        setUserInitials(displayName.slice(0, 2).toUpperCase());
+        
+        // Load profile for avatar
+        if (session.user.id) {
+          loadUserProfile(session.user.id);
+        }
       }
     };
     
-    // Initial check
-    checkUserData();
+    loadCurrentSession();
     
-    // Setup event listener for storage changes
-    window.addEventListener("storage", checkUserData);
-    
-    // Also check when component mounts and every few seconds
-    const intervalId = setInterval(checkUserData, 5000);
+    // Only set a random color if we don't have one already
+    if (avatarColor === "bg-gray-200") {
+      setAvatarColor(generateRandomAvatarColor());
+    }
     
     return () => {
-      window.removeEventListener("storage", checkUserData);
-      clearInterval(intervalId);
+      subscription.unsubscribe();
     };
   }, []);
+  
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('name, avatar_url')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error("Error loading profile:", error);
+        return;
+      }
+      
+      if (profile) {
+        if (profile.name) {
+          setUsername(profile.name);
+          setUserInitials(profile.name.slice(0, 2).toUpperCase());
+        }
+        
+        if (profile.avatar_url) {
+          setAvatarUrl(profile.avatar_url);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <header className="bg-white flex h-[80px] w-full items-center gap-[40px] text-black font-normal justify-between flex-wrap px-6 md:px-10 lg:px-20 py-5 max-md:max-w-full border-b border-gray-100">
@@ -132,11 +173,7 @@ const Header: React.FC = () => {
                     View Profile
                   </Link>
                   <button 
-                    onClick={() => {
-                      localStorage.removeItem("user");
-                      navigate("/");
-                      location.reload();
-                    }}
+                    onClick={handleLogout}
                     className="text-sm text-red-600 hover:underline text-left"
                   >
                     Log Out

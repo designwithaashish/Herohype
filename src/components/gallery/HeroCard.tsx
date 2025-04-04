@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface HeroCardProps {
   id: string;
@@ -52,66 +53,162 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
   const [newMoodboardName, setNewMoodboardName] = useState("");
   const [userMoodboards, setUserMoodboards] = useState<any[]>([]);
   const [selectedMoodboard, setSelectedMoodboard] = useState("");
-  const newMoodboardInputRef = useRef<HTMLInputElement>(null);
-  const isAdmin = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") || "{}").role === "admin" : false;
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isStarred, setIsStarred] = useState(isCurated || false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const newMoodboardInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
-    checkSavedStatus();
+    // Check for current user
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        setUserId(session.user.id);
+        setIsAuthenticated(true);
+        setIsAdmin(session.user.email?.includes("admin") || false);
+        
+        // Check if this hero is liked by the user
+        checkLikeStatus(session.user.id, id);
+        
+        // Check if this hero is saved by the user
+        checkSaveStatus(session.user.id, id);
+        
+        // If user is logged in, load their collections/moodboards
+        if (isAdmin) {
+          loadUserMoodboards(session.user.id);
+        }
+      } else {
+        setIsAuthenticated(false);
+        setUserId(null);
+        setIsAdmin(false);
+      }
+    };
     
-    if (isAdmin) {
-      loadUserMoodboards();
-    }
-    
+    checkUser();
     setIsStarred(isCurated || false);
   }, [id, isCurated]);
   
-  const checkSavedStatus = () => {
-    const userCollectionsStr = localStorage.getItem("userCollections");
-    if (userCollectionsStr) {
-      try {
-        const collections = JSON.parse(userCollectionsStr);
-        for (const collection of collections) {
-          if (collection.items && collection.items.some((item: any) => item.id === id)) {
-            setIsSaved(true);
-            break;
-          }
-        }
-      } catch (error) {
-        console.error("Error checking saved status:", error);
+  const checkLikeStatus = async (userId: string, submissionId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('likes')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('submission_id', submissionId)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking like status:', error);
       }
+      
+      setIsLiked(!!data);
+    } catch (error) {
+      console.error("Error checking like status:", error);
     }
   };
   
-  const loadUserMoodboards = () => {
-    const userMoodboardsStr = localStorage.getItem("userMoodboards");
-    if (userMoodboardsStr) {
-      try {
-        const moodboards = JSON.parse(userMoodboardsStr);
-        setUserMoodboards(moodboards);
-      } catch (error) {
-        console.error("Error loading user moodboards:", error);
+  const checkSaveStatus = async (userId: string, submissionId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('saves')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('submission_id', submissionId)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking save status:', error);
       }
-    } else {
+      
+      setIsSaved(!!data);
+    } catch (error) {
+      console.error("Error checking save status:", error);
+    }
+  };
+  
+  const loadUserMoodboards = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('collections')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      
+      setUserMoodboards(data || []);
+    } catch (error) {
+      console.error("Error loading user moodboards:", error);
       setUserMoodboards([]);
     }
   };
   
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsLiked(!isLiked);
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
     
-    toast({
-      title: isLiked ? "Removed like" : "Added like",
-      description: isLiked ? "You've removed your like" : "You've liked this hero section",
-    });
+    if (!isAuthenticated) {
+      toast({
+        title: "Login required",
+        description: "Please log in to like items",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+    
+    if (!userId) return;
+    
+    try {
+      if (isLiked) {
+        // Remove like
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('user_id', userId)
+          .eq('submission_id', id);
+        
+        if (error) throw error;
+        
+        setIsLiked(false);
+        setLikeCount(prev => Math.max(0, prev - 1));
+        
+        toast({
+          title: "Removed like",
+          description: "You've removed your like",
+        });
+      } else {
+        // Add like
+        const { error } = await supabase
+          .from('likes')
+          .insert({
+            user_id: userId,
+            submission_id: id
+          });
+        
+        if (error) throw error;
+        
+        setIsLiked(true);
+        setLikeCount(prev => prev + 1);
+        
+        toast({
+          title: "Added like",
+          description: "You've liked this hero section",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    }
   };
   
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    if (!localStorage.getItem("user")) {
+    if (!isAuthenticated) {
       toast({
         title: "Login required",
         description: "Please log in to save items",
@@ -124,124 +221,86 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     if (isAdmin) {
       setMoodboardDialogOpen(true);
     } else {
-      if (isSaved) {
-        removeFromUserCollection();
-      } else {
-        addToUserCollection();
-      }
+      toggleSaveStatus();
     }
   };
 
-  const addToUserCollection = () => {
-    const userCollectionsStr = localStorage.getItem("userCollections");
-    let collections = [];
-    
-    if (userCollectionsStr) {
-      try {
-        collections = JSON.parse(userCollectionsStr);
-      } catch (error) {
-        console.error("Error parsing user collections:", error);
-      }
-    }
-
-    const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-    const itemData = approvedSubmissions.find((item: any) => item.id === id);
-    
-    if (!itemData) {
-      console.error("Item not found in approved submissions");
-      return;
-    }
-
-    let defaultCollection = collections.find((c: any) => c.name === "My Collection");
-    
-    if (!defaultCollection) {
-      defaultCollection = {
-        id: `collection-${Date.now()}`,
-        name: "My Collection",
-        items: []
-      };
-      collections.push(defaultCollection);
-    }
-
-    if (defaultCollection.items.some((item: any) => item.id === id)) {
-      toast({
-        title: "Already saved",
-        description: "This item is already in your collection",
-      });
-      return;
-    }
-
-    defaultCollection.items.push(itemData);
-    localStorage.setItem("userCollections", JSON.stringify(collections));
-    
-    setIsSaved(true);
-    setSaveCount(prev => prev + 1);
-    
-    toast({
-      title: "Added to collection",
-      description: "Item added to your collection",
-    });
-  };
-
-  const removeFromUserCollection = () => {
-    const userCollectionsStr = localStorage.getItem("userCollections");
-    if (!userCollectionsStr) return;
+  const toggleSaveStatus = async () => {
+    if (!userId) return;
     
     try {
-      const collections = JSON.parse(userCollectionsStr);
-      let itemRemoved = false;
-      
-      const updatedCollections = collections.map((collection: any) => {
-        if (collection.items) {
-          const updatedItems = collection.items.filter((item: any) => item.id !== id);
-          if (updatedItems.length !== collection.items.length) {
-            itemRemoved = true;
-          }
-          return { ...collection, items: updatedItems };
-        }
-        return collection;
-      });
-      
-      localStorage.setItem("userCollections", JSON.stringify(updatedCollections));
-      
-      if (itemRemoved) {
+      if (isSaved) {
+        // Remove from saves
+        const { error } = await supabase
+          .from('saves')
+          .delete()
+          .eq('user_id', userId)
+          .eq('submission_id', id);
+        
+        if (error) throw error;
+        
         setIsSaved(false);
         setSaveCount(prev => Math.max(0, prev - 1));
         
         toast({
-          title: "Removed from collection",
-          description: "Item removed from your collection",
+          title: "Removed from saved items",
+          description: "Item has been removed from your saved items",
+        });
+      } else {
+        // Add to saves
+        const { error } = await supabase
+          .from('saves')
+          .insert({
+            user_id: userId,
+            submission_id: id
+          });
+        
+        if (error) throw error;
+        
+        setIsSaved(true);
+        setSaveCount(prev => prev + 1);
+        
+        toast({
+          title: "Added to saved items",
+          description: "Item has been added to your saved items",
         });
       }
-    } catch (error) {
-      console.error("Error removing item from collection:", error);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
     }
   };
   
-  const handleStar = (e: React.MouseEvent) => {
+  const handleStar = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAdmin) return;
     
     const newStarredState = !isStarred;
     setIsStarred(newStarredState);
     
-    const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-    if (approvedSubmissions) {
-      const items = JSON.parse(approvedSubmissions);
-      const updatedItems = items.map((item: any) => {
-        if (item.id === id) {
-          return { ...item, isCurated: newStarredState };
-        }
-        return item;
-      });
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .update({ is_curated: newStarredState })
+        .eq('id', id);
       
-      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedItems));
+      if (error) throw error;
       
       toast({
         title: newStarredState ? "Added to Curated Picks" : "Removed from Curated Picks",
         description: newStarredState 
           ? "This hero section has been added to Curated Picks" 
           : "This hero section has been removed from Curated Picks",
+      });
+    } catch (error: any) {
+      setIsStarred(!newStarredState); // Revert UI state if failed
+      toast({
+        title: "Error updating curated status",
+        description: error.message || "An error occurred",
+        variant: "destructive",
       });
     }
   };
@@ -260,30 +319,41 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
     }
   };
   
-  const handleCreateNewMoodboard = () => {
-    if (!newMoodboardName.trim()) return;
+  const handleCreateNewMoodboard = async () => {
+    if (!newMoodboardName.trim() || !userId) return;
     
-    const newMoodboard = {
-      id: `moodboard-${Date.now()}`,
-      name: newMoodboardName,
-      items: []
-    };
-    
-    const updatedMoodboards = [...userMoodboards, newMoodboard];
-    setUserMoodboards(updatedMoodboards);
-    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
-    
-    setSelectedMoodboard(newMoodboard.id);
-    setNewMoodboardName("");
-    
-    toast({
-      title: "Moodboard created",
-      description: `New moodboard "${newMoodboardName}" created`,
-    });
+    try {
+      const { data, error } = await supabase
+        .from('collections')
+        .insert({
+          user_id: userId,
+          name: newMoodboardName,
+        })
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      const newMoodboard = data;
+      setUserMoodboards(prev => [...prev, newMoodboard]);
+      setSelectedMoodboard(newMoodboard.id);
+      setNewMoodboardName("");
+      
+      toast({
+        title: "Moodboard created",
+        description: `New moodboard "${newMoodboardName}" created`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error creating moodboard",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
+    }
   };
   
-  const handleSaveToMoodboard = () => {
-    if (!selectedMoodboard) {
+  const handleSaveToMoodboard = async () => {
+    if (!selectedMoodboard || !userId) {
       toast({
         title: "No moodboard selected",
         description: "Please select or create a moodboard first",
@@ -292,56 +362,70 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
       return;
     }
     
-    const moodboard = userMoodboards.find(mb => mb.id === selectedMoodboard);
-    if (!moodboard) return;
-    
-    if (moodboard.items && moodboard.items.length >= 10) {
+    try {
+      // Check if the item already exists in the collection
+      const { data: existingItems, error: checkError } = await supabase
+        .from('collection_items')
+        .select('*')
+        .eq('collection_id', selectedMoodboard)
+        .eq('submission_id', id);
+      
+      if (checkError) throw checkError;
+      
+      if (existingItems && existingItems.length > 0) {
+        toast({
+          title: "Already in moodboard",
+          description: "This item is already in the selected moodboard",
+        });
+        return;
+      }
+      
+      // Check if the collection has reached its limit (10 items)
+      const { data: collectionItems, error: countError } = await supabase
+        .from('collection_items')
+        .select('*', { count: 'exact' })
+        .eq('collection_id', selectedMoodboard);
+      
+      if (countError) throw countError;
+      
+      if (collectionItems && collectionItems.length >= 10) {
+        toast({
+          title: "Moodboard full",
+          description: "A moodboard can contain a maximum of 10 items",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Add the item to the collection
+      const { error } = await supabase
+        .from('collection_items')
+        .insert({
+          collection_id: selectedMoodboard,
+          submission_id: id
+        });
+      
+      if (error) throw error;
+      
+      // Find the moodboard name for the toast
+      const moodboard = userMoodboards.find(mb => mb.id === selectedMoodboard);
+      
+      setIsSaved(true);
+      setSaveCount(prev => prev + 1);
+      
       toast({
-        title: "Moodboard full",
-        description: "A moodboard can contain a maximum of 10 items",
+        title: "Added to moodboard",
+        description: `Item added to "${moodboard?.name || 'moodboard'}"`,
+      });
+      
+      setMoodboardDialogOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Error saving to moodboard",
+        description: error.message || "An error occurred",
         variant: "destructive",
       });
-      return;
     }
-    
-    if (moodboard.items && moodboard.items.some((item: any) => item.id === id)) {
-      toast({
-        title: "Already in moodboard",
-        description: `This item is already in "${moodboard.name}"`,
-      });
-      return;
-    }
-    
-    const approvedSubmissions = JSON.parse(localStorage.getItem("approvedSubmissions") || "[]");
-    const itemData = approvedSubmissions.find((item: any) => item.id === id);
-    
-    if (!itemData) {
-      console.error("Item not found in approved submissions");
-      return;
-    }
-    
-    const updatedMoodboards = userMoodboards.map(mb => {
-      if (mb.id === selectedMoodboard) {
-        return {
-          ...mb,
-          items: [...(mb.items || []), itemData]
-        };
-      }
-      return mb;
-    });
-    
-    setUserMoodboards(updatedMoodboards);
-    localStorage.setItem("userMoodboards", JSON.stringify(updatedMoodboards));
-    
-    setIsSaved(true);
-    setSaveCount(prev => prev + 1);
-    
-    toast({
-      title: "Added to moodboard",
-      description: `Item added to "${moodboard.name}"`,
-    });
-    
-    setMoodboardDialogOpen(false);
   };
 
   return (
@@ -443,7 +527,7 @@ const HeroCard: React.FC<HeroCardComponentProps> = ({
                       onClick={() => setSelectedMoodboard(mb.id)}
                       className="text-xs"
                     >
-                      {mb.name} ({mb.items?.length || 0}/10)
+                      {mb.name}
                     </Button>
                   ))}
                 </div>

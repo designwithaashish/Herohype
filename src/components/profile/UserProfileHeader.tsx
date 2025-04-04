@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Edit, ExternalLink, Upload, Image, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserProfile {
   name: string;
@@ -38,9 +39,6 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
   const handleSave = () => {
     onUpdateProfile(editedProfile);
     setIsEditing(false);
-    
-    // Dispatch a custom event to notify other components of the profile update
-    window.dispatchEvent(new Event("profileUpdated"));
   };
   
   const getInitials = (name: string) => {
@@ -52,7 +50,7 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -78,29 +76,61 @@ const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ profile, onUpdate
 
     setIsUploading(true);
     
-    // Create a local URL for the image
-    const imageUrl = URL.createObjectURL(file);
-    
-    // Update the profile with the new image URL
-    setEditedProfile({ ...editedProfile, avatarUrl: imageUrl });
-    
-    // Simulate upload delay for UX
-    setTimeout(() => {
-      setIsUploading(false);
+    try {
+      // Create a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+      
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+        
+      if (uploadError) throw uploadError;
+      
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+        
+      // Update the profile with the new image URL
+      setEditedProfile({ ...editedProfile, avatarUrl: publicUrl });
+      
       toast({
         title: "Image uploaded",
         description: "Your profile picture has been updated",
       });
-    }, 1000);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Upload failed",
+        description: "There was an error uploading your image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully",
-    });
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully",
+      });
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Error",
+        description: "There was an issue logging you out",
+        variant: "destructive",
+      });
+    }
   };
 
   

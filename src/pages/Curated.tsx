@@ -4,6 +4,7 @@ import Header from "@/components/herohype/Header";
 import { HeroCardProps } from "@/components/gallery/HeroCard";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Curated: React.FC = () => {
   const [curatedItems, setCuratedItems] = useState<HeroCardProps[]>([]);
@@ -13,68 +14,68 @@ const Curated: React.FC = () => {
   
   useEffect(() => {
     // Check if user is admin
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        setIsAdmin(user.role === "admin");
-      } catch (error) {
-        console.error("Error parsing user data:", error);
+    const checkAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setIsAdmin(session.user.email?.includes("admin") || false);
       }
-    }
+    };
+    
+    checkAdmin();
 
-    // Load curated items from localStorage (marked with isCurated: true)
-    const loadCuratedItems = () => {
+    // Load curated items from Supabase
+    const loadCuratedItems = async () => {
       try {
-        console.log("Loading curated items");
-        const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-        if (approvedSubmissions) {
-          const items = JSON.parse(approvedSubmissions);
-          // If no items are marked as curated, mark the first 3 as curated
-          let curatedHeroes = items.filter((item: any) => item.isCurated === true);
+        setLoading(true);
+        
+        const { data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('status', 'approved')
+          .eq('is_curated', true);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          // Transform data to match HeroCardProps
+          const heroItems: HeroCardProps[] = data.map(item => ({
+            id: item.id,
+            imageUrl: item.image_url,
+            twitterUsername: item.twitter_username,
+            categories: item.categories || [],
+            likes: 0, // We'll need to count likes separately
+            saves: 0, // We'll need to count saves separately
+            isCurated: true,
+            status: item.status as "approved" | "pending" | "rejected",
+            submissionDate: item.created_at
+          }));
           
-          if (curatedHeroes.length === 0 && items.length > 0) {
-            // Mark the first 3 items as curated
-            const updatedItems = items.map((item: any, index: number) => {
-              if (index < 3) {
-                return { ...item, isCurated: true };
-              }
-              return item;
-            });
-            localStorage.setItem("approvedSubmissions", JSON.stringify(updatedItems));
-            curatedHeroes = updatedItems.filter((item: any) => item.isCurated === true);
-          }
-          
-          console.log("Found curated heroes:", curatedHeroes.length, curatedHeroes);
-          setCuratedItems(curatedHeroes);
+          setCuratedItems(heroItems);
         } else {
           setCuratedItems([]);
         }
       } catch (error) {
         console.error("Error loading curated items:", error);
         setCuratedItems([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     
     loadCuratedItems();
   }, []);
   
-  const handleToggleCurated = (id: string, isCurated: boolean) => {
+  const handleToggleCurated = async (id: string, isCurated: boolean) => {
     if (!isAdmin) return;
     
-    // Update item in approvedSubmissions
-    const approvedSubmissions = localStorage.getItem("approvedSubmissions");
-    if (approvedSubmissions) {
-      const items = JSON.parse(approvedSubmissions);
-      const updatedItems = items.map((item: any) => {
-        if (item.id === id) {
-          return { ...item, isCurated: isCurated };
-        }
-        return item;
-      });
+    try {
+      // Update the submission in Supabase
+      const { error } = await supabase
+        .from('submissions')
+        .update({ is_curated: isCurated })
+        .eq('id', id);
       
-      localStorage.setItem("approvedSubmissions", JSON.stringify(updatedItems));
+      if (error) throw error;
       
       // Update current view
       if (!isCurated) {
@@ -85,6 +86,12 @@ const Curated: React.FC = () => {
         title: "Curated status updated",
         description: isCurated ? "Item added to curated collection." : "Item removed from curated collection.",
         className: "bg-[#3F521F] text-white border-0",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error updating curated status",
+        description: error.message || "An error occurred",
+        variant: "destructive",
       });
     }
   };

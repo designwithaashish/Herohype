@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { LucideProps } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Create a Google icon component
 const GoogleIcon = (props: LucideProps) => (
@@ -38,9 +39,12 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      localStorage.setItem("user", JSON.stringify({ email, role: email.includes("admin") ? "admin" : "user" }));
+      if (error) throw error;
       
       toast({
         title: "Login successful",
@@ -48,10 +52,10 @@ const LoginForm: React.FC = () => {
       });
       
       navigate("/");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
       });
     } finally {
@@ -63,27 +67,22 @@ const LoginForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      localStorage.setItem("user", JSON.stringify({ 
-        email: "user@example.com", 
-        role: "user",
-        provider: "google" 
-      }));
-      
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
       });
       
-      navigate("/");
-    } catch (error) {
+      if (error) throw error;
+      
+      // No toast needed here as we're redirecting to Google
+    } catch (error: any) {
       toast({
         title: "Google login failed",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -115,7 +114,7 @@ const LoginForm: React.FC = () => {
         disabled={isLoading}
       >
         <GoogleIcon className="mr-2 h-5 w-5" />
-        Sign up with Google
+        Sign in with Google
       </Button>
       
       <div className="relative">

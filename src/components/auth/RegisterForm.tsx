@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { LucideProps } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Create a Google icon component
 const GoogleIcon = (props: LucideProps) => (
@@ -49,31 +50,12 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Generate a unique ID for the user
-      const userId = `user_${Date.now()}`;
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
       
-      // Create a minimal user object with blank profile fields
-      const user = {
-        id: userId,
-        email: email,
-        role: "user",
-      };
-      
-      // Store the user data in localStorage
-      localStorage.setItem("user", JSON.stringify(user));
-      
-      // Create an empty profile for the user
-      const emptyProfile = {
-        name: "",
-        description: "Edit your profile to add a description",
-        avatarUrl: "",
-        hireLink: ""
-      };
-      
-      // Store the profile data in localStorage
-      localStorage.setItem(`profile-${userId}`, JSON.stringify(emptyProfile));
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (error) throw error;
       
       toast({
         title: "Registration successful",
@@ -81,10 +63,10 @@ const RegisterForm: React.FC = () => {
       });
       
       navigate("/profile");
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Registration failed",
-        description: "Please try again later",
+        description: error.message || "Please try again later",
         variant: "destructive",
       });
     } finally {
@@ -96,42 +78,22 @@ const RegisterForm: React.FC = () => {
     setIsLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Generate a unique ID for the user
-      const userId = `user_${Date.now()}`;
-      
-      localStorage.setItem("user", JSON.stringify({ 
-        id: userId,
-        email: "user@example.com", 
-        role: "user",
-        provider: "google" 
-      }));
-      
-      // Create an empty profile for the user
-      const emptyProfile = {
-        name: "",
-        description: "Edit your profile to add a description",
-        avatarUrl: "",
-        hireLink: ""
-      };
-      
-      // Store the profile data in localStorage
-      localStorage.setItem(`profile-${userId}`, JSON.stringify(emptyProfile));
-      
-      toast({
-        title: "Registration successful",
-        description: "Your account has been created with Google",
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
       });
       
-      navigate("/profile");
-    } catch (error) {
+      if (error) throw error;
+      
+      // No toast needed here as we're redirecting to Google
+    } catch (error: any) {
       toast({
         title: "Google registration failed",
-        description: "Please try again later",
+        description: error.message || "Please try again later",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
